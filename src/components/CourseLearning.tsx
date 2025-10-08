@@ -58,7 +58,7 @@ const CourseLearning = () => {
   const [activeTab, setActiveTab] = useState<'theory' | 'exercise'>('theory');
   const [currentExerciseId, setCurrentExerciseId] = useState<string | null>(null);
   const [submittedExercises, setSubmittedExercises] = useState<Set<string>>(new Set());
-  const [exerciseProgress, setExerciseProgress] = useState<{[key: string]: number}>({});
+  // const [exerciseProgress, setExerciseProgress] = useState<{[key: string]: number}>({});
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [submissionMessage, setSubmissionMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,6 +66,7 @@ const CourseLearning = () => {
   const [isFlipping, setIsFlipping] = useState(false);
   const [showFileExplorer, setShowFileExplorer] = useState(false);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [isAudioFullscreen, setIsAudioFullscreen] = useState(false);
 
   // Sample file contents
   const fileContents: {[key: string]: string} = {
@@ -414,7 +415,7 @@ window.addEventListener('load', addInteractivity);`
   };
 
   // Audio Teacher for CSS Box Model & Layout
-  const CssBoxModelAudioTeacher: React.FC<{ autoStart?: boolean }> = ({ autoStart = false }) => {
+  const CssBoxModelAudioTeacher: React.FC<{ autoStart?: boolean; isFullscreen?: boolean; onFullscreenChange?: (isFullscreen: boolean) => void }> = ({ autoStart = false, isFullscreen = false, onFullscreenChange }) => {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [currentSegment, setCurrentSegment] = useState(0);
     const [typedText, setTypedText] = useState('');
@@ -422,7 +423,16 @@ window.addEventListener('load', addInteractivity);`
     const [showQuestionBox, setShowQuestionBox] = useState(false);
     const [questionText, setQuestionText] = useState('');
     const [submittedMsg, setSubmittedMsg] = useState('');
-    const [showFullscreen, setShowFullscreen] = useState(false);
+    
+    // Use the fullscreen state from parent instead of local state
+    const showFullscreen = isFullscreen;
+    
+    // Notify parent component when fullscreen changes
+    const toggleFullscreen = (value: boolean) => {
+      if (onFullscreenChange) {
+        onFullscreenChange(value);
+      }
+    };
     const [codeEditorText, setCodeEditorText] = useState(
       `<!DOCTYPE html>\n<html>\n<head>\n  <title>My First Web Page</title>\n</head>\n<body>\n  <h1>Welcome to HTML</h1>\n  <p>This is my first paragraph.</p>\n</body>\n</html>`
     );
@@ -631,7 +641,7 @@ window.addEventListener('load', addInteractivity);`
               <span className="text-xs md:text-sm">{isSpeaking ? 'Stop' : 'Play'}</span>
             </button>
             <button
-              onClick={() => setShowFullscreen(true)}
+              onClick={() => toggleFullscreen(true)}
               className="px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-700 transition-colors text-white text-xs md:text-sm"
               title="Open fullscreen view"
             >
@@ -679,7 +689,7 @@ window.addEventListener('load', addInteractivity);`
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-gray-900 border border-gray-700 rounded-lg w-screen h-screen relative p-4">
               <button
-                onClick={() => setShowFullscreen(false)}
+                onClick={() => toggleFullscreen(false)}
                 className="absolute top-3 right-3 text-white hover:text-red-400"
                 aria-label="Close"
                 title="Close"
@@ -742,7 +752,7 @@ window.addEventListener('load', addInteractivity);`
                 </div>
                 {/* Right: whiteboard tall rectangle */}
                 <div className="flex-1">
-                  <ResizableWhiteboard minWidth={300} minHeight={220} initialWidth={0} initialHeight={600} contentRef={whiteboardRef}>
+                  <ResizableWhiteboard minWidth={300} minHeight={220} initialWidth={window.innerWidth / 2 + 50} initialHeight={window.innerHeight-200} contentRef={whiteboardRef}>
                     {typedText}
                   </ResizableWhiteboard>
                 </div>
@@ -755,12 +765,21 @@ window.addEventListener('load', addInteractivity);`
   };
 
   // Generic Audio Teacher for other lessons (whiteboard typing + Q&A)
-  const GenericAudioTeacher: React.FC<{ autoStart?: boolean }> = ({ autoStart = false }) => {
+  const GenericAudioTeacher: React.FC<{ autoStart?: boolean; isFullscreen?: boolean; onFullscreenChange?: (isFullscreen: boolean) => void }> = ({ autoStart = false, isFullscreen = false, onFullscreenChange }) => {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [typedText, setTypedText] = useState('');
     const [questionText, setQuestionText] = useState('');
     const [submittedMsg, setSubmittedMsg] = useState('');
-    const [showFullscreen, setShowFullscreen] = useState(false);
+    
+    // Use the fullscreen state from parent instead of local state
+    const showFullscreen = isFullscreen;
+    
+    // Notify parent component when fullscreen changes
+    const toggleFullscreen = (value: boolean) => {
+      if (onFullscreenChange) {
+        onFullscreenChange(value);
+      }
+    };
     const [codeEditorText, setCodeEditorText] = useState(
       `<!DOCTYPE html>\n<html>\n<head>\n  <title>My First Web Page</title>\n</head>\n<body>\n  <h1>Welcome to HTML</h1>\n  <p>This is my first paragraph.</p>\n</body>\n</html>`
     );
@@ -1208,7 +1227,7 @@ window.addEventListener('load', addInteractivity);`
               <span className="text-xs md:text-sm">{isSpeaking ? 'Stop' : 'Play'}</span>
             </button>
             <button
-              onClick={() => setShowFullscreen(true)}
+              onClick={() => toggleFullscreen(true)}
               className="px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-700 transition-colors text-white text-xs md:text-sm"
               title="Open fullscreen view"
             >
@@ -1244,7 +1263,7 @@ window.addEventListener('load', addInteractivity);`
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-gray-900 border border-gray-700 rounded-lg w-screen h-screen relative p-4">
               <button
-                onClick={() => setShowFullscreen(false)}
+                onClick={() => toggleFullscreen(false)}
                 className="absolute top-3 right-3 text-white hover:text-red-400"
                 aria-label="Close"
                 title="Close"
@@ -1307,7 +1326,7 @@ window.addEventListener('load', addInteractivity);`
                 </div>
                 {/* Right: whiteboard tall rectangle */}
                 <div className="flex-1">
-                  <ResizableWhiteboard minWidth={300} minHeight={220} initialWidth={0} initialHeight={600} contentRef={whiteboardRef}>
+                  <ResizableWhiteboard minWidth={300} minHeight={220} initialWidth={window.innerWidth / 2 + 50} initialHeight={window.innerHeight - 50} contentRef={whiteboardRef}>
                     {typedText}
                   </ResizableWhiteboard>
                 </div>
@@ -8926,13 +8945,14 @@ app.listen(PORT, () => {
             </div>
             
             <div className="flex items-center space-x-2 lg:space-x-4">
-              <div className="text-right hidden md:block">
+              {/* Progress section commented out */}
+              {/* <div className="text-right hidden md:block">
                 <div className="text-sm font-medium text-gray-900 dark:text-white">Progress</div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">Module 2 of 3 • 33% Complete</div>
               </div>
               <div className="w-24 lg:w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                 <div className="bg-blue-600 h-2 rounded-full transition-all duration-300" style={{width: '33%'}}></div>
-              </div>
+              </div> */}
             </div>
           </div>
           {/* Scrolling Feedback & Contact Banner */}
@@ -9214,13 +9234,14 @@ app.listen(PORT, () => {
                         <Users className="h-3 w-3" />
                         <span>Beginner</span>
                       </div>
-                      <div className="flex items-center space-x-1">
+                      {/* Exercise completion counter commented out */}
+                      {/* <div className="flex items-center space-x-1">
                         <Award className="h-3 w-3" />
                         <span>{submittedExercises.size}/{currentLesson.exercises.length} exercises completed</span>
-                      </div>
+                      </div> */}
                     </div>
-                    {/* Progress Bar */}
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mb-2">
+                    {/* Progress Bar commented out */}
+                    {/* <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mb-2">
                       <div 
                         className="bg-green-600 h-1.5 rounded-full transition-all duration-500"
                         style={{ width: `${exerciseProgress[currentLesson.id] || 0}%` }}
@@ -9228,7 +9249,7 @@ app.listen(PORT, () => {
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       Progress: {exerciseProgress[currentLesson.id] || 0}% complete
-                    </p>
+                    </p> */}
                   </div>
                   <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600 max-h-[calc(100vh-340px)] overflow-y-auto">
                   <div className="text-[15px] md:text-[16px] leading-7 text-gray-800 dark:text-gray-100 text-left">
@@ -9281,9 +9302,9 @@ app.listen(PORT, () => {
                     {/* Removed inline Play/Stop controls to declutter the header */}
                   </div>
                   {currentLesson.id === 'css-box-model' ? (
-                    <CssBoxModelAudioTeacher autoStart />
+                    <CssBoxModelAudioTeacher autoStart isFullscreen={isAudioFullscreen} onFullscreenChange={setIsAudioFullscreen} />
                   ) : (
-                    <GenericAudioTeacher autoStart />
+                    <GenericAudioTeacher autoStart isFullscreen={isAudioFullscreen} onFullscreenChange={setIsAudioFullscreen} />
                   )}
                 </div>
               ) : null}
@@ -9291,7 +9312,8 @@ app.listen(PORT, () => {
             </div>
           </StarBorder>
 
-          {/* Right Panel - Code Editor Glass Island */}
+          {/* Right Panel - Code Editor Glass Island - Hidden when audio is fullscreen */}
+          {!isAudioFullscreen && (
           <div className={`${showFileExplorer ? 'w-1/3' : 'w-1/2'} relative z-20 m-4 ml-2 rounded-2xl bg-black backdrop-blur-md border border-gray-700/50 shadow-2xl flex flex-col transition-all duration-300`} style={{height: 'calc(100vh - 2rem)'}}>
             <div className="bg-gray-800 px-4 py-3 border-b border-gray-700">
               <div className="flex items-center justify-between">
@@ -9356,7 +9378,8 @@ app.listen(PORT, () => {
                     <Play className="h-3 w-3" />
                     <span>Run</span>
                   </button>
-                  {currentExerciseId && !submittedExercises.has(currentExerciseId) && (
+                  {/* Submit exercise button commented out */}
+                  {/* {currentExerciseId && !submittedExercises.has(currentExerciseId) && (
                     <button
                       onClick={submitExercise}
                       disabled={isSubmitting}
@@ -9365,13 +9388,14 @@ app.listen(PORT, () => {
                       <Send className="h-3 w-3" />
                       <span>{isSubmitting ? 'Submitting...' : 'Submit'}</span>
                     </button>
-                  )}
-                  {currentExerciseId && submittedExercises.has(currentExerciseId) && (
+                  )} */}
+                  {/* Completed exercise indicator commented out */}
+                  {/* {currentExerciseId && submittedExercises.has(currentExerciseId) && (
                     <div className="px-3 py-1.5 bg-green-600 text-white text-sm rounded-md flex items-center space-x-1">
                       <CheckCircle className="h-3 w-3" />
                       <span>Completed</span>
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>
@@ -9429,6 +9453,7 @@ app.listen(PORT, () => {
               </div>
             </div>
           </div>
+          )}
         </div>
       </div>
 
@@ -9443,7 +9468,8 @@ app.listen(PORT, () => {
               <p className="text-gray-900 dark:text-white font-medium mb-4">
                 {submissionMessage}
               </p>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-4">
+              {/* Submission modal progress bar commented out */}
+              {/* <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-4">
                 <div 
                   className="bg-blue-600 h-2 rounded-full transition-all duration-500"
                   style={{ width: `${exerciseProgress[currentLesson?.id || ''] || 0}%` }}
@@ -9451,7 +9477,7 @@ app.listen(PORT, () => {
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Lesson Progress: {exerciseProgress[currentLesson?.id || ''] || 0}%
-              </p>
+              </p> */}
             </div>
           </div>
         </div>

@@ -2250,8 +2250,8 @@ const StudentPortal: React.FC = () => {
                             </div>
                           )}
                           
-                          {/* Progress Section - Only show if access is allowed */}
-                          {isAccessAllowed && (
+                          {/* Progress Section commented out */}
+                          {/* {isAccessAllowed && (
                             <div className="mt-2">
                               <p className="text-gray-300 text-sm mb-1">Progress</p>
                               <div className="w-96 bg-gray-700 rounded-full h-2">
@@ -2264,16 +2264,17 @@ const StudentPortal: React.FC = () => {
                                 Next: {progress.nextLesson}
                               </p>
                             </div>
-                          )}
+                          )} */}
                         </div>
                       </div>
                       <div className="text-right flex flex-col items-end space-y-2">
                         {isAccessAllowed && (
                           <>
-                            <p className="text-white text-sm mb-1">
+                            {/* Lesson completion statistics commented out */}
+                            {/* <p className="text-white text-sm mb-1">
                               {progress.completedLessons} of {progress.totalLessons} lessons completed
                             </p>
-                            <p className="text-white text-2xl font-bold">{progress.progress}%</p>
+                            <p className="text-white text-2xl font-bold">{progress.progress}%</p> */}
                             <button
                               onClick={() => handleContinueLearning(course.id)}
                               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -2394,8 +2395,8 @@ const StudentPortal: React.FC = () => {
               )}
             </div>
 
-            {/* Assignment Progress Summary */}
-            {selectedCourseForAssignments && (
+            {/* Assignment Progress Summary commented out */}
+            {/* {selectedCourseForAssignments && (
               <div className="bg-gray-800 rounded-lg p-6 mb-6">
                 <h3 className="text-white text-lg font-semibold mb-4">Assignment Progress</h3>
                 {(() => {
@@ -2431,33 +2432,20 @@ const StudentPortal: React.FC = () => {
                   );
                 })()}
                 
-                {/* Progress Bar */}
-                {(() => {
-                  const mappedIds = getCourseIdMapping(selectedCourseForAssignments);
-                  const courseAssignments = assignments.filter(assignment => 
-                    mappedIds.includes(assignment.courseId)
-                  );
-                  const totalAssignments = courseAssignments.length;
-                  const completedAssignments = courseAssignments.filter(a => (assignmentStatuses[a.id] || a.status) === 'graded').length;
-                  const progressPercentage = totalAssignments > 0 ? (completedAssignments / totalAssignments) * 100 : 0;
-                  
-                  return (
-                    <div className="mt-4">
-                      <div className="flex justify-between text-sm text-gray-400 mb-2">
-                        <span>Overall Progress</span>
-                        <span>{Math.round(progressPercentage)}%</span>
-                      </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${progressPercentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  );
-                })()}
+                <div className="mt-4">
+                  <div className="flex justify-between text-sm text-gray-400 mb-2">
+                    <span>Overall Progress</span>
+                    <span>{Math.round(progressPercentage)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${progressPercentage}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
-            )}
+            )} */}
 
             {/* Assignments List */}
             {selectedCourseForAssignments && (
@@ -2486,13 +2474,14 @@ const StudentPortal: React.FC = () => {
                       <p className="text-gray-300 text-sm mt-2">{assignment.description}</p>
                       <p className="text-gray-400 text-sm mt-1">Due: {new Date(assignment.dueDate).toLocaleDateString()}</p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    {/* Assignment status badge commented out */}
+                    {/* <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                       (assignmentStatuses[assignment.id] || assignment.status) === 'pending' ? 'bg-yellow-600 text-yellow-100' :
                       (assignmentStatuses[assignment.id] || assignment.status) === 'submitted' ? 'bg-blue-600 text-blue-100' :
                       'bg-green-600 text-green-100'
                     }`}>
                       {((assignmentStatuses[assignment.id] || assignment.status).charAt(0).toUpperCase() + (assignmentStatuses[assignment.id] || assignment.status).slice(1))}
-                    </span>
+                    </span> */}
                   </div>
                   
                   <div className="flex items-center justify-between">
@@ -2763,8 +2752,8 @@ const StudentPortal: React.FC = () => {
               )}
             </div>
 
-            {/* Project Progress Summary */}
-            {selectedCourseForProjects && (
+            {/* Project Progress Summary commented out */}
+            {/* {selectedCourseForProjects && (
               <div className="bg-gray-800 rounded-lg p-6 mb-6">
                 <h3 className="text-white text-lg font-semibold mb-4">Project Progress</h3>
                 {(() => {
@@ -2800,7 +2789,7 @@ const StudentPortal: React.FC = () => {
                   );
                 })()}
               </div>
-            )}
+            )} */}
 
             {/* Projects List */}
             {selectedCourseForProjects && (
@@ -2842,14 +2831,15 @@ const StudentPortal: React.FC = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      {/* Project status badge commented out */}
+                      {/* <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                         project.status === 'completed' ? 'bg-green-600 text-green-100' :
                         project.status === 'in_progress' ? 'bg-blue-600 text-blue-100' :
                         'bg-gray-600 text-gray-100'
                       }`}>
                         {project.status === 'not_started' ? 'Not Started' :
                          project.status === 'in_progress' ? 'In Progress' : 'Completed'}
-                      </span>
+                      </span> */}
                     </div>
                   </div>
                   
@@ -3305,33 +3295,24 @@ const StudentPortal: React.FC = () => {
                         </div>
                       </div>
                       <p className="text-gray-400 text-sm text-center mb-3">Upload your introduction video</p>
+                      {/* Completion percentage requirement commented out */}
                       <button
-                        className={`w-full px-4 py-2 rounded-lg text-sm transition-all duration-300 ${
-                          overallCompletionPercentage >= 80
-                            ? 'bg-gray-700 text-white hover:bg-gray-600 cursor-pointer'
-                            : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-60'
-                        }`}
-                        disabled={overallCompletionPercentage < 80}
+                        className="w-full px-4 py-2 rounded-lg text-sm transition-all duration-300 bg-gray-700 text-white hover:bg-gray-600 cursor-pointer"
                         onClick={() => {
-                          if (overallCompletionPercentage < 80) {
-                            alert(
-                              `Video upload will be enabled after completing 80% of your courses, projects, and assignments. Current progress: ${overallCompletionPercentage}%`
-                            );
-                          } else {
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = 'video/*';
-                            input.click();
-                          }
+                          const input = document.createElement('input');
+                          input.type = 'file';
+                          input.accept = 'video/*';
+                          input.click();
                         }}
                       >
                         Choose Video File
                       </button>
-                      {overallCompletionPercentage < 80 && (
+                      {/* Progress requirement notification commented out */}
+                      {/* {overallCompletionPercentage < 80 && (
                         <p className="text-yellow-400 text-xs text-center mt-2">
                           🔒 Unlocks at 80% completion ({overallCompletionPercentage}% current)
                         </p>
-                      )}
+                      )} */}
                     </MagicBento>
 
                     <MagicBento
@@ -3350,33 +3331,24 @@ const StudentPortal: React.FC = () => {
                       <div className="space-y-4">
                         <div>
                           <p className="text-gray-400 text-sm mb-2">Upload your resume:</p>
+                          {/* Completion percentage requirement for resume upload commented out */}
                           <button
-                            className={`w-full px-4 py-2 rounded-lg text-sm transition-all duration-300 ${
-                              overallCompletionPercentage >= 80
-                                ? 'bg-gray-700 text-white hover:bg-gray-600 cursor-pointer'
-                                : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-60'
-                            }`}
-                            disabled={overallCompletionPercentage < 80}
+                            className="w-full px-4 py-2 rounded-lg text-sm transition-all duration-300 bg-gray-700 text-white hover:bg-gray-600 cursor-pointer"
                             onClick={() => {
-                              if (overallCompletionPercentage < 80) {
-                                alert(
-                                  `Resume upload will be enabled after completing 80% of your courses, projects, and assignments. Current progress: ${overallCompletionPercentage}%`
-                                );
-                              } else {
-                                const input = document.createElement('input');
-                                input.type = 'file';
-                                input.accept = '.pdf,.doc,.docx';
-                                input.click();
-                              }
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = '.pdf,.doc,.docx';
+                              input.click();
                             }}
                           >
                             Choose Resume File
                           </button>
-                          {overallCompletionPercentage < 80 && (
+                          {/* Progress requirement notification commented out */}
+                          {/* {overallCompletionPercentage < 80 && (
                             <p className="text-yellow-400 text-xs text-center mt-2">
                               🔒 Unlocks at 80% completion ({overallCompletionPercentage}% current)
                             </p>
-                          )}
+                          )} */}
                         </div>
 
                         <div>
@@ -3419,7 +3391,8 @@ const StudentPortal: React.FC = () => {
                             <p className="text-gray-400 text-sm">
                               Instructor: {course.instructor} • Duration: {course.duration}
                             </p>
-                            <div className="mt-2">
+                            {/* Course progress display commented out */}
+                            {/* <div className="mt-2">
                               <p className="text-gray-300 text-sm mb-1">Progress</p>
                               <div className="w-96 bg-gray-700 rounded-full h-2">
                                 <div
@@ -3428,15 +3401,16 @@ const StudentPortal: React.FC = () => {
                                 />
                               </div>
                           <p className="text-gray-400 text-sm mt-1">Next: {course.nextLesson}</p>
+                          </div> */}
                           </div>
                           </div>
-                          </div>
-                          <div className="text-right">
+                          {/* Progress statistics commented out */}
+                          {/* <div className="text-right">
                           <p className="text-white text-sm mb-1">
                             {course.completedLessons} of {course.totalLessons} lessons completed
                           </p>
                           <p className="text-white text-2xl font-bold">{course.progress}%</p>
-                        </div>
+                        </div> */}
                           </div>
                     </MagicBento>
                   ))}

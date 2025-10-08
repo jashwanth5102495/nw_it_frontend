@@ -24,6 +24,46 @@ import cssInternal from '../../video-explanations/topics/html/internal css.mp4';
 import cssExternal from '../../video-explanations/topics/html/external css.mp4';
 import cssTypography from '../../video-explanations/topics/html/Typography.mp4';
 
+// Helper to generate preview HTML for code editor output (supports JS-only and HTML)
+const generatePreviewHtml = (code: string): string => {
+  const hasHtmlStructure = /<\s*(html|body|head|!DOCTYPE)/i.test(code);
+  const hasAnyTag = /<\s*[a-zA-Z]+[\s>]/.test(code);
+  const isLikelyJsOnly = !hasAnyTag;
+
+  const consoleCapture = `
+    <script>
+      (function(){
+        const out = document.getElementById('output');
+        function write(type, args){
+          const div = document.createElement('div');
+          div.className = type;
+          try {
+            div.textContent = args.map(a => {
+              if (typeof a === 'object') {
+                try { return JSON.stringify(a); } catch(e){ return String(a); }
+              }
+              return String(a);
+            }).join(' ');
+          } catch(e) {
+            div.textContent = String(args);
+          }
+          if (out) out.appendChild(div);
+        }
+        const origLog = console.log, origErr = console.error;
+        console.log = function(...args){ write('log', args); origLog.apply(console, args); };
+        console.error = function(...args){ write('error', args); origErr.apply(console, args); };
+        window.onerror = function(msg){ write('error', [msg]); };
+      })();
+    </script>`;
+
+  if (isLikelyJsOnly) {
+    return `<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:monospace;background:#fff;color:#222}#output{white-space:pre-wrap;padding:8px;border-top:1px solid #ddd}</style></head><body><div>Program Output:</div><div id="output"></div>${consoleCapture}<script>try{${code}}catch(e){console.error(e && e.stack ? e.stack : e);}</script></body></html>`;
+  }
+
+  const userHtml = hasHtmlStructure ? code : `<div>${code}</div>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:system-ui}</style></head><body>${userHtml}<div id="output" style="position:fixed;bottom:0;left:0;right:0;max-height:40%;overflow:auto;background:#f7f7f7;border-top:1px solid #ddd;padding:6px;font-family:monospace"></div>${consoleCapture}</body></html>`;
+};
+
 interface Lesson {
   id: string;
   title: string;
@@ -723,16 +763,16 @@ window.addEventListener('load', addInteractivity);`
                           <button className="px-2 py-1 text-xs rounded bg-blue-700 text-white hover:bg-blue-600" title="Edit" onClick={() => setShowRenderedOutput(false)}>Edit</button>
                         )}
                         <button className="px-2 py-1 text-xs rounded bg-gray-700 text-white hover:bg-gray-600" title="Reset" onClick={() => { setCodeEditorText(''); setShowRenderedOutput(false); setRenderedHtml(''); }}>Reset</button>
-                        <button className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600" title="Run" onClick={() => { setRenderedHtml(codeEditorText); setShowRenderedOutput(true); }}>Run</button>
+                        <button className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600" title="Run" onClick={() => { setRenderedHtml(generatePreviewHtml(codeEditorText)); setShowRenderedOutput(true); }}>Run</button>
                       </div>
                     </div>
                     <div className="w-full h-[calc(100%-8px)]" style={{ perspective: '1000px' }}>
                       <div
                         className="relative w-full h-full transform-gpu transition-transform duration-500"
-                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
+                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)', transformStyle: 'preserve-3d' }}
                       >
                         {/* Front: Textarea */}
-                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
+                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}>
                           <textarea
                             value={codeEditorText}
                             onChange={e => setCodeEditorText(e.target.value)}
@@ -1297,16 +1337,16 @@ window.addEventListener('load', addInteractivity);`
                           <button className="px-2 py-1 text-xs rounded bg-blue-700 text-white hover:bg-blue-600" title="Edit" onClick={() => setShowRenderedOutput(false)}>Edit</button>
                         )}
                         <button className="px-2 py-1 text-xs rounded bg-gray-700 text-white hover:bg-gray-600" title="Reset" onClick={() => { setCodeEditorText(''); setShowRenderedOutput(false); setRenderedHtml(''); }}>Reset</button>
-                        <button className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600" title="Run" onClick={() => { setRenderedHtml(codeEditorText); setShowRenderedOutput(true); }}>Run</button>
+                        <button className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600" title="Run" onClick={() => { setRenderedHtml(generatePreviewHtml(codeEditorText)); setShowRenderedOutput(true); }}>Run</button>
                       </div>
                     </div>
                     <div className="w-full h-[calc(100%-8px)]" style={{ perspective: '1000px' }}>
                       <div
                         className="relative w-full h-full transform-gpu transition-transform duration-500"
-                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
+                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)', transformStyle: 'preserve-3d' }}
                       >
                         {/* Front: Textarea */}
-                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
+                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}>
                           <textarea
                             value={codeEditorText}
                             onChange={e => setCodeEditorText(e.target.value)}

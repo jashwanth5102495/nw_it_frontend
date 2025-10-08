@@ -759,10 +759,10 @@ window.addEventListener('load', addInteractivity);`
                     <div className="w-full h-[calc(100%-8px)]" style={{ perspective: '1000px' }}>
                       <div
                         className="relative w-full h-full transform-gpu transition-transform duration-500"
-                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
+                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)', transformStyle: 'preserve-3d' }}
                       >
                         {/* Front: Textarea */}
-                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
+                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}>
                           <textarea
                             value={codeEditorText}
                             onChange={e => setCodeEditorText(e.target.value)}
@@ -1324,10 +1324,10 @@ window.addEventListener('load', addInteractivity);`
                     <div className="w-full h-[calc(100%-8px)]" style={{ perspective: '1000px' }}>
                       <div
                         className="relative w-full h-full transform-gpu transition-transform duration-500"
-                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
+                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)', transformStyle: 'preserve-3d' }}
                       >
                         {/* Front: Textarea */}
-                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
+                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}>
                           <textarea
                             value={codeEditorText}
                             onChange={e => setCodeEditorText(e.target.value)}

@@ -266,6 +266,15 @@ window.addEventListener('load', addInteractivity);`
     }
   };
 
+  // Pause/stop teacher audio whenever leaving Teacher tab
+  useEffect(() => {
+    try {
+      if (activeTab !== 'teacher') {
+        window.speechSynthesis.cancel();
+      }
+    } catch {}
+  }, [activeTab]);
+
   // Function to process content and replace video placeholders
   const processContent = (content: string) => {
     // Replace inline video placeholders with a marker FIRST to avoid regex mismatch after normalization
@@ -9160,7 +9169,7 @@ app.listen(PORT, () => {
               <div className="flex space-x-1 bg-gray-800/60 rounded-lg p-1">
                 <ClickSpark sparkColor="#60a5fa" sparkSize={8} sparkRadius={12} sparkCount={6} duration={300}>
                   <button
-                    onClick={() => setActiveTab('theory')}
+                    onClick={() => { setActiveTab('theory'); try { window.speechSynthesis.cancel(); } catch {} }}
                     className={`flex-1 px-2 lg:px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                       activeTab === 'theory'
                         ? 'bg-gray-700/80 text-white shadow-sm'

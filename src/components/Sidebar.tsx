@@ -15,7 +15,7 @@ type SidebarProps = {
 
 export default function Sidebar({ items, activeId, onSelect }: SidebarProps) {
   return (
-    <aside className="hidden md:flex md:w-64 lg:w-72 xl:w-80 flex-col bg-gray-900/80 border-r border-gray-800 backdrop-blur-sm z-20">
+    <aside className="hidden md:flex md:w-64 lg:w-72 xl:w-80 flex-shrink-0 flex-col bg-gray-900/80 border-r border-gray-800 backdrop-blur-sm z-20">
       <div className="px-6 py-5 border-b border-gray-800">
         <span className="text-white font-bold text-lg">VStudents</span>
       </div>

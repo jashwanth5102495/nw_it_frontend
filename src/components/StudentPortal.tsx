@@ -2033,7 +2033,19 @@ const StudentPortal: React.FC = () => {
     switch (activeTab) {
       case 'courses':
         return (
-          <div className="space-y-6">
+          <div className="space-y-6 max-w-full">
+            {/* Scrolling suggestion banner for Frontend Development - Advanced */}
+            <div className="relative overflow-hidden rounded-lg border border-green-600/40 bg-green-900/20">
+              <style>
+                {`@keyframes scrollBanner { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }`}
+              </style>
+              <div
+                className="whitespace-nowrap text-sm md:text-base text-green-300 py-2"
+                style={{ animation: 'scrollBanner 18s linear infinite' }}
+              >
+                Continuity tip: Purchase Frontend Development - Advanced to learn in depth with React basics, Django, MongoDB, Node.js and similar tools — integrated prompt engineering for Frontend Development included. Recommended upgrade. Price: ₹9,500.
+              </div>
+            </div>
             <div className="flex items-center justify-between">
               <h2 className="text-white text-2xl font-bold">My Courses</h2>
               <button
@@ -2109,7 +2121,7 @@ const StudentPortal: React.FC = () => {
               </div>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-4 max-w-full">
               {enrolledCourses.map((course) => {
                 const progress = courseProgress[course.id] || {
                   progress: 0,
@@ -2168,7 +2180,7 @@ const StudentPortal: React.FC = () => {
                 });
                 
                 return (
-                  <div key={course.id} className="bg-gray-800 rounded-lg p-6">
+                  <div key={course.id} className="bg-gray-800 rounded-lg p-6 w-full max-w-full">
                     {/* Payment Status Info Bar */}
                     {!isAccessAllowed && (
                       <div className={`mb-4 p-3 rounded-lg border ${
@@ -2205,138 +2217,71 @@ const StudentPortal: React.FC = () => {
                       </div>
                     )}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                          <span className="text-white font-bold text-lg">{course.title.charAt(0)}</span>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h4 className="text-white text-lg font-semibold">{course.title}</h4>
-                            {/* Show status badges */}
-                            {isAccessAllowed && (
-                              <span className="px-2 py-1 text-xs font-medium bg-green-600/20 text-green-400 rounded-full">
-                                ✅ Active
-                              </span>
-                            )}
-                            {isPending && (
-                              <span className="px-2 py-1 text-xs font-medium bg-yellow-600/20 text-yellow-400 rounded-full">
-                                ⏳ Pending
-                              </span>
-                            )}
-                            {isRejected && (
-                              <span className="px-2 py-1 text-xs font-medium bg-red-600/20 text-red-400 rounded-full">
-                                ❌ Rejected
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-gray-400 text-sm">
-                            Instructor: {course.instructor} • Duration: {course.duration}
-                          </p>
-                          {transactionId && (
-                            <p className="text-gray-500 text-xs mt-1">
-                              Transaction ID: {transactionId}
-                            </p>
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="text-white text-lg font-semibold">{course.title}</h4>
+                          {/* Show status badges */}
+                          {isAccessAllowed && (
+                            <span className="px-2 py-1 text-xs font-medium bg-green-600/20 text-green-400 rounded-full">
+                              ✅ Active
+                            </span>
                           )}
-                          
-                          {/* Payment Status Message */}
                           {isPending && (
-                            <div className="mt-2 p-2 bg-yellow-600/20 border border-yellow-600/30 rounded text-yellow-300 text-xs">
-                              💳 Payment verification in progress. Course access will be granted within 24 hours after confirmation.
-                            </div>
+                            <span className="px-2 py-1 text-xs font-medium bg-yellow-600/20 text-yellow-400 rounded-full">
+                              ⏳ Pending
+                            </span>
                           )}
                           {isRejected && (
-                            <div className="mt-2 p-2 bg-red-600/20 border border-red-600/30 rounded text-red-300 text-xs">
-                              ❌ Payment was rejected. Please contact support or submit a new payment.
-                            </div>
-                          )}
-                          
-                          {/* Progress Section - Only show if access is allowed */}
-                          {isAccessAllowed && (
-                            <div className="mt-2">
-                              <p className="text-gray-300 text-sm mb-1">Progress</p>
-                              <div className="w-96 bg-gray-700 rounded-full h-2">
-                                <div 
-                                  className="bg-green-500 h-2 rounded-full transition-all duration-300" 
-                                  style={{width: `${progress.progress}%`}}
-                                />
-                              </div>
-                              <p className="text-gray-400 text-sm mt-1">
-                                Next: {progress.nextLesson}
-                              </p>
-                            </div>
+                            <span className="px-2 py-1 text-xs font-medium bg-red-600/20 text-red-400 rounded-full">
+                              ❌ Rejected
+                            </span>
                           )}
                         </div>
-                      </div>
-                      <div className="text-right flex flex-col items-end space-y-2">
-                        {isAccessAllowed && (
-                          <>
-                            <p className="text-white text-sm mb-1">
-                              {progress.completedLessons} of {progress.totalLessons} lessons completed
-                            </p>
-                            <p className="text-white text-2xl font-bold">{progress.progress}%</p>
-                            <button
-                              onClick={() => handleContinueLearning(course.id)}
-                              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                            >
-                              {progress.isStarted && progress.progress > 0 ? 'Continue Learning' : 'Start Learning'}
-                            </button>
-                          </>
+                        <p className="text-gray-400 text-sm">Instructor: {course.instructor}</p>
+                        <p className="text-gray-300 text-sm mt-1">
+                          Duration: {course.duration}
+                        </p>
+                        {transactionId && (
+                          <p className="text-gray-500 text-xs mt-1">
+                            Transaction ID: {transactionId}
+                          </p>
                         )}
+                        
+                        {/* Payment Status Message */}
                         {isPending && (
-                          <div className="text-center">
-                            <div className="text-yellow-400 text-sm mb-2">⏳ Awaiting Confirmation</div>
-                            <button
-                              disabled
-                              className="bg-gray-600 text-gray-400 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed"
-                            >
-                              Access Pending
-                            </button>
+                          <div className="mt-2 p-2 bg-yellow-600/20 border border-yellow-600/30 rounded text-yellow-300 text-xs max-w-md">
+                            💳 Payment verification in progress. Course access will be granted within 24 hours after confirmation.
                           </div>
                         )}
                         {isRejected && (
-                          <div className="text-center">
-                            <div className="text-red-400 text-sm mb-2">❌ Payment Rejected</div>
-                            <button
-                              onClick={() => {
-                                // You could implement a re-payment flow here
-                                alert('Please contact support to resolve payment issues or submit a new payment.');
-                              }}
-                              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                            >
-                              Contact Support
-                            </button>
+                          <div className="mt-2 p-2 bg-red-600/20 border border-red-600/30 rounded text-red-300 text-xs max-w-md">
+                            ❌ Payment was rejected. Please contact support or submit a new payment.
                           </div>
                         )}
-                        {!isAccessAllowed && !isPending && !isRejected && !hasNoPayment && (
-                          <div className="text-center">
-                            <div className="text-gray-400 text-sm mb-2">
-                              ❓ Status Unknown
-                              <br />
-                              <span className="text-xs">
-                                Debug: {confirmationStatus} / {enrollmentStatus} / {course.paymentStatus}
-                              </span>
-                            </div>
-                            <button
-                              onClick={() => {
-                                console.log('Course debug info:', course);
-                                alert(`Course Status Debug:\nConfirmation: ${confirmationStatus}\nEnrollment: ${enrollmentStatus}\nPayment: ${course.paymentStatus}\nCheck console for full details.`);
-                              }}
-                              className="bg-gray-600 hover:bg-gray-700 text-gray-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                            >
-                              Debug Info
-                            </button>
+                      </div>
+                      <div className="text-right">
+                        {isAccessAllowed && (
+                          <button
+                            onClick={() => handleContinueLearning(course.id)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                          >
+                            {progress.isStarted && progress.progress > 0 ? 'Continue Learning' : 'Start Learning'}
+                          </button>
+                        )}
+                        {isPending && (
+                          <div>
+                            <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-600 text-yellow-100">
+                              Pending
+                            </span>
                           </div>
                         )}
-                        {hasNoPayment && (
-                          <div className="text-center">
-                            <div className="text-blue-400 text-sm mb-2">💳 No Payment Record</div>
-                            <button
-                              disabled
-                              className="bg-gray-600 text-gray-400 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed"
-                            >
-                              Contact Support
-                            </button>
-                          </div>
+                        {isRejected && (
+                          <button
+                            onClick={() => alert('Please contact support to resolve payment issues or submit a new payment.')}
+                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                          >
+                            Contact Support
+                          </button>
                         )}
                       </div>
                     </div>
@@ -2394,8 +2339,8 @@ const StudentPortal: React.FC = () => {
               )}
             </div>
 
-            {/* Assignment Progress Summary */}
-            {selectedCourseForAssignments && (
+            {/* Assignment Progress Summary commented out */}
+            {/* {selectedCourseForAssignments && (
               <div className="bg-gray-800 rounded-lg p-6 mb-6">
                 <h3 className="text-white text-lg font-semibold mb-4">Assignment Progress</h3>
                 {(() => {
@@ -2431,33 +2376,20 @@ const StudentPortal: React.FC = () => {
                   );
                 })()}
                 
-                {/* Progress Bar */}
-                {(() => {
-                  const mappedIds = getCourseIdMapping(selectedCourseForAssignments);
-                  const courseAssignments = assignments.filter(assignment => 
-                    mappedIds.includes(assignment.courseId)
-                  );
-                  const totalAssignments = courseAssignments.length;
-                  const completedAssignments = courseAssignments.filter(a => (assignmentStatuses[a.id] || a.status) === 'graded').length;
-                  const progressPercentage = totalAssignments > 0 ? (completedAssignments / totalAssignments) * 100 : 0;
-                  
-                  return (
-                    <div className="mt-4">
-                      <div className="flex justify-between text-sm text-gray-400 mb-2">
-                        <span>Overall Progress</span>
-                        <span>{Math.round(progressPercentage)}%</span>
-                      </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${progressPercentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  );
-                })()}
+                <div className="mt-4">
+                  <div className="flex justify-between text-sm text-gray-400 mb-2">
+                    <span>Overall Progress</span>
+                    <span>{Math.round(progressPercentage)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${progressPercentage}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
-            )}
+            )} */}
 
             {/* Assignments List */}
             {selectedCourseForAssignments && (
@@ -2486,13 +2418,14 @@ const StudentPortal: React.FC = () => {
                       <p className="text-gray-300 text-sm mt-2">{assignment.description}</p>
                       <p className="text-gray-400 text-sm mt-1">Due: {new Date(assignment.dueDate).toLocaleDateString()}</p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    {/* Assignment status badge commented out */}
+                    {/* <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                       (assignmentStatuses[assignment.id] || assignment.status) === 'pending' ? 'bg-yellow-600 text-yellow-100' :
                       (assignmentStatuses[assignment.id] || assignment.status) === 'submitted' ? 'bg-blue-600 text-blue-100' :
                       'bg-green-600 text-green-100'
                     }`}>
                       {((assignmentStatuses[assignment.id] || assignment.status).charAt(0).toUpperCase() + (assignmentStatuses[assignment.id] || assignment.status).slice(1))}
-                    </span>
+                    </span> */}
                   </div>
                   
                   <div className="flex items-center justify-between">
@@ -2686,12 +2619,12 @@ const StudentPortal: React.FC = () => {
         );
       case 'history':
         return (
-          <div className="space-y-6">
+          <div className="space-y-6 max-w-full">
             <h2 className="text-white text-2xl font-bold">Purchase History</h2>
             
-            <div className="space-y-4">
+            <div className="space-y-4 max-w-full">
               {purchaseHistory.map((purchase) => (
-                <div key={purchase.id} className="bg-gray-800 rounded-lg p-6">
+                <div key={purchase.id} className="bg-gray-800 rounded-lg p-6 w-full max-w-full">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-white text-lg font-semibold">{purchase.courseName}</h4>
@@ -2763,8 +2696,8 @@ const StudentPortal: React.FC = () => {
               )}
             </div>
 
-            {/* Project Progress Summary */}
-            {selectedCourseForProjects && (
+            {/* Project Progress Summary commented out */}
+            {/* {selectedCourseForProjects && (
               <div className="bg-gray-800 rounded-lg p-6 mb-6">
                 <h3 className="text-white text-lg font-semibold mb-4">Project Progress</h3>
                 {(() => {
@@ -2800,7 +2733,7 @@ const StudentPortal: React.FC = () => {
                   );
                 })()}
               </div>
-            )}
+            )} */}
 
             {/* Projects List */}
             {selectedCourseForProjects && (
@@ -2842,14 +2775,15 @@ const StudentPortal: React.FC = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      {/* Project status badge commented out */}
+                      {/* <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                         project.status === 'completed' ? 'bg-green-600 text-green-100' :
                         project.status === 'in_progress' ? 'bg-blue-600 text-blue-100' :
                         'bg-gray-600 text-gray-100'
                       }`}>
                         {project.status === 'not_started' ? 'Not Started' :
                          project.status === 'in_progress' ? 'In Progress' : 'Completed'}
-                      </span>
+                      </span> */}
                     </div>
                   </div>
                   
@@ -3182,7 +3116,7 @@ const StudentPortal: React.FC = () => {
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col relative z-10">
+      <div className="flex-1 flex flex-col relative z-10 min-w-0">
         {/* Top Header */}
         <header className="glass-effect bg-transparent px-6 py-4">
           <div className="flex items-center justify-between">
@@ -3206,7 +3140,7 @@ const StudentPortal: React.FC = () => {
         </header>
 
         {/* Content Area */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 md:p-6 overflow-x-hidden">
           {activeTab === 'dashboard' ? (
             <React.Fragment>
               {/* Student Profile Section */}
@@ -3305,33 +3239,24 @@ const StudentPortal: React.FC = () => {
                         </div>
                       </div>
                       <p className="text-gray-400 text-sm text-center mb-3">Upload your introduction video</p>
+                      {/* Completion percentage requirement commented out */}
                       <button
-                        className={`w-full px-4 py-2 rounded-lg text-sm transition-all duration-300 ${
-                          overallCompletionPercentage >= 80
-                            ? 'bg-gray-700 text-white hover:bg-gray-600 cursor-pointer'
-                            : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-60'
-                        }`}
-                        disabled={overallCompletionPercentage < 80}
+                        className="w-full px-4 py-2 rounded-lg text-sm transition-all duration-300 bg-gray-700 text-white hover:bg-gray-600 cursor-pointer"
                         onClick={() => {
-                          if (overallCompletionPercentage < 80) {
-                            alert(
-                              `Video upload will be enabled after completing 80% of your courses, projects, and assignments. Current progress: ${overallCompletionPercentage}%`
-                            );
-                          } else {
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = 'video/*';
-                            input.click();
-                          }
+                          const input = document.createElement('input');
+                          input.type = 'file';
+                          input.accept = 'video/*';
+                          input.click();
                         }}
                       >
                         Choose Video File
                       </button>
-                      {overallCompletionPercentage < 80 && (
+                      {/* Progress requirement notification commented out */}
+                      {/* {overallCompletionPercentage < 80 && (
                         <p className="text-yellow-400 text-xs text-center mt-2">
                           🔒 Unlocks at 80% completion ({overallCompletionPercentage}% current)
                         </p>
-                      )}
+                      )} */}
                     </MagicBento>
 
                     <MagicBento
@@ -3350,33 +3275,24 @@ const StudentPortal: React.FC = () => {
                       <div className="space-y-4">
                         <div>
                           <p className="text-gray-400 text-sm mb-2">Upload your resume:</p>
+                          {/* Completion percentage requirement for resume upload commented out */}
                           <button
-                            className={`w-full px-4 py-2 rounded-lg text-sm transition-all duration-300 ${
-                              overallCompletionPercentage >= 80
-                                ? 'bg-gray-700 text-white hover:bg-gray-600 cursor-pointer'
-                                : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-60'
-                            }`}
-                            disabled={overallCompletionPercentage < 80}
+                            className="w-full px-4 py-2 rounded-lg text-sm transition-all duration-300 bg-gray-700 text-white hover:bg-gray-600 cursor-pointer"
                             onClick={() => {
-                              if (overallCompletionPercentage < 80) {
-                                alert(
-                                  `Resume upload will be enabled after completing 80% of your courses, projects, and assignments. Current progress: ${overallCompletionPercentage}%`
-                                );
-                              } else {
-                                const input = document.createElement('input');
-                                input.type = 'file';
-                                input.accept = '.pdf,.doc,.docx';
-                                input.click();
-                              }
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = '.pdf,.doc,.docx';
+                              input.click();
                             }}
                           >
                             Choose Resume File
                           </button>
-                          {overallCompletionPercentage < 80 && (
+                          {/* Progress requirement notification commented out */}
+                          {/* {overallCompletionPercentage < 80 && (
                             <p className="text-yellow-400 text-xs text-center mt-2">
                               🔒 Unlocks at 80% completion ({overallCompletionPercentage}% current)
                             </p>
-                          )}
+                          )} */}
                         </div>
 
                         <div>
@@ -3419,7 +3335,8 @@ const StudentPortal: React.FC = () => {
                             <p className="text-gray-400 text-sm">
                               Instructor: {course.instructor} • Duration: {course.duration}
                             </p>
-                            <div className="mt-2">
+                            {/* Course progress display commented out */}
+                            {/* <div className="mt-2">
                               <p className="text-gray-300 text-sm mb-1">Progress</p>
                               <div className="w-96 bg-gray-700 rounded-full h-2">
                                 <div
@@ -3428,15 +3345,16 @@ const StudentPortal: React.FC = () => {
                                 />
                               </div>
                           <p className="text-gray-400 text-sm mt-1">Next: {course.nextLesson}</p>
+                          </div> */}
                           </div>
                           </div>
-                          </div>
-                          <div className="text-right">
+                          {/* Progress statistics commented out */}
+                          {/* <div className="text-right">
                           <p className="text-white text-sm mb-1">
                             {course.completedLessons} of {course.totalLessons} lessons completed
                           </p>
                           <p className="text-white text-2xl font-bold">{course.progress}%</p>
-                        </div>
+                        </div> */}
                           </div>
                     </MagicBento>
                   ))}

@@ -24,46 +24,6 @@ import cssInternal from '../../video-explanations/topics/html/internal css.mp4';
 import cssExternal from '../../video-explanations/topics/html/external css.mp4';
 import cssTypography from '../../video-explanations/topics/html/Typography.mp4';
 
-// Helper to generate preview HTML for code editor output (supports JS-only and HTML)
-const generatePreviewHtml = (code: string): string => {
-  const hasHtmlStructure = /<\s*(html|body|head|!DOCTYPE)/i.test(code);
-  const hasAnyTag = /<\s*[a-zA-Z]+[\s>]/.test(code);
-  const isLikelyJsOnly = !hasAnyTag;
-
-  const consoleCapture = `
-    <script>
-      (function(){
-        const out = document.getElementById('output');
-        function write(type, args){
-          const div = document.createElement('div');
-          div.className = type;
-          try {
-            div.textContent = args.map(a => {
-              if (typeof a === 'object') {
-                try { return JSON.stringify(a); } catch(e){ return String(a); }
-              }
-              return String(a);
-            }).join(' ');
-          } catch(e) {
-            div.textContent = String(args);
-          }
-          if (out) out.appendChild(div);
-        }
-        const origLog = console.log, origErr = console.error;
-        console.log = function(...args){ write('log', args); origLog.apply(console, args); };
-        console.error = function(...args){ write('error', args); origErr.apply(console, args); };
-        window.onerror = function(msg){ write('error', [msg]); };
-      })();
-    </script>`;
-
-  if (isLikelyJsOnly) {
-    return `<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:monospace;background:#fff;color:#222}#output{white-space:pre-wrap;padding:8px;border-top:1px solid #ddd}</style></head><body><div>Program Output:</div><div id="output"></div>${consoleCapture}<script>try{${code}}catch(e){console.error(e && e.stack ? e.stack : e);}</script></body></html>`;
-  }
-
-  const userHtml = hasHtmlStructure ? code : `<div>${code}</div>`;
-  return `<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:system-ui}</style></head><body>${userHtml}<div id="output" style="position:fixed;bottom:0;left:0;right:0;max-height:40%;overflow:auto;background:#f7f7f7;border-top:1px solid #ddd;padding:6px;font-family:monospace"></div>${consoleCapture}</body></html>`;
-};
-
 interface Lesson {
   id: string;
   title: string;
@@ -306,15 +266,6 @@ window.addEventListener('load', addInteractivity);`
     }
   };
 
-  // Pause/stop teacher audio whenever leaving Teacher tab
-  useEffect(() => {
-    try {
-      if (activeTab !== 'teacher') {
-        window.speechSynthesis.cancel();
-      }
-    } catch {}
-  }, [activeTab]);
-
   // Function to process content and replace video placeholders
   const processContent = (content: string) => {
     // Replace inline video placeholders with a marker FIRST to avoid regex mismatch after normalization
@@ -336,71 +287,6 @@ window.addEventListener('load', addInteractivity);`
     );
 
     return highlighted;
-  };
-
-  // Detailed explanation box to render instead of generic video placeholder
-  type TopicExplanation = {
-    mainUse: string;
-    advantages: string[];
-    disadvantages: string[];
-    syntax?: string;
-    example?: string;
-    similar?: string[];
-  };
-
-  const DetailedExplanationBox: React.FC<{ moduleTitle?: string; lessonTitle?: string; details?: TopicExplanation }> = ({ moduleTitle, lessonTitle, details }) => {
-    const title = lessonTitle || 'Detailed Explanation';
-    const module = moduleTitle ? `Module: ${moduleTitle}` : undefined;
-    return (
-      <div className="rounded-lg border border-gray-700 bg-black/40 text-left p-4 mt-4">
-        <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-        {module && <p className="text-gray-300 mb-3">{module}</p>}
-        {details && (
-          <div className="space-y-3 text-gray-200">
-            <div>
-              <p className="font-medium text-white">Main use</p>
-              <p className="mt-1">{details.mainUse}</p>
-            </div>
-            {!!details.advantages?.length && (
-              <div>
-                <p className="font-medium text-white">Advantages</p>
-                <ul className="list-disc pl-5 mt-1">
-                  {details.advantages.map((a, i) => (<li key={`adv-${i}`}>{a}</li>))}
-                </ul>
-              </div>
-            )}
-            {!!details.disadvantages?.length && (
-              <div>
-                <p className="font-medium text-white">Disadvantages</p>
-                <ul className="list-disc pl-5 mt-1">
-                  {details.disadvantages.map((d, i) => (<li key={`dis-${i}`}>{d}</li>))}
-                </ul>
-              </div>
-            )}
-            {details.syntax && (
-              <div>
-                <p className="font-medium text-white">Syntax</p>
-                <pre className="mt-1 whitespace-pre-wrap text-xs bg-black/30 p-3 rounded-md border border-gray-700 text-gray-100">{details.syntax}</pre>
-              </div>
-            )}
-            {details.example && (
-              <div>
-                <p className="font-medium text-white">Example</p>
-                <pre className="mt-1 whitespace-pre-wrap text-xs bg-black/30 p-3 rounded-md border border-gray-700 text-gray-100">{details.example}</pre>
-              </div>
-            )}
-            {!!details.similar?.length && (
-              <div>
-                <p className="font-medium text-white">Similar / Related</p>
-                <ul className="list-disc pl-5 mt-1">
-                  {details.similar.map((s, i) => (<li key={`sim-${i}`}>{s}</li>))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
   };
 
   // HTML Intro dedicated carousel component
@@ -818,16 +704,16 @@ window.addEventListener('load', addInteractivity);`
                           <button className="px-2 py-1 text-xs rounded bg-blue-700 text-white hover:bg-blue-600" title="Edit" onClick={() => setShowRenderedOutput(false)}>Edit</button>
                         )}
                         <button className="px-2 py-1 text-xs rounded bg-gray-700 text-white hover:bg-gray-600" title="Reset" onClick={() => { setCodeEditorText(''); setShowRenderedOutput(false); setRenderedHtml(''); }}>Reset</button>
-                        <button className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600" title="Run" onClick={() => { setRenderedHtml(generatePreviewHtml(codeEditorText)); setShowRenderedOutput(true); }}>Run</button>
+                        <button className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600" title="Run" onClick={() => { setRenderedHtml(codeEditorText); setShowRenderedOutput(true); }}>Run</button>
                       </div>
                     </div>
                     <div className="w-full h-[calc(100%-8px)]" style={{ perspective: '1000px' }}>
                       <div
                         className="relative w-full h-full transform-gpu transition-transform duration-500"
-                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)', transformStyle: 'preserve-3d' }}
+                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
                       >
                         {/* Front: Textarea */}
-                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}>
+                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
                           <textarea
                             value={codeEditorText}
                             onChange={e => setCodeEditorText(e.target.value)}
@@ -1383,16 +1269,16 @@ window.addEventListener('load', addInteractivity);`
                           <button className="px-2 py-1 text-xs rounded bg-blue-700 text-white hover:bg-blue-600" title="Edit" onClick={() => setShowRenderedOutput(false)}>Edit</button>
                         )}
                         <button className="px-2 py-1 text-xs rounded bg-gray-700 text-white hover:bg-gray-600" title="Reset" onClick={() => { setCodeEditorText(''); setShowRenderedOutput(false); setRenderedHtml(''); }}>Reset</button>
-                        <button className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600" title="Run" onClick={() => { setRenderedHtml(generatePreviewHtml(codeEditorText)); setShowRenderedOutput(true); }}>Run</button>
+                        <button className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600" title="Run" onClick={() => { setRenderedHtml(codeEditorText); setShowRenderedOutput(true); }}>Run</button>
                       </div>
                     </div>
                     <div className="w-full h-[calc(100%-8px)]" style={{ perspective: '1000px' }}>
                       <div
                         className="relative w-full h-full transform-gpu transition-transform duration-500"
-                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)', transformStyle: 'preserve-3d' }}
+                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
                       >
                         {/* Front: Textarea */}
-                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}>
+                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
                           <textarea
                             value={codeEditorText}
                             onChange={e => setCodeEditorText(e.target.value)}
@@ -1448,84 +1334,6 @@ window.addEventListener('load', addInteractivity);`
     const processedContent = processContent(content);
     const parts = processedContent.split('[VIDEO_PLACEHOLDER]');
     
-    // Suppress generic video placeholder for specific modules requested
-    const suppressPlaceholderModules = new Set([
-      'CSS Advanced: Layout & Responsive Design',
-      'JavaScript Module: Complete Programming Guide',
-      'Python Basics'
-    ]);
-    const shouldSuppressPlaceholder = !!currentModule && suppressPlaceholderModules.has(currentModule.title);
-
-    const topicExplanations: Record<string, TopicExplanation> = {
-      // CSS Advanced
-      'css-layout': {
-        mainUse: 'Define spacing and layout behavior of elements using the box model and layout properties.',
-        advantages: [
-          'Predictable spacing via margin, padding, and border.',
-          'Clear composition with box-sizing and display properties.',
-          'Works across all browsers with strong compatibility.'
-        ],
-        disadvantages: [
-          'Margin collapsing can be confusing for beginners.',
-          'Complex layouts are hard without Flexbox/Grid.',
-          'Float-based layouts are fragile and outdated.'
-        ],
-        syntax: `/* Core properties */\n.box {\n  box-sizing: border-box;\n  margin: 16px;\n  padding: 12px;\n  border: 1px solid #ccc;\n  display: block;\n}`,
-        example: `<!DOCTYPE html>\n<style>\n.card{box-sizing:border-box;margin:16px;padding:12px;border:1px solid #ccc;width:260px}\n</style>\n<div class="card">Box model in action</div>`,
-        similar: ['Flexbox', 'CSS Grid', 'Positioning']
-      },
-      'responsive-basics': {
-        mainUse: 'Adapt layout and typography for different screen sizes and devices.',
-        advantages: [
-          'Improved usability on mobile and desktop.',
-          'Better accessibility and readability.',
-          'SEO and performance benefits when done well.'
-        ],
-        disadvantages: [
-          'More CSS to manage and test.',
-          'Edge cases across many devices.',
-          'Images and media can complicate responsiveness.'
-        ],
-        syntax: `/* Viewport */\n<meta name="viewport" content="width=device-width, initial-scale=1">\n/* Media queries */\n@media (max-width: 768px){ body{ font-size: 15px } }`,
-        example: `<!DOCTYPE html>\n<style>\n.container{width:80%;margin:0 auto}\n@media(max-width:600px){.container{width:95%}}\n</style>\n<div class="container">Responsive container</div>`,
-        similar: ['Fluid layouts', 'Container queries', 'Responsive images']
-      },
-      // JavaScript Guide
-      'js-intro': {
-        mainUse: 'Add interactivity, manipulate the DOM, and handle user events in the browser.',
-        advantages: [
-          'Runs everywhere (all modern browsers).',
-          'Huge ecosystem and community.',
-          'Event-driven model fits UI interactions.'
-        ],
-        disadvantages: [
-          'Single-threaded event loop pitfalls (blocking).',
-          'Browser API differences and quirks.',
-          'Large bundles can hurt performance.'
-        ],
-        syntax: `// Variables and DOM\nconst el = document.getElementById('title');\nel.textContent = 'Hello';\n`,
-        example: `<!DOCTYPE html>\n<h1 id="title">Welcome</h1>\n<button id="btn">Click</button>\n<script>\n  document.getElementById('btn').addEventListener('click',()=>{\n    document.getElementById('title').style.color='blue';\n  });\n</script>`,
-        similar: ['TypeScript', 'DOM APIs', 'Fetch/AJAX']
-      },
-      // Python Basics
-      'python-intro': {
-        mainUse: 'General-purpose scripting with readable syntax for web, data, and automation.',
-        advantages: [
-          'Easy to read and learn.',
-          'Rich standard library and third-party packages.',
-          'Great for rapid prototyping.'
-        ],
-        disadvantages: [
-          'Slower than compiled languages for CPU-heavy tasks.',
-          'GIL limits multi-threaded CPU-bound concurrency.',
-          'Packaging/env management requires discipline.'
-        ],
-        syntax: `# Indentation-based blocks\nfor i in range(3):\n    print(i)\n`,
-        example: `def greet(name):\n    return f"Hello, {name}"\n\nprint(greet('World'))`,
-        similar: ['pip', 'virtualenv/venv', 'Jupyter']
-      }
-    };
-
     const elements = [];
     for (let i = 0; i < parts.length; i++) {
       if (parts[i]) {
@@ -1541,15 +1349,6 @@ window.addEventListener('load', addInteractivity);`
         } else if (videos && videos.length > 0) {
           elements.push(
             <video key={`video-${i}`} className="w-full h-auto bg-black rounded-lg border border-gray-700" controls preload="metadata" src={videos[0]} />
-          );
-        } else if (shouldSuppressPlaceholder) {
-          elements.push(
-            <DetailedExplanationBox
-              key={`video-${i}`}
-              moduleTitle={currentModule?.title}
-              lessonTitle={currentLesson?.title}
-              details={currentLesson ? topicExplanations[currentLesson.id] : undefined}
-            />
           );
         } else {
           elements.push(
@@ -3083,13 +2882,71 @@ body {
           id: 'css-layout',
           title: 'CSS Box Model and Layout',
           content: `
-            <div style="margin-bottom: 20px; text-align: center;">
-              <h3>📹 Video Explanation</h3>
-              <div style="width: 100%; max-width: 800px; height: 400px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold;">
-                📹 Video Explanation Coming Soon
-              </div>
-              <p style="margin-top: 10px; color: #666; font-size: 14px;">Video explanation coming soon - stay tuned!</p>
+            <div class="topic-box">
+              <div class="topic-title">Detailed Explanation</div>
+              <p>CSS controls presentation and layout. The box model defines how size and space are calculated for every element (content, padding, border, margin). Layout systems like Flexbox and Grid position and align elements across the page.</p>
+              <ul>
+                <li>Use <code>box-sizing: border-box</code> to simplify sizing.</li>
+                <li>Prefer Flexbox for one‑dimensional layouts (rows/columns).</li>
+                <li>Use Grid for two‑dimensional layouts (rows + columns).</li>
+              </ul>
             </div>
+            <div class="topic-box">
+              <div class="topic-title">Advantages & Disadvantages</div>
+              <ul>
+                <li><strong>Pros:</strong> Precise alignment, responsive design, clean separation of concerns.</li>
+                <li><strong>Cons:</strong> Complexity in nested layouts, cross‑browser nuances, potential overflow issues.</li>
+              </ul>
+            </div>
+            <div class="topic-box">
+              <div class="topic-title">Syntax Quick Reference</div>
+              <pre><code>/* Box model */
+selector {
+  box-sizing: border-box;
+  padding: 16px; border: 1px solid #ccc; margin: 12px;
+}
+
+/* Flexbox */
+.row { display: flex; gap: 12px; justify-content: space-between; align-items: center; }
+
+/* Grid */
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }</code></pre>
+            </div>
+            <div class="topic-box">
+              <div class="topic-title">Example</div>
+              <p>Create a card list with Flexbox or a dashboard with Grid for clean, responsive alignment. Start with a container and add items that align and wrap based on available space.</p>
+            </div>
+            <h2>🧾 Detailed Explanation</h2>
+            <h3>Main Use</h3>
+            <p>CSS controls presentation and layout. The box model defines how size and space are calculated for every element (content, padding, border, margin). Layout systems like Flexbox and Grid position and align elements across the page.</p>
+            <h3>Advantages</h3>
+            <ul>
+              <li>Precise control of spacing and alignment</li>
+              <li>Responsive layouts using Flexbox and Grid</li>
+              <li>Separation of concerns: structure in HTML, presentation in CSS</li>
+            </ul>
+            <h3>Disadvantages</h3>
+            <ul>
+              <li>Complexity can grow with nested layouts</li>
+              <li>Cross-browser nuances require testing</li>
+              <li>Improper box sizing can cause overflow issues</li>
+            </ul>
+            <h3>Syntax Quick Reference</h3>
+            <pre><code>/* Box model */
+selector {
+  box-sizing: border-box; /* include padding/border in width */
+  padding: 16px;
+  border: 1px solid #ccc;
+  margin: 12px;
+}
+
+/* Flexbox (1D layout) */
+.row { display: flex; gap: 12px; justify-content: space-between; align-items: center; }
+
+/* Grid (2D layout) */
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }</code></pre>
+            <h3>Example</h3>
+            <p>Create a card list with Flexbox or a dashboard with Grid for clean, responsive alignment.</p>
             
             <h2>📦 The CSS Box Model</h2>
             <p>Every HTML element is a rectangular box with:</p>
@@ -3136,12 +2993,26 @@ body {
           id: 'responsive-basics',
           title: 'Responsive Design Basics',
           content: `
-            <div style="margin-bottom: 20px; text-align: center;">
-              <h3>📹 Video Explanation</h3>
-              <div style="width: 100%; max-width: 800px; height: 400px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold;">
-                📹 Video Explanation Coming Soon
-              </div>
-              <p style="margin-top: 10px; color: #666; font-size: 14px;">Video explanation coming soon - stay tuned!</p>
+            <div class="topic-box">
+              <div class="topic-title">Detailed Explanation</div>
+              <p>Responsive design ensures pages adapt to different devices and screen sizes using fluid layouts, flexible media, and media queries.</p>
+            </div>
+            <div class="topic-box">
+              <div class="topic-title">Advantages & Disadvantages</div>
+              <ul>
+                <li><strong>Pros:</strong> Consistent UX across devices, single codebase, better SEO.</li>
+                <li><strong>Cons:</strong> More breakpoint testing, complex layouts, media optimization required.</li>
+              </ul>
+            </div>
+            <div class="topic-box">
+              <div class="topic-title">Syntax Quick Reference</div>
+              <pre><code>&lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;
+.container { width: 90%; max-width: 1200px; margin: 0 auto; }
+@media (max-width: 768px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 22px; } }</code></pre>
+            </div>
+            <div class="topic-box">
+              <div class="topic-title">Example</div>
+              <p>Use CSS Grid with <code>repeat(auto-fit, minmax(200px, 1fr))</code> to create card layouts that wrap gracefully on smaller screens.</p>
             </div>
             
             <h2>📱 What is Responsive Design?</h2>
@@ -3206,12 +3077,37 @@ body {
           id: 'js-intro',
           title: 'Introduction to JavaScript',
           content: `
-            <div style="margin-bottom: 20px; text-align: center;">
-              <h3>📹 Video Explanation</h3>
-              <div style="width: 100%; max-width: 800px; height: 400px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold;">
-                📹 Video Explanation Coming Soon
-              </div>
-              <p style="margin-top: 10px; color: #666; font-size: 14px;">Video explanation coming soon - stay tuned!</p>
+            <div class="topic-box">
+              <div class="topic-title">Detailed Explanation</div>
+              <p>JavaScript brings interactivity to the web: handling events, manipulating the DOM, communicating with servers, and building rich user interfaces.</p>
+            </div>
+            <div class="topic-box">
+              <div class="topic-title">Advantages & Disadvantages</div>
+              <ul>
+                <li><strong>Pros:</strong> Runs in all modern browsers, huge ecosystem, great for interactive UX.</li>
+                <li><strong>Cons:</strong> Compatibility differences, complex state, security pitfalls with user input.</li>
+              </ul>
+            </div>
+            <div class="topic-box">
+              <div class="topic-title">Syntax Quick Reference</div>
+              <pre><code>// Variables
+let count = 0; const title = 'JS';
+
+// Functions
+function add(a, b) { return a + b; }
+const multiply = (a, b) => a * b;
+
+// DOM
+document.querySelector('#btn').addEventListener('click', () => {
+  document.getElementById('demo').textContent = 'Clicked!';
+});
+
+// Fetch
+fetch('/api/data').then(r => r.json()).then(console.log);</code></pre>
+            </div>
+            <div class="topic-box">
+              <div class="topic-title">Example</div>
+              <p>Create a button that updates text on click and fetches data from an API to render a list.</p>
             </div>
             
             <h2>⚡ What is JavaScript?</h2>
@@ -4203,12 +4099,37 @@ body {
           id: 'python-intro',
           title: 'Introduction to Python',
           content: `
-            <div style="margin-bottom: 20px; text-align: center;">
-              <h3>📹 Video Explanation</h3>
-              <div style="width: 100%; max-width: 800px; height: 400px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold;">
-                📹 Video Explanation Coming Soon
-              </div>
-              <p style="margin-top: 10px; color: #666; font-size: 14px;">Video explanation coming soon - stay tuned!</p>
+            <div class="topic-box">
+              <div class="topic-title">Detailed Explanation</div>
+              <p>Python is a general‑purpose language used for web apps, automation, data science, AI/ML, scripting, and more.</p>
+            </div>
+            <div class="topic-box">
+              <div class="topic-title">Advantages & Disadvantages</div>
+              <ul>
+                <li><strong>Pros:</strong> Readable syntax, rich libraries, cross‑platform, beginner‑friendly.</li>
+                <li><strong>Cons:</strong> Slower for CPU‑heavy tasks, GIL limits threads, environment/version management.</li>
+              </ul>
+            </div>
+            <div class="topic-box">
+              <div class="topic-title">Syntax Quick Reference</div>
+              <pre><code># Variables
+name = 'Alice'; age = 25
+
+# Function
+def greet(user):
+    return f"Hello, {user}!"
+
+# List & loop
+items = [1, 2, 3]
+for x in items:
+    print(x)
+
+# Dictionary
+user = { 'name': 'Alice', 'active': True }</code></pre>
+            </div>
+            <div class="topic-box">
+              <div class="topic-title">Example</div>
+              <p>Write a small script that reads input, processes data (e.g., filtering a list), and prints results. Use virtual environments for package management.</p>
             </div>
             
             <h2>🐍 Welcome to Python Programming</h2>
@@ -9361,7 +9282,7 @@ app.listen(PORT, () => {
               <div className="flex space-x-1 bg-gray-800/60 rounded-lg p-1">
                 <ClickSpark sparkColor="#60a5fa" sparkSize={8} sparkRadius={12} sparkCount={6} duration={300}>
                   <button
-                    onClick={() => { setActiveTab('theory'); try { window.speechSynthesis.cancel(); } catch {} }}
+                    onClick={() => setActiveTab('theory')}
                     className={`flex-1 px-2 lg:px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                       activeTab === 'theory'
                         ? 'bg-gray-700/80 text-white shadow-sm'

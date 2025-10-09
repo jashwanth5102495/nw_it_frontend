@@ -17,6 +17,84 @@ body {
   overflow-x: hidden;
 }
 
+/* Explanation Card (lesson intro) */
+.explanation-card {
+  background: #111827; /* slate-900 */
+  color: #e5e7eb; /* gray-200 */
+  border: 1px solid #374151; /* gray-700 */
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  margin: 16px 0 24px 0;
+}
+.explanation-card .ex-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+.explanation-card .ex-subtitle {
+  font-size: 13px;
+  color: #9ca3af; /* gray-400 */
+  margin-bottom: 16px;
+}
+.explanation-card .ex-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 14px 0 8px;
+  color: #ffffff;
+}
+.explanation-card ul {
+  list-style-type: disc;
+  padding-left: 18px;
+}
+.explanation-card li {
+  margin: 6px 0;
+  line-height: 1.55;
+}
+.explanation-card hr {
+  border: none;
+  border-top: 1px solid #374151;
+  margin: 14px 0;
+}
+
+/* Professional Topic Boxes */
+.topic-box {
+  background: #0f172a; /* slate-900 slightly different */
+  border: 1px solid #334155; /* slate-700 */
+  border-radius: 12px;
+  padding: 18px;
+  margin: 14px 0;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+.topic-box .topic-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+.topic-box .topic-subtitle {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 12px;
+}
+.topic-box ul {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+.topic-box li {
+  margin: 6px 0;
+  line-height: 1.55;
+}
+.topic-box code, .topic-box pre {
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  padding: 10px;
+  display: block;
+  white-space: pre-wrap;
+}
+
 /* Glassmorphism Theme Variables */
 :root {
   --glass-bg: rgba(255, 255, 255, 0.08);

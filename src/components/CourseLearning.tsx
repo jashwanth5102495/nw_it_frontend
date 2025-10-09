@@ -338,6 +338,71 @@ window.addEventListener('load', addInteractivity);`
     return highlighted;
   };
 
+  // Detailed explanation box to render instead of generic video placeholder
+  type TopicExplanation = {
+    mainUse: string;
+    advantages: string[];
+    disadvantages: string[];
+    syntax?: string;
+    example?: string;
+    similar?: string[];
+  };
+
+  const DetailedExplanationBox: React.FC<{ moduleTitle?: string; lessonTitle?: string; details?: TopicExplanation }> = ({ moduleTitle, lessonTitle, details }) => {
+    const title = lessonTitle || 'Detailed Explanation';
+    const module = moduleTitle ? `Module: ${moduleTitle}` : undefined;
+    return (
+      <div className="rounded-lg border border-gray-700 bg-black/40 text-left p-4 mt-4">
+        <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
+        {module && <p className="text-gray-300 mb-3">{module}</p>}
+        {details && (
+          <div className="space-y-3 text-gray-200">
+            <div>
+              <p className="font-medium text-white">Main use</p>
+              <p className="mt-1">{details.mainUse}</p>
+            </div>
+            {!!details.advantages?.length && (
+              <div>
+                <p className="font-medium text-white">Advantages</p>
+                <ul className="list-disc pl-5 mt-1">
+                  {details.advantages.map((a, i) => (<li key={`adv-${i}`}>{a}</li>))}
+                </ul>
+              </div>
+            )}
+            {!!details.disadvantages?.length && (
+              <div>
+                <p className="font-medium text-white">Disadvantages</p>
+                <ul className="list-disc pl-5 mt-1">
+                  {details.disadvantages.map((d, i) => (<li key={`dis-${i}`}>{d}</li>))}
+                </ul>
+              </div>
+            )}
+            {details.syntax && (
+              <div>
+                <p className="font-medium text-white">Syntax</p>
+                <pre className="mt-1 whitespace-pre-wrap text-xs bg-black/30 p-3 rounded-md border border-gray-700 text-gray-100">{details.syntax}</pre>
+              </div>
+            )}
+            {details.example && (
+              <div>
+                <p className="font-medium text-white">Example</p>
+                <pre className="mt-1 whitespace-pre-wrap text-xs bg-black/30 p-3 rounded-md border border-gray-700 text-gray-100">{details.example}</pre>
+              </div>
+            )}
+            {!!details.similar?.length && (
+              <div>
+                <p className="font-medium text-white">Similar / Related</p>
+                <ul className="list-disc pl-5 mt-1">
+                  {details.similar.map((s, i) => (<li key={`sim-${i}`}>{s}</li>))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // HTML Intro dedicated carousel component
   const HtmlIntroVideoCarousel: React.FC = () => {
     const [showSecond, setShowSecond] = useState(false);
@@ -1383,6 +1448,84 @@ window.addEventListener('load', addInteractivity);`
     const processedContent = processContent(content);
     const parts = processedContent.split('[VIDEO_PLACEHOLDER]');
     
+    // Suppress generic video placeholder for specific modules requested
+    const suppressPlaceholderModules = new Set([
+      'CSS Advanced: Layout & Responsive Design',
+      'JavaScript Module: Complete Programming Guide',
+      'Python Basics'
+    ]);
+    const shouldSuppressPlaceholder = !!currentModule && suppressPlaceholderModules.has(currentModule.title);
+
+    const topicExplanations: Record<string, TopicExplanation> = {
+      // CSS Advanced
+      'css-layout': {
+        mainUse: 'Define spacing and layout behavior of elements using the box model and layout properties.',
+        advantages: [
+          'Predictable spacing via margin, padding, and border.',
+          'Clear composition with box-sizing and display properties.',
+          'Works across all browsers with strong compatibility.'
+        ],
+        disadvantages: [
+          'Margin collapsing can be confusing for beginners.',
+          'Complex layouts are hard without Flexbox/Grid.',
+          'Float-based layouts are fragile and outdated.'
+        ],
+        syntax: `/* Core properties */\n.box {\n  box-sizing: border-box;\n  margin: 16px;\n  padding: 12px;\n  border: 1px solid #ccc;\n  display: block;\n}`,
+        example: `<!DOCTYPE html>\n<style>\n.card{box-sizing:border-box;margin:16px;padding:12px;border:1px solid #ccc;width:260px}\n</style>\n<div class="card">Box model in action</div>`,
+        similar: ['Flexbox', 'CSS Grid', 'Positioning']
+      },
+      'responsive-basics': {
+        mainUse: 'Adapt layout and typography for different screen sizes and devices.',
+        advantages: [
+          'Improved usability on mobile and desktop.',
+          'Better accessibility and readability.',
+          'SEO and performance benefits when done well.'
+        ],
+        disadvantages: [
+          'More CSS to manage and test.',
+          'Edge cases across many devices.',
+          'Images and media can complicate responsiveness.'
+        ],
+        syntax: `/* Viewport */\n<meta name="viewport" content="width=device-width, initial-scale=1">\n/* Media queries */\n@media (max-width: 768px){ body{ font-size: 15px } }`,
+        example: `<!DOCTYPE html>\n<style>\n.container{width:80%;margin:0 auto}\n@media(max-width:600px){.container{width:95%}}\n</style>\n<div class="container">Responsive container</div>`,
+        similar: ['Fluid layouts', 'Container queries', 'Responsive images']
+      },
+      // JavaScript Guide
+      'js-intro': {
+        mainUse: 'Add interactivity, manipulate the DOM, and handle user events in the browser.',
+        advantages: [
+          'Runs everywhere (all modern browsers).',
+          'Huge ecosystem and community.',
+          'Event-driven model fits UI interactions.'
+        ],
+        disadvantages: [
+          'Single-threaded event loop pitfalls (blocking).',
+          'Browser API differences and quirks.',
+          'Large bundles can hurt performance.'
+        ],
+        syntax: `// Variables and DOM\nconst el = document.getElementById('title');\nel.textContent = 'Hello';\n`,
+        example: `<!DOCTYPE html>\n<h1 id="title">Welcome</h1>\n<button id="btn">Click</button>\n<script>\n  document.getElementById('btn').addEventListener('click',()=>{\n    document.getElementById('title').style.color='blue';\n  });\n</script>`,
+        similar: ['TypeScript', 'DOM APIs', 'Fetch/AJAX']
+      },
+      // Python Basics
+      'python-intro': {
+        mainUse: 'General-purpose scripting with readable syntax for web, data, and automation.',
+        advantages: [
+          'Easy to read and learn.',
+          'Rich standard library and third-party packages.',
+          'Great for rapid prototyping.'
+        ],
+        disadvantages: [
+          'Slower than compiled languages for CPU-heavy tasks.',
+          'GIL limits multi-threaded CPU-bound concurrency.',
+          'Packaging/env management requires discipline.'
+        ],
+        syntax: `# Indentation-based blocks\nfor i in range(3):\n    print(i)\n`,
+        example: `def greet(name):\n    return f"Hello, {name}"\n\nprint(greet('World'))`,
+        similar: ['pip', 'virtualenv/venv', 'Jupyter']
+      }
+    };
+
     const elements = [];
     for (let i = 0; i < parts.length; i++) {
       if (parts[i]) {
@@ -1398,6 +1541,15 @@ window.addEventListener('load', addInteractivity);`
         } else if (videos && videos.length > 0) {
           elements.push(
             <video key={`video-${i}`} className="w-full h-auto bg-black rounded-lg border border-gray-700" controls preload="metadata" src={videos[0]} />
+          );
+        } else if (shouldSuppressPlaceholder) {
+          elements.push(
+            <DetailedExplanationBox
+              key={`video-${i}`}
+              moduleTitle={currentModule?.title}
+              lessonTitle={currentLesson?.title}
+              details={currentLesson ? topicExplanations[currentLesson.id] : undefined}
+            />
           );
         } else {
           elements.push(

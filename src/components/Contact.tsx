@@ -98,6 +98,10 @@ const Contact = () => {
             <a href="mailto:info@jasnav.co.in" className="text-blue-400 hover:text-blue-300 transition-colors">
                 info@jasnav.co.in
             </a>
+            <br />
+            <a href="mailto:jasnav.co@gmail.com" className="text-blue-400 hover:text-blue-300 transition-colors">
+                jasnav.co@gmail.com
+            </a>
           </div>
 
 
@@ -115,8 +119,10 @@ const Contact = () => {
             </div>
             <p className="text-gray-300 mb-4">Visit our office for in-person meetings and consultations.</p>
             <p className="text-purple-400">
-              Bangalore, Karnataka<br />
-              India
+              Hyderabad, Telangana<br />
+              India<br />
+              Austin, Texas<br />
+              USA
             </p>
           </div>
         </div>

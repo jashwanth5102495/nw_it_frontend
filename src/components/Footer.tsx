@@ -61,9 +61,14 @@ const Footer = () => {
                 </svg>
                 <div>
                   <p className="text-gray-400 text-sm">Email</p>
-                  <a href="mailto:info@jasnav.co.in" className="text-white hover:text-blue-400 transition-colors">
-                info@jasnav.co.in
-                  </a>
+                  <div className="flex flex-col">
+                    <a href="mailto:info@jasnav.co.in" className="text-white hover:text-blue-400 transition-colors block">
+                      info@jasnav.co.in
+                    </a>
+                    <a href="mailto:jasnav.co@gmail.com" className="text-white hover:text-blue-400 transition-colors block">
+                      jasnav.co@gmail.com
+                    </a>
+                  </div>
                 </div>
               </div>
               
@@ -77,8 +82,10 @@ const Footer = () => {
                 <div>
                   <p className="text-gray-400 text-sm">Office</p>
                   <p className="text-white">
-                    Bangalore, Karnataka<br />
-                    India
+                    Hyderabad, Telangana<br />
+                    India<br />
+                    Austin, Texas<br />
+                    USA
                   </p>
                 </div>
               </div>

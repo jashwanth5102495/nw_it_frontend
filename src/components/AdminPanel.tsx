@@ -158,7 +158,8 @@ const AdminPanel: React.FC = () => {
   const [newFaculty, setNewFaculty] = useState({
     name: '',
     email: '',
-    referralCode: ''
+    referralCode: '',
+    discountPercentage: ''
   });
 
   // Student Detail Modal States
@@ -408,8 +409,14 @@ const AdminPanel: React.FC = () => {
   };
 
   const handleAddFaculty = async () => {
-    if (!newFaculty.name || !newFaculty.email || !newFaculty.referralCode) {
+    if (!newFaculty.name || !newFaculty.email || !newFaculty.referralCode || !newFaculty.discountPercentage) {
       alert('Please fill in all required fields');
+      return;
+    }
+
+    const discountNum = parseFloat(String(newFaculty.discountPercentage).trim());
+    if (isNaN(discountNum) || discountNum < 0 || discountNum > 100) {
+      alert('Please enter a valid discount percentage between 0 and 100');
       return;
     }
 
@@ -423,7 +430,7 @@ const AdminPanel: React.FC = () => {
           name: newFaculty.name,
           email: newFaculty.email,
           referralCode: newFaculty.referralCode.toUpperCase().trim(),
-          commissionRate: 0.60
+          commissionRate: Math.min(Math.max(discountNum / 100, 0), 1)
         }),
       });
 
@@ -436,7 +443,8 @@ const AdminPanel: React.FC = () => {
         setNewFaculty({
            name: '',
            email: '',
-           referralCode: ''
+           referralCode: '',
+           discountPercentage: ''
          });
         setShowAddFaculty(false);
         fetchFaculty(); // Refresh the faculty list
@@ -1828,13 +1836,26 @@ const AdminPanel: React.FC = () => {
                         required
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-white/80 mb-2">Discount Percentage *</label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={newFaculty.discountPercentage}
+                        onChange={(e) => setNewFaculty({...newFaculty, discountPercentage: e.target.value})}
+                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        placeholder="Enter discount (e.g., 40 for 40%)"
+                        required
+                      />
+                    </div>
                   </div>
                   <div className="mt-4">
                     <p className="text-sm text-white/60">
                       📝 Enter a unique referral code for the faculty member (e.g., JASH, ROHAN, etc.)
                     </p>
                     <p className="text-sm text-white/60 mt-1">
-                      💰 Commission rate is set to 10% for all faculty members
+                      💰 Set a custom discount percentage for this faculty (e.g., 40% or 50%). Students using their code receive this discount; the same amount is recorded as commission.
                     </p>
                     <p className="text-sm text-yellow-400 mt-1">
                       ⚠️ Students will use this code during course purchase to link their enrollment
@@ -1911,7 +1932,7 @@ const AdminPanel: React.FC = () => {
                         </div>
                         <div className="space-y-2 text-sm">
                           <p className="text-white/70">📧 {faculty.email}</p>
-                          <p className="text-white/70">💼 {faculty.commissionRate}% commission</p>
+                          <p className="text-white/70">💼 {Math.round((faculty.commissionRate || 0) * 100)}% discount</p>
                           <p className="text-white/70">💰 ₹{(faculty.totalCommissionsEarned || 0).toLocaleString()} earned</p>
                           <p className="text-white/70">📅 Joined {new Date(faculty.createdAt).toLocaleDateString()}</p>
                         </div>
@@ -1972,9 +1993,9 @@ const AdminPanel: React.FC = () => {
                     </div>
                   </div>
                   <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-xl p-6 border border-green-500/30">
-                    <h4 className="text-lg font-bold text-white mb-4">Commission Details</h4>
+                    <h4 className="text-lg font-bold text-white mb-4">Discount & Commission Details</h4>
                     <div className="space-y-3">
-                      <p className="text-white/80"><span className="font-medium">Commission Rate:</span> {selectedFaculty.commissionRate}%</p>
+                      <p className="text-white/80"><span className="font-medium">Discount Rate:</span> {Math.round((selectedFaculty.commissionRate || 0) * 100)}%</p>
                       <p className="text-white/80"><span className="font-medium">Total Earned:</span> ₹{(selectedFaculty.totalCommissionsEarned || 0).toLocaleString()}</p>
                       <p className="text-white/80"><span className="font-medium">Joined:</span> {new Date(selectedFaculty.createdAt).toLocaleDateString()}</p>
                     </div>

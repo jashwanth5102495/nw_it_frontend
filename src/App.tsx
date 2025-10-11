@@ -184,7 +184,7 @@ function ProtectedStudentCourseGate({ requiredCourseId, children }: { requiredCo
 
 function AIStudyMaterialProtected() {
   // Primary course id for AI study material
-  const requiredCourseId = 'ai-tools-mastery';
+  const requiredCourseId = 'AI-TOOLS-MASTERY';
   return (
     <ProtectedCourseGate courseId={requiredCourseId}>
       <AIStudyMaterial />

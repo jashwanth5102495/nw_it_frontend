@@ -1835,7 +1835,35 @@ const StudentPortal: React.FC = () => {
       }
 
       try {
-        // Verify referral code with backend
+        // First, try validating as a faculty referral code
+        const facultyRes = await fetch(`${BASE_URL}/api/faculty/validate-referral`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            referralCode: code.trim(),
+            coursePrice: paymentModalData.originalPrice
+          })
+        });
+
+        let facData: any = null;
+        try { facData = await facultyRes.json(); } catch {}
+
+        if (facultyRes.ok && facData && facData.success && facData.data) {
+          const finalPrice = facData.data.finalPrice;
+          const savings = paymentModalData.originalPrice - finalPrice;
+          const discountPercent = Math.round((savings / paymentModalData.originalPrice) * 100);
+          setPaymentModalData({
+            ...paymentModalData,
+            discount: discountPercent,
+            discountedPrice: finalPrice,
+            referralCode: code.toUpperCase()
+          });
+          return;
+        }
+
+        // Fallback: verify via general referral codes
         const response = await fetch(`${BASE_URL}/api/courses/verify-referral`, {
           method: 'POST',
           headers: {
@@ -2033,7 +2061,7 @@ const StudentPortal: React.FC = () => {
     switch (activeTab) {
       case 'courses':
         return (
-          <div className="space-y-6 max-w-full">
+          <div className="space-y-6">
             {/* Scrolling suggestion banner for Frontend Development - Advanced */}
             <div className="relative overflow-hidden rounded-lg border border-green-600/40 bg-green-900/20">
               <style>
@@ -2538,17 +2566,7 @@ const StudentPortal: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Referral Code Message (hidden for AI Tools Mastery) */}
-                    {!(course.id === 'ai-tools-mastery' || (course as any).courseId === 'AI-TOOLS-MASTERY' || (course.title || '').toLowerCase().includes('ai tools')) && (
-                      <div className="mb-4 p-2 bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded">
-                        <div className="flex items-center gap-2">
-                          <span className="text-green-400 text-sm">🎯</span>
-                          <span className="text-xs font-medium text-green-400">
-                            Use referral code for 60% OFF!
-                          </span>
-                        </div>
-                      </div>
-                    )}
+                    
 
                     {/* Pricing */}
                     <div className="mb-4">
@@ -4039,14 +4057,7 @@ const StudentPortal: React.FC = () => {
                       <span className="text-white">{selectedCourseForDetails.projects}</span>
                     </div>
                   </div>
-                  <div className="mb-4 p-3 bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded">
-                    <div className="flex items-center gap-2">
-                      <span className="text-green-400 text-sm">🎯</span>
-                      <span className="text-xs font-medium text-green-400">
-                        Use referral code for 60% OFF!
-                      </span>
-                    </div>
-                  </div>
+                  
                   {selectedCourseForDetails.students >= selectedCourseForDetails.maxStudents ? (
                     <button
                       disabled

@@ -589,17 +589,7 @@ const Courses = () => {
                         )}
                       </div>
 
-                      {/* Referral Code Message */}
-                      <div className="mb-3 p-2 bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <span className="text-green-400 text-sm">🎯</span>
-                          <span className={`text-sm font-medium ${
-                            theme === 'dark' ? 'text-green-400' : 'text-green-600'
-                          }`}>
-                            Use referral code for 60% OFF!
-                          </span>
-                        </div>
-                      </div>
+                      
 
                       {/* Pricing and Enroll Button */}
                       <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">

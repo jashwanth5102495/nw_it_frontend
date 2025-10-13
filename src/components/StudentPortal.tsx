@@ -210,6 +210,19 @@ const StudentPortal: React.FC = () => {
   // Module submission tracking state
   const [moduleSubmissions, setModuleSubmissions] = useState<{ [courseId: string]: { [moduleId: string]: { submissionUrl: string; submittedAt: string } } }>({});
 
+  // Load locally persisted assignment status updates (e.g., MCQ completion)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('assignmentStatusUpdates');
+      const parsed = saved ? JSON.parse(saved) : {};
+      if (parsed && typeof parsed === 'object') {
+        setAssignmentStatuses(prev => ({ ...prev, ...parsed }));
+      }
+    } catch (e) {
+      console.error('Failed to load assignment status updates from storage', e);
+    }
+  }, []);
+
   // Course ID mapping function to handle inconsistent courseId values
   const getCourseIdMapping = (courseId: string): string[] => {
     const mappings: { [key: string]: string[] } = {
@@ -370,7 +383,8 @@ const StudentPortal: React.FC = () => {
         'project-1': 0, // HTML Fundamentals
         'project-2': 1, // CSS Styling
         'project-3': 2, // JavaScript Basics
-        'project-4': 3  // Project Development
+        // Map E-commerce Product Catalog to JavaScript Basics module (index 2)
+        'project-4': 2
       },
       'devops-beginner': {
         'devops-project-1': 0, // DevOps Fundamentals
@@ -2062,16 +2076,16 @@ const StudentPortal: React.FC = () => {
       case 'courses':
         return (
           <div className="space-y-6">
-            {/* Scrolling suggestion banner for Frontend Development - Advanced */}
-            <div className="relative overflow-hidden rounded-lg border border-green-600/40 bg-green-900/20">
+            {/* Scrolling announcement: closing slots notice */}
+            <div className="relative overflow-hidden rounded-lg border border-yellow-600/40 bg-yellow-900/20">
               <style>
                 {`@keyframes scrollBanner { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }`}
               </style>
               <div
-                className="whitespace-nowrap text-sm md:text-base text-green-300 py-2"
+                className="whitespace-nowrap text-sm md:text-base text-yellow-300 py-2"
                 style={{ animation: 'scrollBanner 18s linear infinite' }}
               >
-                Continuity tip: Purchase Frontend Development - Advanced to learn in depth with React basics, Django, MongoDB, Node.js and similar tools — integrated prompt engineering for Frontend Development included. Recommended upgrade. Price: ₹9,500.
+                Announcement: Slots for Frontend Development - Beginner and DevOps - Beginner will be closing on wednesday at 4 PM (Austin, Texas) — 2:30 am in India.
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -2367,10 +2381,9 @@ const StudentPortal: React.FC = () => {
               )}
             </div>
 
-            {/* Assignment Progress Summary commented out */}
-            {/* {selectedCourseForAssignments && (
+            {/* Assignment Progress Summary */}
+            {selectedCourseForAssignments && (
               <div className="bg-gray-800 rounded-lg p-6 mb-6">
-                <h3 className="text-white text-lg font-semibold mb-4">Assignment Progress</h3>
                 {(() => {
                   const mappedIds = getCourseIdMapping(selectedCourseForAssignments);
                   const courseAssignments = assignments.filter(assignment => 
@@ -2381,43 +2394,46 @@ const StudentPortal: React.FC = () => {
                   const submittedAssignments = courseAssignments.filter(a => (assignmentStatuses[a.id] || a.status) === 'submitted').length;
                   const pendingAssignments = courseAssignments.filter(a => (assignmentStatuses[a.id] || a.status) === 'pending').length;
                   const progressPercentage = totalAssignments > 0 ? (completedAssignments / totalAssignments) * 100 : 0;
-                  
+
                   return (
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      <div className="bg-gray-700 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-white">{totalAssignments}</div>
-                        <div className="text-gray-400 text-sm">Total Assignments</div>
+                    <React.Fragment>
+                      <h3 className="text-white text-lg font-semibold mb-4">Assignment Progress</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="bg-gray-700 rounded-lg p-4 text-center">
+                          <div className="text-2xl font-bold text-white">{totalAssignments}</div>
+                          <div className="text-gray-400 text-sm">Total Assignments</div>
+                        </div>
+                        <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-4 text-center">
+                          <div className="text-2xl font-bold text-green-400">{completedAssignments}</div>
+                          <div className="text-gray-400 text-sm">Completed</div>
+                        </div>
+                        <div className="bg-blue-600/20 border border-blue-600/30 rounded-lg p-4 text-center">
+                          <div className="text-2xl font-bold text-blue-400">{submittedAssignments}</div>
+                          <div className="text-gray-400 text-sm">Submitted</div>
+                        </div>
+                        <div className="bg-yellow-600/20 border border-yellow-600/30 rounded-lg p-4 text-center">
+                          <div className="text-2xl font-bold text-yellow-400">{pendingAssignments}</div>
+                          <div className="text-gray-400 text-sm">Pending</div>
+                        </div>
                       </div>
-                      <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-green-400">{completedAssignments}</div>
-                        <div className="text-gray-400 text-sm">Completed</div>
+
+                      <div className="mt-4">
+                        <div className="flex justify-between text-sm text-gray-400 mb-2">
+                          <span>Overall Progress</span>
+                          <span>{Math.round(progressPercentage)}%</span>
+                        </div>
+                        <div className="w-full bg-gray-700 rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${progressPercentage}%` }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="bg-blue-600/20 border border-blue-600/30 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-blue-400">{submittedAssignments}</div>
-                        <div className="text-gray-400 text-sm">Submitted</div>
-                      </div>
-                      <div className="bg-yellow-600/20 border border-yellow-600/30 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-yellow-400">{pendingAssignments}</div>
-                        <div className="text-gray-400 text-sm">Pending</div>
-                      </div>
-                    </div>
+                    </React.Fragment>
                   );
                 })()}
-                
-                <div className="mt-4">
-                  <div className="flex justify-between text-sm text-gray-400 mb-2">
-                    <span>Overall Progress</span>
-                    <span>{Math.round(progressPercentage)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${progressPercentage}%` }}
-                    ></div>
-                  </div>
-                </div>
               </div>
-            )} */}
+            )}
 
             {/* Assignments List */}
             {selectedCourseForAssignments && (
@@ -3390,12 +3406,43 @@ const StudentPortal: React.FC = () => {
                       </div>
                       <div>
                         <h3 className="text-white font-semibold">Assignments</h3>
-                        <p className="text-gray-400 text-sm">0/0</p>
+                        {(() => {
+                          const accessibleMappedIds = allCourses
+                            .filter(course => isCourseAccessible(course.id))
+                            .flatMap(course => getCourseIdMapping(course.id));
+                          const courseAssignments = assignments.filter(a => accessibleMappedIds.includes(a.courseId));
+                          const total = courseAssignments.length;
+                          const completed = courseAssignments.filter(a => (assignmentStatuses[a.id] || a.status) === 'graded').length;
+                          const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+                          return (
+                            <p className="text-gray-400 text-sm">{completed}/{total}</p>
+                          );
+                        })()}
                       </div>
                     </div>
-                    <span className="text-gray-500 text-sm">0.0</span>
+                    {(() => {
+                      const accessibleMappedIds = allCourses
+                        .filter(course => isCourseAccessible(course.id))
+                        .flatMap(course => getCourseIdMapping(course.id));
+                      const courseAssignments = assignments.filter(a => accessibleMappedIds.includes(a.courseId));
+                      const total = courseAssignments.length;
+                      const completed = courseAssignments.filter(a => (assignmentStatuses[a.id] || a.status) === 'graded').length;
+                      const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+                      return (
+                        <span className="text-gray-500 text-sm">{percentage}%</span>
+                      );
+                    })()}
                   </div>
-                  <p className="text-gray-400 text-sm">No assignments available</p>
+                  {(() => {
+                    const accessibleMappedIds = allCourses
+                      .filter(course => isCourseAccessible(course.id))
+                      .flatMap(course => getCourseIdMapping(course.id));
+                    const courseAssignments = assignments.filter(a => accessibleMappedIds.includes(a.courseId));
+                    const total = courseAssignments.length;
+                    return (
+                      <p className="text-gray-400 text-sm">{total === 0 ? 'No assignments available' : 'Track your assignment progress here.'}</p>
+                    );
+                  })()}
                 </div>
 
                 {/* Test Results Box */}

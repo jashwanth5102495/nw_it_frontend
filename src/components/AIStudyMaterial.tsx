@@ -124,14 +124,15 @@ const AIStudyMaterial = () => {
     },
     {
       id: 6,
-      title: 'Module 6: Capstone Projects & Portfolio',
+      title: 'Module 6: Security with AI',
       duration: '2 weeks',
-      description: 'Ship real projects: image, video, agents, and automation.',
+      description: 'Use AI to enhance security research, reconnaissance, and defensive workflows.',
       topics: [
-        'Client-style briefs and deliverables',
-        'End-to-end workflow orchestration',
-        'Cost tracking and optimization',
-        'Portfolio polish and presentation'
+        'AI-assisted recon: Nmap, recon-ng, asset mapping',
+        'Traffic analysis with Wireshark and protocol insights',
+        'Kali Linux tooling overview and safe lab usage',
+        'SQL injection basics and detection strategies',
+        'Bluetooth security & common attack surfaces'
       ],
       completed: false,
       progress: 0
@@ -552,11 +553,26 @@ Variants: 4 with seed tracking</pre>
         {
           title: 'Introduction',
           content: `
-            <h3>Image tools overview</h3>
+            <h3>How LLMs and Image Models Create Images</h3>
+            <p>
+              Modern image generation pairs <strong>LLMs</strong> (for understanding and structuring your intent) with
+              <strong>image models</strong> (for rendering pixels). LLMs help you craft precise, constraint‑driven prompts
+              and convert them to structured parameters. Image models—such as diffusion or transformer‑based generators—
+              turn that structured description into images by iteratively denoising latent representations until the
+              result matches your prompt.
+            </p>
+            <h3>What actually happens</h3>
+            <ol>
+              <li><strong>Intent</strong>: You describe the subject, style, mood, and constraints.</li>
+              <li><strong>LLM assist</strong>: The LLM clarifies details, expands descriptors, and outputs a structured prompt (often JSON).</li>
+              <li><strong>Image generation</strong>: The image model (e.g., DALL·E, Midjourney, Stable Diffusion) uses text embeddings and guidance scales to produce candidates.</li>
+              <li><strong>Refine</strong>: You adjust parameters (composition, lighting, seed, negative prompts) and regenerate or upscale.</li>
+            </ol>
+            <h3>Tools in this suite</h3>
             <ul>
-              <li>DALL‑E 3 for brand-ready images</li>
-              <li>Midjourney for creative exploration</li>
-              <li>Stable Diffusion for customization and control</li>
+              <li><strong>DALL·E 3</strong>: Brand‑safe outputs with strong text understanding.</li>
+              <li><strong>Midjourney</strong>: High‑fidelity, stylized imagery with rich parameter controls.</li>
+              <li><strong>Stable Diffusion</strong>: Full customization via models, LoRA, ControlNet, seeds, and pipelines.</li>
             </ul>
           `,
           examples: [
@@ -566,13 +582,59 @@ Variants: 4 with seed tracking</pre>
           ]
         },
         {
+          title: 'Practical: n8n & OpenAI Agent Kit',
+          content: `
+            <h3>Hands-on: Build an email triage + report agent</h3>
+            <img src="/img/agents-practical.svg" alt="Practical n8n + OpenAI Agent Kit" class="w-full h-auto rounded mb-3" />
+            <h4>Flow</h4>
+            <ol>
+              <li>Webhook receives JSON (support ticket).</li>
+              <li>Code/Function validates required fields and normalizes.</li>
+              <li>LLM (OpenAI) summarizes, classifies, and extracts entities.</li>
+              <li>Route: high-priority → Slack; normal → Google Sheets.</li>
+              <li>Persist to Postgres for analytics and weekly reports.</li>
+            </ol>
+            <h4>n8n specifics</h4>
+            <ul>
+              <li>Use Expressions like <code>{{$json.body}}</code> to pass data between nodes.</li>
+              <li>Add an Error Trigger workflow for retries/backoff (e.g., 3 attempts).</li>
+              <li>Export/import workflows as JSON; test with sample payloads.</li>
+            </ul>
+            <h4>OpenAI Agent Kit (Agents API)</h4>
+            <ul>
+              <li>Install: <code>pip install openai</code>. Set <code>OPENAI_API_KEY</code>.</li>
+              <li>Define tools (function calling) to structure outputs as JSON.</li>
+              <li>Expose a FastAPI webhook to trigger your agent from n8n.</li>
+              <li>Return validated JSON to n8n for routing and persistence.</li>
+            </ul>
+            <p class="text-gray-400">Tip: enforce a strict output schema; reject/repair invalid JSON before proceeding.</p>
+          `,
+          examples: [
+            'Ticket triage with Slack alerts',
+            'Weekly report generation to Sheets',
+            'Lead enrichment and CRM updates'
+          ]
+        },
+        {
           title: 'Installation & Setup',
           content: `
-            <h3>Accounts and local install</h3>
+            <h3>Accounts, Subscriptions, and Limits</h3>
             <ul>
-              <li>DALL‑E 3: OpenAI account</li>
-              <li>Midjourney: Discord + subscription</li>
-              <li>Stable Diffusion: Install AUTOMATIC1111 WebUI, download models, set GPU</li>
+              <li><strong>DALL·E 3</strong>: Requires an OpenAI account; usage billed via credits/plan. Rate limits apply.</li>
+              <li><strong>Midjourney</strong>: Discord‑based; <em>subscription</em> tiers affect speed, concurrent jobs, and daily usage.</li>
+              <li><strong>Stable Diffusion</strong>: Local or cloud GPU required; costs relate to compute. No vendor limits, but hardware is the constraint.</li>
+            </ul>
+            <h3>How subscriptions work</h3>
+            <ul>
+              <li>Each platform enforces <strong>rate limits</strong> (requests per minute/day) and <strong>quality caps</strong> (resolution, upscale levels).</li>
+              <li>Higher tiers unlock <strong>fast generations</strong>, <strong>priority queues</strong>, and <strong>advanced parameters</strong>.</li>
+              <li>Content policies restrict disallowed subjects; outputs may be moderated. Always follow platform rules.</li>
+            </ul>
+            <h3>Setup checklist</h3>
+            <ul>
+              <li>Create accounts and verify billing or credits.</li>
+              <li>For Stable Diffusion: install AUTOMATIC1111 WebUI, download base models (e.g., SDXL), optional LoRAs and ControlNets.</li>
+              <li>Organize an <strong>assets</strong> folder for references, seeds, params, and exports.</li>
             </ul>
           `,
           examples: [
@@ -584,11 +646,63 @@ Variants: 4 with seed tracking</pre>
         {
           title: 'How to Use: Quickstarts',
           content: `
-            <h3>Prompts and workflows</h3>
+            <h3>Template Prompt: Perfect Product Image</h3>
+            <p>Use this template and replace bracketed fields. Keep constraints explicit.</p>
+            <pre class="bg-gray-900 text-gray-200 p-3 rounded">Subject: [premium skincare serum bottle], on [clean marble surface]
+Style: [photorealistic], [editorial commercial], [soft natural lighting]
+Composition: [centered], [rule of thirds], [shallow depth of field]
+Palette: [brand colors: #0B1A2B navy, #E3B887 gold accents]
+Resolution: [2048x2048], Aspect: [1:1]
+Constraints: [no text], [no logo distortions], [no hands], [dust-free]
+Post‑process: [subtle bloom], [clarity +5], [export PNG]
+Negative: [blurry], [overexposed], [harsh shadows], [fingerprints]
+Variants: [seed=1234], [guidance=7.5], [2 variations]</pre>
+
+            <h3>JSON Prompt (LLM‑assisted)</h3>
+            <p>Drive consistency by asking your LLM to emit JSON for the image model or pipeline.</p>
+            <pre class="bg-gray-900 text-gray-200 p-3 rounded">{
+  "subject": "premium skincare serum bottle on clean marble",
+  "style": ["photorealistic", "editorial commercial", "soft natural lighting"],
+  "composition": { "framing": "centered", "rule_of_thirds": true, "depth_of_field": "shallow" },
+  "palette": { "primary": "#0B1A2B", "accent": "#E3B887" },
+  "output": { "resolution": "2048x2048", "aspect": "1:1" },
+  "constraints": ["no text", "no logo distortions", "no hands", "dust-free"],
+  "postprocess": ["subtle bloom", "clarity +5", "export PNG"],
+  "negative": ["blurry", "overexposed", "harsh shadows", "fingerprints"],
+  "params": { "seed": 1234, "guidance": 7.5, "variations": 2 }
+}</pre>
+
+            <h3>Sample: Input vs Output</h3>
+            <p class="text-gray-300">Below is a representative example for the above prompt so students can see what the <em>input (prompt)</em> looks like and a typical <em>output (image)</em>. Results vary across tools and parameters.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-gray-900/50 border border-gray-700 rounded p-3">
+                <div class="text-sm text-gray-400 mb-2">Prompt Input</div>
+                <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Subject: premium skincare serum bottle on clean marble
+Style: photorealistic, editorial commercial, soft natural lighting
+Composition: centered, rule of thirds, shallow depth of field
+Palette: navy #0B1A2B with gold accents #E3B887
+Aspect: 1:1, Resolution: 2048x2048
+Constraints: no text, no logo distortions, no hands, dust‑free
+Post‑process: subtle bloom, clarity +5, export PNG
+Negative: blurry, overexposed, harsh shadows, fingerprints
+Params: seed=1234, guidance=7.5, 2 variations</pre>
+              </div>
+              <div class="bg-gray-900/50 border border-gray-700 rounded p-3">
+                <div class="text-sm text-gray-400 mb-2">Generated Output (Representative)</div>
+                <img
+                  src="/img/sample-product.svg"
+                  alt="Sample generated product image of a skincare serum bottle on marble"
+                  class="w-full h-auto rounded"
+                />
+                <p class="text-xs text-gray-400 mt-2">Illustrative example; actual outputs depend on tool (DALL·E, Midjourney, Stable Diffusion), parameters, and references.</p>
+              </div>
+            </div>
+
+            <h3>Workflow tips</h3>
             <ul>
-              <li>DALL‑E: descriptive prompts + constraints</li>
-              <li>Midjourney: stylize, aspect ratios, remix mode</li>
-              <li>Stable Diffusion: LoRA + ControlNet pipelines</li>
+              <li>DALL·E: emphasize constraints and brand‑safe language; use reference images.</li>
+              <li>Midjourney: tune <code>--stylize</code>, <code>--ar</code>, <code>--seed</code>, and use remix for iterations.</li>
+              <li>Stable Diffusion: wire JSON into pipelines (LoRA, ControlNet) for reproducibility.</li>
             </ul>
           `,
           examples: [
@@ -598,13 +712,80 @@ Variants: 4 with seed tracking</pre>
           ]
         },
         {
+          title: 'Practical',
+          content: `
+            <h3>n8n: Build a production-grade workflow</h3>
+            <ol>
+              <li><strong>Setup</strong>: Cloud or Docker; add credentials for Slack, Gmail, Google Sheets, DB, and your LLM provider.</li>
+              <li><strong>Trigger</strong>: HTTP Webhook node (POST /tickets). Click <em>Listen</em> and send a sample payload to capture fields.</li>
+              <li><strong>Validate</strong>: Code node checks required fields and sanitizes text.</li>
+              <li><strong>Summarize</strong>: LLM node produces JSON {summary, priority} from the ticket body.</li>
+              <li><strong>Route</strong>: IF node → Slack for high priority; otherwise append a row in Google Sheets.</li>
+              <li><strong>Notify</strong>: Gmail acknowledgement back to requester.</li>
+              <li><strong>Persist</strong>: PostgreSQL row with ticket + summary for analytics.</li>
+              <li><strong>Reliability</strong>: Add an Error Trigger workflow for retries/backoff; use idempotency keys from the webhook to avoid duplicates.</li>
+            </ol>
+            <pre class="bg-gray-900 text-gray-200 p-3 rounded text-sm">// n8n Code node (JavaScript)
+const t = $json;
+if (!t.email || !t.subject || !t.body) throw new Error('Missing required fields');
+return [{ json: { email: t.email, subject: t.subject, body: t.body.slice(0, 500) } }];</pre>
+            <h3>OpenAI Agent Kit: step-by-step</h3>
+            <p>Create an agent that plans tasks and calls tools. Validate arguments and add retries.</p>
+            <pre class="bg-gray-900 text-gray-200 p-3 rounded text-sm">npm init -y
+npm install openai dotenv express zod</pre>
+            <pre class="bg-gray-900 text-gray-200 p-3 rounded text-sm">// agent.ts (simplified)
+import OpenAI from 'openai';
+import { z } from 'zod';
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const sendEmail = async ({ to, subject, body }) => { return { status: 'sent', to }; };
+const schema = z.object({ to: z.string().email(), subject: z.string(), body: z.string() });
+export async function runAgent(userTask) {
+  const res = await client.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: 'You are a helpful automation agent. Always return JSON.' },
+      { role: 'user', content: userTask }
+    ],
+    tools: [
+      { type: 'function', function: { name: 'sendEmail', description: 'Send an email', parameters: schema.toJSON() } }
+    ]
+  });
+  const toolCall = res.choices[0]?.message?.tool_calls?.[0];
+  if (toolCall?.function?.name === 'sendEmail') {
+    const args = JSON.parse(toolCall.function.arguments);
+    return await sendEmail(args);
+  }
+  return { output: res.choices[0]?.message?.content };
+}</pre>
+            <p>Expose an Express route to trigger the agent from webhooks or n8n. Add logging, retries, and minimal‑PII storage.</p>
+          `,
+          examples: [
+            'End-to-end n8n support summarizer',
+            'Agent with tool-calling to send status emails',
+            'Webhook-triggered agent with memory and retries'
+          ]
+        },
+        {
           title: 'Best Practices',
           content: `
-            <h3>Quality, ethics, and licensing</h3>
+            <h3>Pro Tips & Prompt Engineering</h3>
             <ul>
-              <li>Use references for consistency</li>
-              <li>Document licensing and usage rights</li>
-              <li>Polish outputs with upscaling and retouching</li>
+              <li><strong>Be explicit</strong>: subject, style, composition, lighting, constraints, negatives.</li>
+              <li><strong>Use seeds</strong> to reproduce results and iterate systematically.</li>
+              <li><strong>Modular prompts</strong>: keep reusable blocks for subject, style, and constraints.</li>
+              <li><strong>Reference boards</strong> to anchor mood and palette; link examples.</li>
+              <li><strong>Post‑process</strong>: upscale and gently retouch; avoid over‑sharpening.</li>
+            </ul>
+            <h3>JSON Prompts</h3>
+            <p>
+              Ask your LLM to output a JSON schema with fields for subject, style, composition, constraints, negatives,
+              and parameters. This enables validation, versioning, and <em>automation</em> across tools. Validate JSON before use.
+            </p>
+            <h3>Ethics & Licensing</h3>
+            <ul>
+              <li>Respect platform content policies and legal restrictions.</li>
+              <li>Document licenses, model sources, and training data notes where applicable.</li>
+              <li>Avoid misleading or copyrighted styles unless you have rights.</li>
             </ul>
           `,
           examples: [
@@ -621,12 +802,22 @@ Variants: 4 with seed tracking</pre>
         {
           title: 'Introduction',
           content: `
-            <h3>Video tools overview</h3>
+            <h3>How AI videos are generated</h3>
+            <p>
+              Modern AI video systems extend image generation with <em>temporal consistency</em> and motion. Under the hood, they use
+              diffusion or transformer-based models that synthesize frames and maintain coherence across time using motion guidance,
+              optical flow, and conditioning (camera paths, prompts, or reference images).
+            </p>
             <ul>
-              <li>Runway ML Gen‑2 for generation & editing</li>
-              <li>Synthesia for avatar videos</li>
-              <li>Luma AI & Pika Labs for motion design</li>
+              <li><strong>Text‑to‑Video</strong>: frames are generated from a text prompt; models balance appearance and motion.</li>
+              <li><strong>Image‑to‑Video</strong>: a reference image is animated; appearance is preserved while motion is synthesized.</li>
+              <li><strong>Control & Conditioning</strong>: camera trajectory, masks/inpainting, depth/edges, style LoRAs, and seeds.</li>
+              <li><strong>Pipeline</strong>: prompt → frame synthesis → temporal smoothing → upscale → encode (e.g., H.264/H.265).</li>
             </ul>
+            <p>
+              The result is a short clip (typically 4–12 seconds) where each frame is consistent with the previous ones.
+              Duration, resolution, and motion complexity depend on the tool and your subscription tier.
+            </p>
           `,
           examples: [
             'Storyboard a short brand film',
@@ -637,17 +828,21 @@ Variants: 4 with seed tracking</pre>
         {
           title: 'Installation & Setup',
           content: `
-            <h3>Accounts and projects</h3>
+            <h3>Tools & Availability</h3>
             <ul>
-              <li>Runway ML: account + project setup</li>
-              <li>Synthesia: avatar and brand assets</li>
-              <li>Pika/Luma: sign-in and asset prep</li>
+              <li><strong>Google Veo</strong> (Veo 2, Veo 3): limited access; text‑to‑video and image‑to‑video demos.</li>
+              <li><strong>Seedens 3 Video AI</strong>: stylized motion generation with plan-based limits.</li>
+              <li><strong>Kling AI</strong>: cinematic camera paths; regional sign‑up requirements may apply.</li>
+              <li><strong>Runway Gen‑3</strong>, <strong>Luma Dream Machine</strong>, <strong>Pika</strong>: widely available, fast iteration.</li>
+              <li><strong>Stable Video Diffusion</strong> (open source): extend SD images into motion for experiments.</li>
             </ul>
-            <h3>Open-Source Video Tools</h3>
+            <h3>Setup Checklist</h3>
             <ul>
-              <li>Stable Video Diffusion</li>
-              <li>FFmpeg (post-processing)</li>
-              <li>ComfyUI pipelines for video (extensions)</li>
+              <li>Create accounts and choose a plan (free vs pro) for higher resolution/duration.</li>
+              <li>Enable brand assets: logo, fonts, palettes, and reference images; prepare project folders.</li>
+              <li>Install <code>ffmpeg</code> for trimming, stitching, re‑encoding, and audio normalization.</li>
+              <li>Know limits: clip length, daily generations, aspect ratios (16:9, 9:16, 1:1), usage policies.</li>
+              <li>Respect content restrictions and licensing; avoid disallowed likenesses or copyrighted footage.</li>
             </ul>
           `,
           examples: [
@@ -659,34 +854,50 @@ Variants: 4 with seed tracking</pre>
         {
           title: 'How to Use: Quickstarts',
           content: `
-            <h3>From prompt to polished video</h3>
-            <p>Use role, intent, constraints, and references to control motion, pacing, framing, and branding.</p>
-            <div class="bg-gray-900/50 border border-gray-700 rounded p-3 mb-4">
-              <strong>Runway Gen‑2 Quickstart</strong>
-              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Step 1: Create project, import asset
-Step 2: Select "text to video" or "image to video"
-Step 3: Apply inpainting/masking, set duration (8–12s)
-Step 4: Export 1080p, bitrate ~8–12 Mbps</pre>
+            <h3>Draft prompts the right way</h3>
+            <p>Teach both <strong>Text‑to‑Video</strong> and <strong>Image‑to‑Video</strong>. Use role, intent, motion, timing, composition, and constraints.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-gray-900/50 border border-gray-700 rounded p-3">
+                <div class="text-sm text-gray-400 mb-2">Text‑to‑Video: Template</div>
+                <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Role: cinematographer
+Intent: 10–12s hero clip showcasing [product]
+Look: cinematic, soft natural light, subtle grain
+Motion: slow dolly‑in on subject, slight parallax; camera path center → close
+Composition: rule of thirds; subject centered at start; reveal logo at 80%
+Constraints: no flicker, no jittery edges, brand‑safe visuals
+Output: 1080p 16:9, bitrate 10 Mbps, seed=42</pre>
+              </div>
+              <div class="bg-gray-900/50 border border-gray-700 rounded p-3">
+                <div class="text-sm text-gray-400 mb-2">Image‑to‑Video: Template</div>
+                <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Reference: high‑res product photo (PNG)
+Intent: 8–10s motion with camera orbit and gentle lighting changes
+Preserve: exact colors, logo sharpness, product geometry
+Motion: slow orbit (15°), ease‑in‑out; add shallow DOF shift
+Masks: lock background; animate reflections only
+Output: 1080p square or 9:16 variant; seed=1337</pre>
+              </div>
             </div>
-            <div class="bg-gray-900/50 border border-gray-700 rounded p-3 mb-4">
-              <strong>Synthesia Quickstart</strong>
-              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Step 1: Pick avatar and background
-Step 2: Paste 20–30s script (on-brand tone)
-Step 3: Add lower-thirds, logo outro
-Step 4: Export MP4 (1080p)</pre>
+            <h3 class="mt-4">Sample: Input vs Output</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-gray-900/50 border border-gray-700 rounded p-3">
+                <div class="text-sm text-gray-400 mb-2">Prompt Input</div>
+                <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Role: cinematographer; 12s product hero
+Motion: slow dolly‑in, parallax; reveal logo at 80%
+Constraints: no flicker, brand‑safe; Output: 1080p, seed=42</pre>
+              </div>
+              <div class="bg-gray-900/50 border border-gray-700 rounded p-3">
+                <div class="text-sm text-gray-400 mb-2">Generated Output (Representative)</div>
+                <img src="/img/sample-video-thumb.svg" alt="Representative video frame" class="w-full h-auto rounded" />
+                <p class="text-xs text-gray-400 mt-2">Illustrative frame; actual motion varies by tool (Veo, Runway, Luma, Pika, Kling) and parameters.</p>
+              </div>
             </div>
-            <div class="bg-gray-900/50 border border-gray-700 rounded p-3">
-              <strong>Pika/Luma Quickstart</strong>
-              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Step 1: Choose camera path (dolly/pan)
-Step 2: Set FOV, duration, easing
-Step 3: Preview and refine transitions</pre>
-            </div>
-            <br /><br />
-            <h4>Example & Output</h4>
-            <div class="bg-gray-900/50 border border-gray-700 rounded p-3">
-              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Prompt: "12s brand intro with smooth dolly-in on logo, soft ambient music"
-Output: 1080p clip with consistent branding, smooth motion, clear logo reveal</pre>
-            </div>
+            <h3 class="mt-4">Execution Steps</h3>
+            <ul>
+              <li>Select mode: text‑to‑video or image‑to‑video; set duration and aspect ratio.</li>
+              <li>For image‑to‑video: upload reference, lock masks, choose camera path.</li>
+              <li>Tune motion strength vs. appearance preservation; preview and iterate.</li>
+              <li>Export: 1080p H.264/H.265; use ffmpeg for trimming, stitching, and audio normalization.</li>
+            </ul>
           `,
           examples: [
             'Create 10–20s promotional clips',
@@ -697,23 +908,20 @@ Output: 1080p clip with consistent branding, smooth motion, clear logo reveal</p
         {
           title: 'Best Practices & Guardrails',
           content: `
-            <h3>Branding, pacing, and export</h3>
+            <h3>Pro Tips</h3>
             <ul>
-              <li>Align visuals with brand guidelines</li>
-              <li>Use pacing and music for engagement</li>
-              <li>Export formats and compression tips</li>
+              <li>Write prompts with <em>role, intent, motion, timing, composition, constraints</em>.</li>
+              <li>Use <strong>seeds</strong> for reproducibility; iterate by changing one variable at a time.</li>
+              <li>Keep motion subtle; favor ease‑in‑out and short paths to avoid artifacts.</li>
+              <li>Lock important areas with masks in image‑to‑video; reduce motion strength to preserve appearance.</li>
+              <li>Post‑process with ffmpeg: <code>-crf 18–23</code> for quality, loudness normalization, and trims.</li>
             </ul>
-            <h3>What not to use</h3>
+            <h3>Guardrails</h3>
             <ul>
-              <li>Avoid disallowed celebrity likenesses or copyrighted footage</li>
-              <li>Do not misrepresent endorsements or real events</li>
-              <li>Avoid overly long intros; keep under 20–30s for social</li>
-            </ul>
-            <h3>Tips for best outputs</h3>
-            <ul>
-              <li>Use short, clear scripts; keep sentences concise</li>
-              <li>Balance motion: avoid sudden pans; ease-in-out</li>
-              <li>Export at 1080p with suitable bitrate; test platform presets</li>
+              <li>Respect content policies: no disallowed likenesses, copyrighted footage, or deceptive edits.</li>
+              <li>Disclose synthetic content when required; avoid implying endorsements or real events.</li>
+              <li>Check licensing before commercial use; review platform terms and export rights.</li>
+              <li>Maintain accessibility: add captions/subtitles; ensure readable text in frames.</li>
             </ul>
           `,
           examples: [
@@ -725,32 +933,36 @@ Output: 1080p clip with consistent branding, smooth motion, clear logo reveal</p
         {
           title: 'Prompt Templates & Examples',
           content: `
-            <h3>Video Prompt Patterns</h3>
-            <p>Use role, intent, constraints, and examples to control motion, pacing, and framing.</p>
+            <h3>Templates</h3>
             <div class="bg-gray-900/50 border border-gray-700 rounded p-3 mb-4">
-              <strong>Runway Gen‑2 Inpainting Prompt</strong>
-              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Role: Video editor
-Intent: Replace background with brand gradient
-Constraints: Maintain subject edges; duration 12s; 1080p
-Steps: Upload clip → mask background → apply gradient → adjust motion</pre>
+              <strong>Text‑to‑Video — Product Hero</strong>
+              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Role: cinematographer
+Intent: 12s hero shot for [brand product]
+Look: cinematic, soft key light, subtle bloom
+Motion: slow dolly‑in + slight parallax; camera path center → close
+Composition: rule of thirds; clean background; logo reveal near end
+Constraints: no flicker, no jitter, brand‑safe visuals
+Output: 1080p 16:9, seed=42, bitrate 10 Mbps</pre>
             </div>
             <div class="bg-gray-900/50 border border-gray-700 rounded p-3 mb-4">
-              <strong>Synthesia Avatar Script Template</strong>
-              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Persona: Professional instructor
-Goal: 20s onboarding intro
-Script: "Welcome! In this short video, you'll learn the basics of..."
-Visuals: Brand background, lower-third title, logo outro</pre>
+              <strong>Image‑to‑Video — Reference Animation</strong>
+              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Reference: [PNG product image]
+Intent: 8–10s orbit with DOF shift and gentle light change
+Preserve: colors, logo, geometry; lock background with mask
+Motion: orbit 15°, ease‑in‑out; reflections animate subtly
+Output: square or 9:16, seed=1337</pre>
             </div>
             <div class="bg-gray-900/50 border border-gray-700 rounded p-3">
-              <strong>Pika/Luma Camera Movement</strong>
-              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Move: Slow dolly-in, ease-in-out; FOV: 35mm look; Duration: 3s; Transition: cross dissolve</pre>
-            </div>
-            <br /><br />
-            <h4>Expected Result</h4>
-            <div class="bg-gray-900/50 border border-gray-700 rounded p-3">
-              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">Clips rendered at 1080p, consistent branding
-Avatar script clear and concise (20s)
-Camera motion smooth and on-style</pre>
+              <strong>JSON Prompt (LLM‑assisted)</strong>
+              <pre class="bg-transparent whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">{
+  "mode": "text_to_video",
+  "intent": "12s product hero clip",
+  "look": ["cinematic", "soft natural light", "subtle grain"],
+  "motion": { "type": "dolly_in", "parallax": true, "ease": "ease-in-out" },
+  "composition": { "rule_of_thirds": true, "logo_reveal_at": 0.8 },
+  "constraints": ["no flicker", "brand-safe"],
+  "output": { "resolution": "1920x1080", "aspect": "16:9", "seed": 42, "bitrate_mbps": 10 }
+}</pre>
             </div>
           `,
           examples: [
@@ -767,12 +979,19 @@ Camera motion smooth and on-style</pre>
         {
           title: 'Introduction',
           content: `
-            <h3>What agents and automations can do</h3>
+            <h3>What is an Agent?</h3>
+            <p>An AI agent plans tasks, calls tools/APIs, uses memory, and returns results autonomously — like a smart orchestrator connecting your LLM to email, CRMs, docs, and databases.</p>
+            <img src="/img/agents-overview.svg" alt="AI Agent overview diagram" class="w-full h-auto rounded mb-3" />
+            <h3>What agents can automate</h3>
             <ul>
-              <li>Connect LLMs to tools and data</li>
-              <li>Automate multi-step business workflows</li>
-              <li>Ensure reliability with validation and retries</li>
+              <li>Summarize support tickets and route them to teams</li>
+              <li>Generate reports from APIs and publish to Sheets/Docs</li>
+              <li>Process forms, enrich leads, and notify Slack/Email</li>
             </ul>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+              <img src="/img/agents-gallery-1.svg" alt="Automation gallery: summarize tickets" class="w-full h-auto rounded" />
+              <img src="/img/agents-gallery-2.svg" alt="Automation gallery: report generator" class="w-full h-auto rounded" />
+            </div>
           `,
           examples: [
             'Summarize tickets and route to teams',
@@ -783,12 +1002,31 @@ Camera motion smooth and on-style</pre>
         {
           title: 'Installation & Setup',
           content: `
-            <h3>Keys and environment</h3>
+            <h3>Tools to build agents</h3>
+            <img src="/img/agents-tools.svg" alt="Tools and integrations for agents" class="w-full h-auto rounded mb-3" />
             <ul>
-              <li>Claude API: get key and set environment vars</li>
-              <li>n8n: local install or Docker</li>
-              <li>Make/Zapier: connect apps and set webhooks</li>
+              <li><strong>n8n</strong> (self-host or cloud): visual workflow builder with nodes for APIs, email, databases.</li>
+              <li><strong>Zapier/Make</strong>: fast integrations for common apps and triggers.</li>
+              <li><strong>Python</strong>: custom agents using packages like <code>requests</code>, <code>pydantic</code>, <code>fastapi</code>, <code>langchain</code> or <code>crewai</code>, <code>sqlalchemy</code>.</li>
             </ul>
+            <h3>n8n Setup</h3>
+            <ol>
+              <li>Create an account (cloud) or run locally via Docker.</li>
+              <li>Add credentials (API keys, OAuth) and test nodes.</li>
+              <li>Create a workflow: trigger → action nodes → conditional → output.</li>
+            </ol>
+            <h3>Python Setup</h3>
+            <pre class="bg-gray-900 text-gray-200 p-3 rounded">python -m venv .venv
+.\.venv\Scripts\activate  # Windows
+pip install fastapi uvicorn requests pydantic sqlalchemy langchain crewai</pre>
+            <p>Use FastAPI to expose webhooks, validate JSON with Pydantic, and call LLM/tooling via LangChain or CrewAI.</p>
+            <div class="mt-4">
+              <a href="https://www.youtube.com/playlist?list=PLlET0GsrLUL5HKJk1rb7t32sAs_iAlpZe" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3 3 0 00-2.115-2.118C19.25 3.5 12 3.5 12 3.5s-7.25 0-9.383.568A3 3 0 00.502 6.186C0 8.332 0 12 0 12s0 3.668.502 5.814a3 3 0 002.115 2.118C4.75 20.5 12 20.5 12 20.5s7.25 0 9.383-.568a3 3 0 002.115-2.118C24 15.668 24 12 24 12s0-3.668-.502-5.814zM9.75 15.568V8.432L15.5 12l-5.75 3.568z"/></svg>
+                Watch: Best n8n Tutorials Playlist
+              </a>
+              <p class="text-gray-400 text-xs mt-2">Opens official n8n YouTube playlist in a new tab.</p>
+            </div>
           `,
           examples: [
             'Store secrets securely',
@@ -799,13 +1037,30 @@ Camera motion smooth and on-style</pre>
         {
           title: 'How to Use: Build a workflow',
           content: `
-            <h3>Example: Support summarizer</h3>
+            <h3>Build a Support Summarizer (n8n)</h3>
+            <img src="/img/agents-workflow.svg" alt="Agent workflow diagram" class="w-full h-auto rounded mb-3" />
             <ol>
-              <li>Webhook triggers new ticket</li>
-              <li>Claude function-call extracts fields</li>
-              <li>n8n routes to Gmail/Sheets/Slack</li>
-              <li>Add retries and idempotency keys</li>
+              <li><strong>Trigger</strong>: HTTP Webhook node receives a support ticket (JSON).</li>
+              <li><strong>Validate</strong>: Code node validates required fields (email, subject, body).</li>
+              <li><strong>LLM Summarize</strong>: OpenAI/Claude node creates a concise summary and priority.</li>
+              <li><strong>Route</strong>: If priority=high, send Slack; else create a row in Google Sheets.</li>
+              <li><strong>Notify</strong>: Gmail node sends an acknowledgement email.</li>
+              <li><strong>Persist</strong>: PostgreSQL node stores ticket + summary for analytics.</li>
             </ol>
+            <h3>Where APIs are used</h3>
+            <ul>
+              <li>Webhook endpoint for inbound requests (POST).</li>
+              <li>LLM provider API for summarization with JSON output schema.</li>
+              <li>Slack/Sheets/Gmail REST APIs via n8n nodes and credentials.</li>
+              <li>Database connection (Postgres/MySQL) for persistence.</li>
+            </ul>
+            <h3>n8n Details</h3>
+            <ul>
+              <li>Nodes run sequentially or conditionally; data passes via <em>items</em>.</li>
+              <li>Use <strong>Expressions</strong> to reference fields (<code>{{$json.subject}}</code>).</li>
+              <li>Add <strong>Error Trigger</strong> workflows for retries/backoff (e.g., 3 attempts).</li>
+              <li>Version workflows and test with sample payloads; export/import as JSON.</li>
+            </ul>
           `,
           examples: [
             'Lead enrichment pipeline',
@@ -814,14 +1069,69 @@ Camera motion smooth and on-style</pre>
           ]
         },
         {
+          title: 'Practical: n8n & OpenAI Agent Kit',
+          content: `
+            <h3>Hands-on: Build and run an agent</h3>
+            <img src="/img/agents-workflow.svg" alt="Practical agent build" class="w-full h-auto rounded mb-3" />
+            <h4>n8n: Support Summarizer workflow</h4>
+            <ol>
+              <li>Create HTTP Webhook trigger; accept JSON { email, subject, body }.</li>
+              <li>Code node: validate fields; set <em>priority</em> heuristics.</li>
+              <li>LLM node: summarize ticket with a strict JSON schema.</li>
+              <li>Route: high-priority → Slack; else → add row in Google Sheets.</li>
+              <li>Notify: send acknowledgement via Gmail; persist to Postgres.</li>
+              <li>Error Workflow: retry 3x with backoff; alert on failures.</li>
+            </ol>
+            <h4>OpenAI Agent Kit (Python)</h4>
+            <pre class="bg-gray-900 text-gray-200 p-3 rounded">python -m venv .venv
+./.venv/Scripts/activate  # Windows
+pip install fastapi openai pydantic requests</pre>
+            <pre class="bg-gray-900 text-gray-200 p-3 rounded"># app.py
+from fastapi import FastAPI
+from pydantic import BaseModel
+import os
+app = FastAPI()
+
+class Ticket(BaseModel):
+    email: str
+    subject: str
+    body: str
+
+@app.post('/summarize')
+def summarize(t: Ticket):
+    # Call LLM with JSON schema; return summary + priority
+    return {"summary": "...", "priority": "medium"}
+            </pre>
+            <p>Expose <code>/summarize</code> as a webhook for n8n; use environment variables for secrets and add idempotency keys to avoid duplicates.</p>
+            <div class="mt-4">
+              <a href="https://www.youtube.com/playlist?list=PLlET0GsrLUL5HKJk1rb7t32sAs_iAlpZe" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3 3 0 00-2.115-2.118C19.25 3.5 12 3.5 12 3.5s-7.25 0-9.383.568A3 3 0 00.502 6.186C0 8.332 0 12 0 12s0 3.668.502 5.814a3 3 0 002.115 2.118C4.75 20.5 12 20.5 12 20.5s7.25 0 9.383-.568a3 3 0 002.115-2.118C24 15.668 24 12 24 12s0-3.668-.502-5.814zM9.75 15.568V8.432L15.5 12l-5.75 3.568z"/></svg>
+                Watch: Best n8n Tutorials Playlist
+              </a>
+              <p class="text-gray-400 text-xs mt-2">Opens official n8n YouTube playlist in a new tab.</p>
+            </div>
+          `,
+          examples: [
+            'End-to-end n8n support summarizer',
+            'Agent with tool-calling to send status emails',
+            'Webhook + FastAPI JSON schema validation'
+          ]
+        },
+        {
           title: 'Best Practices',
           content: `
-            <h3>Reliability and governance</h3>
+            <h3>Pro Tips for robust agents</h3>
             <ul>
-              <li>Validate JSON outputs before use</li>
-              <li>Retry with backoff for transient errors</li>
-              <li>Log, monitor, and alert on failures</li>
+              <li>Define a strict JSON schema for LLM outputs; reject/repair invalid responses.</li>
+              <li>Use idempotency keys on webhooks to avoid duplicates.</li>
+              <li>Add retries with exponential backoff for network calls.</li>
+              <li>Log inputs/outputs with minimal PII; encrypt secrets and use environment variables.</li>
+              <li>Add alerting for failures and track success metrics (SLAs).</li>
             </ul>
+            <div class="grid grid-cols-2 gap-3 mt-2">
+              <img src="/img/agents-gallery-1.svg" alt="Gallery: automation" class="w-full h-auto rounded" />
+              <img src="/img/agents-gallery-2.svg" alt="Gallery: reporting" class="w-full h-auto rounded" />
+            </div>
           `,
           examples: [
             'CRM sync with email and sheets',
@@ -837,115 +1147,225 @@ Camera motion smooth and on-style</pre>
         {
           title: 'Introduction & Disclaimer',
           content: `
-            <h3>Education-focused module</h3>
-            <p>Not financial advice. Use AI for research, never make decisions based solely on AI.</p>
+            <h3>AI tools for trading research</h3>
+            <img src="/img/trading-intro.svg" alt="AI Trading overview" class="w-full h-auto rounded mb-3" />
+            <p><strong>Educational only.</strong> This module focuses on research workflows and reproducible analysis. Nothing here is financial advice or a guarantee of performance. Treat outputs as hypotheses to be validated with transparent, data-driven methods.</p>
+            <p>Use AI to accelerate reading, summarization, and idea generation. Think of it as a research assistant that helps you:
+              <br/>— Aggregate and summarize market news and filings
+              <br/>— Brainstorm signals and features to test (e.g., momentum, volatility regimes, sentiment shifts)
+              <br/>— Draft structured research notes with clear assumptions, caveats, and references
+            </p>
+            <h4>Grok (xAI) for market prompts</h4>
+            <ul>
+              <li>Ask for neutral summaries of current regimes, catalysts, and risks; require citations where possible.</li>
+              <li>Prompt for feature engineering ideas and a validation plan (train/test split, out-of-sample checks).</li>
+              <li>Generate risk policy checklists and research disclaimers to keep analysis reproducible and ethical.</li>
+            </ul>
+            <div class="bg-gray-900/50 border border-gray-700 rounded p-3 mt-3">
+              <strong>Example Prompt</strong>
+              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">You are a research assistant. Summarize the current equity market regime and list 5 candidate signals (momentum, volatility, breadth, sentiment, macro proxies). For each, propose how to engineer features from public data and outline validation steps (period, metrics, out-of-sample). Add risk caveats and references.</pre>
+            </div>
           `,
           examples: [
-            'Write a personal risk policy',
-            'List limitations and biases',
-            'Define guardrails for experiments'
+            'Write Grok prompts for regime analysis',
+            'Draft a personal risk policy',
+            'List biases and guardrails upfront'
           ]
         },
         {
           title: 'Installation & Setup',
           content: `
-            <h3>Python environment & data</h3>
+            <h3>Platforms: crypto & stocks</h3>
+            <img src="/img/trading-setup.svg" alt="Trading platforms setup" class="w-full h-auto rounded mb-3" />
             <ul>
-              <li>Install Python + venv</li>
-              <li>Use Yahoo Finance & News APIs</li>
-              <li>Set notebooks for experiments</li>
+              <li><strong>Crypto</strong>: Binance, Coinbase, Kraken — use API keys and sandbox/testnet where available; never store raw keys in notebooks.</li>
+              <li><strong>Stocks</strong>: Alpaca (paper trading), Polygon/Yahoo Finance for data; TradingView for charting and quick visual validation.</li>
+              <li><strong>Environment</strong>: Python + venv, notebooks; pin dependencies, cache data responsibly, and record all data sources.</li>
             </ul>
+            <h4>Quickstart (Python)</h4>
+            <pre class="bg-gray-900 text-gray-200 p-3 rounded">python -m venv .venv
+.\.venv\Scripts\activate
+pip install pandas numpy yfinance requests matplotlib</pre>
+            <p>Store API keys as environment variables. Prefer paper/sandbox accounts; never connect real funds for experiments.</p>
+            <p class="mt-3">From here, compute features (rolling volatility, RSI, breadth, sentiment proxies) and visualize relationships. Always separate training and validation periods, include costs/slippage, and document assumptions.</p>
           `,
           examples: [
-            'Fetch data and cache locally',
-            'Create features (momentum, sentiment)',
-            'Prepare backtesting notebook'
+            'Configure paper trading accounts',
+            'Fetch prices and headlines safely',
+            'Set up a research notebook'
           ]
         },
         {
           title: 'How to Use: Signals & Backtests',
           content: `
-            <h3>From data to insights</h3>
+            <h3>Teach Grok, then validate with code</h3>
+            <img src="/img/trading-signals.svg" alt="Signals and backtests" class="w-full h-auto rounded mb-3" />
+            <p>Engineer signals from price, volume, breadth, and sentiment. Use AI to brainstorm candidate features and filters, then measure rigorously with out-of-sample checks.</p>
             <ol>
-              <li>Collect OHLCV + headlines</li>
-              <li>Classify sentiment (LLM) with validation</li>
-              <li>Create toy signals and thresholds</li>
-              <li>Run a simple backtest with guardrails</li>
+              <li><strong>Prompt Grok</strong>: Ask for feature ideas and commentary. Request sources and caution notes.</li>
+              <li><strong>Collect data</strong>: OHLCV + headlines; compute momentum and LLM-based sentiment with schema validation.</li>
+              <li><strong>Define signals</strong>: thresholds, crossovers, sentiment filters; include transaction costs and slippage.</li>
+              <li><strong>Backtest</strong>: paper-only. Evaluate stability across regimes; avoid peeking and leakage.</li>
             </ol>
+            <div class="bg-gray-900/50 border border-gray-700 rounded p-3 mt-3">
+              <strong>Notebook checklist</strong>
+              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">1) Define hypothesis and regime
+2) Engineer features and target
+3) Choose splits and validation
+4) Add costs, slippage, constraints
+5) Inspect robustness and failure modes
+6) Write reproducible notes with charts</pre>
+            </div>
           `,
           examples: [
-            'Scrape headlines and classify sentiment',
-            'Create simple momentum signals',
-            'Run a toy backtest with guardrails'
+            'Prompt Grok for regime commentary',
+            'Build momentum + sentiment filters',
+            'Run paper backtests with costs'
           ]
         },
         {
           title: 'Best Practices & Ethics',
           content: `
-            <h3>Responsible research</h3>
+            <h3>Pro tips from a trader’s lens</h3>
+            <img src="/img/trading-ethics.svg" alt="Best practices and ethics" class="w-full h-auto rounded mb-3" />
             <ul>
-              <li>Avoid overfitting and data leakage</li>
-              <li>Account for non-stationarity</li>
-              <li>Document methods and disclaimers</li>
+              <li><strong>Risk first</strong>: position sizing, stops, diversification; set max drawdown and stick to it.</li>
+              <li><strong>Reality checks</strong>: include fees, slippage, liquidity constraints; avoid curve-fitting by penalizing complexity.</li>
+              <li><strong>Robustness</strong>: test out-of-sample, walk-forward, and across regimes; measure stability, not just point performance.</li>
+              <li><strong>Ethics</strong>: be transparent, add disclaimers, and avoid real-money trading until research is complete and supervised.</li>
+              <li><strong>Journaling</strong>: capture hypotheses, outcomes, and learnings; publish reproducible notebooks with data sources and code.</li>
             </ul>
           `,
           examples: [
-            'Add disclaimers to your UI',
-            'Design experiment protocols',
-            'Share reproducible notebooks'
+            'Write a risk and ethics checklist',
+            'Add costs and slippage to backtests',
+            'Publish reproducible research notes'
           ]
         }
       ]
     },
-    5: { // Module 6: Capstone Projects & Portfolio
-      title: 'Capstone Projects & Portfolio',
+    5: { // Module 6: Security with AI
+      title: 'Security with AI',
       lessons: [
         {
-          title: 'Introduction & Briefs',
+          title: 'Introduction & Why AI Matters',
           content: `
-            <h3>Pick your capstone</h3>
+            <h3>AI for Security — responsibly applied</h3>
+            <p>AI accelerates reconnaissance, log analysis, anomaly detection, and documentation. Used responsibly, it helps defenders map assets, spot misconfigurations, and triage events faster. This module is <strong>education-focused</strong> — practice in an isolated lab, follow local laws, and obtain permission for any testing.</p>
             <ul>
-              <li>Image campaign</li>
-              <li>Video explainer</li>
-              <li>Automation bot</li>
+              <li>Use AI to summarize findings, generate checklists, and suggest next steps.</li>
+              <li>Integrate model outputs with established tools; never rely on AI alone.</li>
+              <li>Maintain ethics: consent, least privilege, data minimization, and disclosure policies.</li>
             </ul>
           `,
           examples: [
-            'Scope the project and deliverables',
-            'Define success metrics',
-            'Create a timeline and checklist'
+            'Generate a recon plan from asset inventory',
+            'Summarize logs for anomalies',
+            'Draft a remediation checklist'
           ]
         },
         {
-          title: 'Setup & Planning',
+          title: 'Reconnaissance Tools: Nmap & recon-ng',
           content: `
-            <h3>Assets and workflows</h3>
-            <ul>
-              <li>Collect references and brand assets</li>
-              <li>Plan tools and pipelines</li>
-              <li>Set progress tracking and reviews</li>
-            </ul>
+            <h3>Discover and profile assets</h3>
+            <p>Nmap provides port scanning, service fingerprinting, and scriptable checks (NSE). recon-ng offers a framework for OSINT modules and data enrichment.</p>
+            <div class="bg-gray-900/50 border border-gray-700 rounded p-3 mb-3">
+              <strong>Examples</strong>
+              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100"># Nmap quick scan
+nmap -sV -T4 10.0.0.0/24
+
+# Nmap with NSE scripts
+nmap --script vuln -p- target.example
+
+# recon-ng basic workflow
+recon-ng
+> marketplace install recon/domains-hosts/brute_hosts
+> modules load recon/domains-hosts/brute_hosts
+> set SOURCE example.com
+> run</pre>
+            </div>
+            <p>Use AI to summarize findings, propose next modules, and track evidence. Store outputs in a structured format (JSON) for later review.</p>
           `,
           examples: [
-            'Build a project brief',
-            'Create a workflow diagram',
-            'Set milestones and reviews'
+            'Run Nmap scans and summarize services',
+            'Use recon-ng to expand hosts and domains',
+            'Create a JSON evidence log'
           ]
         },
         {
-          title: 'Delivery & Portfolio',
+          title: 'Network Analysis with Wireshark',
           content: `
-            <h3>Polish and publish</h3>
+            <h3>Inspect protocols and anomalies</h3>
+            <p>Wireshark enables deep inspection of packets, protocol decoding, and capture filters. Combine captures with AI-driven summaries to spot suspicious flows and misconfigurations quickly.</p>
             <ul>
-              <li>Prepare final exports and docs</li>
-              <li>Create case study pages</li>
-              <li>Collect feedback and iterate</li>
+              <li>Create capture filters (e.g., tcp port 443, arp) and record context.</li>
+              <li>Annotate sessions and export PCAP slices for review.</li>
+              <li>Ask AI to extract indicators and propose hypotheses; validate manually.</li>
             </ul>
           `,
           examples: [
-            'Publish a portfolio entry',
-            'Share deliverables with clients',
-            'Document lessons learned'
+            'Capture TLS flows and review handshakes',
+            'Identify unusual ARP traffic',
+            'Summarize sessions into an incident note'
+          ]
+        },
+        {
+          title: 'Kali Linux Tools Overview',
+          content: `
+            <h3>Common tool families (non-exhaustive)</h3>
+            <p>Kali includes hundreds of tools. Focus on <em>defensive learning</em> and lab practice. Categories include:</p>
+            <ul>
+              <li><strong>Recon</strong>: Nmap, masscan, recon-ng, theHarvester.</li>
+              <li><strong>Web</strong>: Burp Suite, OWASP ZAP, sqlmap.</li>
+              <li><strong>Wireless</strong>: aircrack-ng suite, Kismet.</li>
+              <li><strong>Bluetooth</strong>: blue_hydra, btmon, bluelog, crackle.</li>
+              <li><strong>Exploitation</strong>: Metasploit Framework (for lab-only testing).</li>
+              <li><strong>Reporting</strong>: Dradis, Faraday — organize findings and remediations.</li>
+            </ul>
+            <p>Use AI to plan engagements, generate checklists, and write structured reports. Always operate in a lawful, authorized context.</p>
+          `,
+          examples: [
+            'Plan a lab recon workflow with AI',
+            'Run OWASP ZAP on a local test app',
+            'Organize findings in Dradis'
+          ]
+        },
+        {
+          title: 'Web Security: SQL Injection Basics',
+          content: `
+            <h3>Identify and test safely</h3>
+            <p>SQL injection arises when user input is unsafely embedded in queries. In labs, use parameterized queries, input validation, and scanners (e.g., sqlmap) to demonstrate and remediate.</p>
+            <div class="bg-gray-900/50 border border-gray-700 rounded p-3 mb-3">
+              <strong>Lab checklist</strong>
+              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">1) Find input points (forms, params)
+2) Test with benign payloads
+3) Confirm via logs and errors
+4) Switch to parameterized queries
+5) Add input validation and WAF rules
+6) Re-test and document fixes</pre>
+            </div>
+          `,
+          examples: [
+            'Scan a test app with sqlmap',
+            'Refactor queries with parameters',
+            'Write a remediation summary'
+          ]
+        },
+        {
+          title: 'Bluetooth Security & Wireless',
+          content: `
+            <h3>Explore wireless attack surfaces — in a lab</h3>
+            <p>Use Bluetooth tools to discover devices and analyze traffic (lab setups only). Combine with AI to summarize findings and propose mitigations.</p>
+            <ul>
+              <li>Tools: bluetoothctl, btmon, blue_hydra, bluelog, crackle.</li>
+              <li>Tasks: device discovery, pairing checks, service enumeration, traffic captures.</li>
+              <li>Mitigations: strong pairing, disable unused services, firmware updates.</li>
+            </ul>
+          `,
+          examples: [
+            'Enumerate nearby Bluetooth devices',
+            'Capture and review BT traffic',
+            'Draft a wireless hardening plan'
           ]
         }
       ]
@@ -987,7 +1407,7 @@ Camera motion smooth and on-style</pre>
           ]
         },
         {
-          title: 'How to Use: Prompting for Code',
+          title: 'How to Use: Prompting for Code (Claude Sonnet 4 vs 3.5)',
           content: `
             <h3>Prompt flows</h3>
             <ol>
@@ -997,6 +1417,43 @@ Camera motion smooth and on-style</pre>
               <li>Run and fix errors iteratively</li>
             </ol>
             <p>Request diffs and function signatures to keep changes surgical.</p>
+            <img src="/img/claude-prompt-format.svg" alt="Claude prompt blueprint" class="w-full h-auto rounded my-4" />
+            <h3>Best prompt format for Claude</h3>
+            <p>Use a constraint‑driven recipe: role → task → context → rules → outputs. Provide file paths and ask for diffs and tests. Keep it concise but explicit.</p>
+            <div class="bg-gray-900/50 border border-gray-700 rounded p-3 mb-4">
+              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">You are a senior TypeScript engineer.
+Task: Implement feature X under constraints Y.
+Context: project style, file paths, tech stack.
+Rules:
+- Follow existing patterns and naming conventions.
+- Prefer pure functions and add tests.
+- Return changes as unified diffs.
+Outputs:
+1) Plan (bullets with file paths)
+2) Diffs for changed files
+3) Unit tests (names, cases)
+4) Notes (assumptions, edge cases)
+Critique: If anything is unclear, ask before coding.</pre>
+            </div>
+            <h3>Claude Sonnet models for coding</h3>
+            <img src="/img/claude-sonnet-4.svg" alt="Claude Sonnet 4 strengths" class="w-full h-auto rounded my-4" />
+            <p><strong>Sonnet 4</strong>: better for multi‑file refactors, complex bug hunts, long‑context planning, and reliable structured outputs (JSON, diffs, plan/checklist). Use when correctness and robustness matter most.</p>
+            <img src="/img/claude-sonnet-3-5.svg" alt="Claude Sonnet 3.5 strengths" class="w-full h-auto rounded my-4" />
+            <p><strong>Sonnet 3.5</strong>: fast and cost‑effective for single‑file utilities, targeted fixes, and small refactors. Great for prototyping and helpers where speed is key.</p>
+            <h3>Practical differences</h3>
+            <ul>
+              <li><strong>Reasoning depth</strong>: Sonnet 4 handles larger refactors and cross‑file reasoning more reliably.</li>
+              <li><strong>Speed & cost</strong>: Sonnet 3.5 is quicker and cheaper for small scoped tasks.</li>
+              <li><strong>Structured outputs</strong>: Both can return JSON/diffs; Sonnet 4 is more dependable under complexity.</li>
+              <li><strong>Tool‑use planning</strong>: Sonnet 4 typically produces clearer multi‑step plans.</li>
+            </ul>
+            <h3>Hands‑on prompts</h3>
+            <div class="bg-gray-900/50 border border-gray-700 rounded p-3">
+              <pre class="whitespace-pre-wrap break-words overflow-x-auto text-sm text-gray-100">1) "Generate data model and CRUD API in Express + TypeScript; include unit tests and return unified diffs."
+2) "Refactor this React hook for performance; keep signatures stable and add tests for edge cases."
+3) "Write a Jest test suite for src/utils/date.ts; cover invalid inputs and time zones."
+              </pre>
+            </div>
           `,
           examples: [
             'Add a component with props and tests',
@@ -1078,8 +1535,9 @@ Camera motion smooth and on-style</pre>
       { label: 'DataTalks.Club — ML Best Practices', url: 'https://www.youtube.com/@DataTalksClub' }
     ],
     5: [
-      { label: 'Andrej Karpathy — Project Tips', url: 'https://www.youtube.com/@AndrejKarpathy' },
-      { label: 'Runway ML — Case Studies', url: 'https://www.youtube.com/@RunwayML' }
+      { label: 'HackerSploit — Nmap & Network Security', url: 'https://www.youtube.com/@HackerSploit' },
+      { label: 'NetworkChuck — Kali Linux Basics', url: 'https://www.youtube.com/@NetworkChuck' },
+      { label: 'LiveOverflow — Web Security & CTFs', url: 'https://www.youtube.com/@LiveOverflow' }
     ],
     6: [
       { label: 'Andrej Karpathy — Let’s build GPT', url: 'https://www.youtube.com/watch?v=kCc8FmEb1nY' },

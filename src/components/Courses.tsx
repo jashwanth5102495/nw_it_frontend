@@ -293,9 +293,19 @@ const Courses = () => {
       theme === 'dark' ? 'bg-black text-white' : 'bg-gray-50 text-gray-900'
     }`}>
       <Header />
-      
+      {/* Scrolling announcement banner */}
+      <div className="relative overflow-hidden border-y border-yellow-600/40 bg-yellow-900/20">
+        <style>
+          {`@keyframes scrollAnnouncement { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }`}
+        </style>
+        <div
+          className="whitespace-nowrap text-sm md:text-base text-yellow-300 py-2"
+          style={{ animation: 'scrollAnnouncement 18s linear infinite' }}
+        >
+          Announcement: Slots for Frontend Development - Beginner and DevOps - Beginner will be closing on wednesday at 4 PM (Austin, Texas) — 2:30 am in India.
+        </div>
+      </div>
 
-      
       <div className="pt-20">
         {/* Header Section */}
         <div className={`border-b ${theme === 'dark' ? 'border-gray-800' : 'border-gray-200'} pb-8`}>
@@ -600,30 +610,43 @@ const Courses = () => {
                             ₹{course.price.toLocaleString()}
                           </span>
                         </div>
-                        {course.students >= course.maxStudents ? (
-                          <button 
-                            disabled
-                            className={`px-4 py-2 rounded font-medium text-sm transition-colors cursor-not-allowed ${
-                              theme === 'dark'
-                                ? 'bg-gray-600 text-gray-400'
-                                : 'bg-gray-400 text-gray-600'
-                            }`}>
-                            Slots Closed
-                          </button>
-                        ) : (
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate('/student-registration');
-                            }}
-                            className={`px-4 py-2 rounded font-medium text-sm transition-colors ${
-                            theme === 'dark'
-                              ? 'bg-blue-600 text-white hover:bg-blue-700'
-                              : 'bg-blue-600 text-white hover:bg-blue-700'
-                          }`}>
-                            Enroll Now
-                          </button>
-                        )}
+                        {(() => {
+                          // Time-based closing: Monday 4 PM (Austin, Texas) — 2:30 am in India
+                          // Set the closing time in UTC: 2025-10-13 21:00:00Z (corresponds to Monday 4 PM CT during DST)
+                          const closingTimeUTC = new Date('2025-10-13T21:00:00Z');
+                          const nowUTC = new Date();
+                          const isClosingCourse = course.id === 'frontend-beginner' || course.id === 'devops-beginner';
+                          const isClosedByTime = isClosingCourse && nowUTC >= closingTimeUTC;
+                          const isClosedByCapacity = course.students >= course.maxStudents;
+                          const isClosed = isClosedByTime || isClosedByCapacity;
+
+                          if (isClosed) {
+                            return (
+                              <button
+                                disabled
+                                className={`px-4 py-2 rounded font-medium text-sm transition-colors cursor-not-allowed ${
+                                  theme === 'dark' ? 'bg-gray-600 text-gray-400' : 'bg-gray-400 text-gray-600'
+                                }`}
+                              >
+                                Slots Closed
+                              </button>
+                            );
+                          }
+
+                          return (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate('/student-registration');
+                              }}
+                              className={`px-4 py-2 rounded font-medium text-sm transition-colors ${
+                                theme === 'dark' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-600 text-white hover:bg-blue-700'
+                              }`}
+                            >
+                              Enroll Now
+                            </button>
+                          );
+                        })()}
                       </div>
                     </div>
                   </motion.div>

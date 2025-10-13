@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { getAssignmentDefinitions, normalizeCourseKey } from '../data/courseAssignments';
 import { useNavigate } from 'react-router-dom';
 import StudentDetailModal from './StudentDetailModal';
 import { PaymentStatusBadge, PaymentStatusType } from './PaymentStatus';
@@ -183,6 +184,66 @@ const AdminPanel: React.FC = () => {
   const [showSubmissions, setShowSubmissions] = useState(false);
   const [submissionsLoading, setSubmissionsLoading] = useState(false);
 
+  // Credentials Modal State
+  const [showCredentialsModal, setShowCredentialsModal] = useState(false);
+  const [credentialsLoading, setCredentialsLoading] = useState(false);
+  const [credentialsError, setCredentialsError] = useState<string | null>(null);
+  const [credentialsInfo, setCredentialsInfo] = useState<{ studentId: string; username?: string; tempPassword?: string } | null>(null);
+  const [activeCredentialsStudent, setActiveCredentialsStudent] = useState<Student | null>(null);
+
+  // Student Courses: Filter & Pagination
+  const [studentFilter, setStudentFilter] = useState<'all' | 'pending' | 'confirmed' | 'error'>('all');
+  const [currentStudentPage, setCurrentStudentPage] = useState(1);
+  const studentsPerPage = 10;
+  const [studentSearchId, setStudentSearchId] = useState('');
+
+  const filteredStudents = useMemo(() => {
+    if (!Array.isArray(students) || students.length === 0) return [];
+
+    const normalize = (s?: string) => (s || '').toLowerCase();
+    const isPending = (s?: string) => ['pending', 'waiting_for_confirmation'].includes(normalize(s));
+    const isError = (s?: string) => ['error', 'rejected'].includes(normalize(s));
+    const isConfirmed = (s?: string) => normalize(s) === 'confirmed';
+
+    return students.filter((s) => {
+      // Search by Student ID (case-insensitive, partial match)
+      const search = studentSearchId.trim().toLowerCase();
+      const matchesSearch = search === ''
+        ? true
+        : normalize(String(s.studentId || '')).includes(search);
+
+      // When filter is 'all', rely solely on the search match
+      if (studentFilter === 'all') return matchesSearch;
+
+      const studentPayments = getStudentPayments(s._id);
+      const hasConfirmed = studentPayments.some(p => isConfirmed(p.confirmationStatus));
+      const hasError = studentPayments.some(p => isError(p.confirmationStatus));
+      const hasPendingForAnyCourse = (s.enrolledCourses || []).some(e => {
+        const payment = studentPayments.find(p => p.courseId && p.courseId._id === e.courseId._id);
+        // Treat no payment as pending review
+        if (!payment) return true;
+        return isPending(payment.confirmationStatus);
+      });
+
+      if (studentFilter === 'confirmed') return hasConfirmed && matchesSearch;
+      if (studentFilter === 'error') return hasError && matchesSearch;
+      if (studentFilter === 'pending') return hasPendingForAnyCourse && !hasConfirmed && matchesSearch;
+      return matchesSearch;
+    });
+  }, [students, payments, studentFilter, studentSearchId]);
+
+  const totalStudentPages = useMemo(() => Math.max(1, Math.ceil(filteredStudents.length / studentsPerPage)), [filteredStudents.length]);
+  const paginatedStudents = useMemo(() => {
+    const start = (currentStudentPage - 1) * studentsPerPage;
+    const end = start + studentsPerPage;
+    return filteredStudents.slice(start, end);
+  }, [filteredStudents, currentStudentPage]);
+
+  useEffect(() => {
+    // Reset to first page when data, filter, or search changes
+    setCurrentStudentPage(1);
+  }, [studentFilter, studentSearchId, students.length]);
+
   // Toggle functions for collapsible sections
   const toggleStudentSection = (studentId: string, section: 'courses' | 'payments') => {
     setExpandedStudents(prev => ({
@@ -195,9 +256,11 @@ const AdminPanel: React.FC = () => {
   };
 
   // Helper function to get payments for a specific student
-  const getStudentPayments = (studentId: string) => {
+  // Use a function declaration so it is hoisted and safe to call
+  // from memoized filters defined earlier in the component.
+  function getStudentPayments(studentId: string) {
     return payments.filter(payment => payment.studentId && payment.studentId._id === studentId);
-  };
+  }
 
   const projectPhases = [
     'Planning & Analysis',
@@ -215,6 +278,57 @@ const AdminPanel: React.FC = () => {
     fetchPayments();
     fetchFaculty();
   }, []);
+
+  // After students are fetched, augment enrollments with assignment/test counts from backend progress
+  useEffect(() => {
+    const augmentCounts = async () => {
+      if (!students || students.length === 0) return;
+      try {
+        const updated = await Promise.all(students.map(async (student: any) => {
+          if (!student?.enrolledCourses || student.enrolledCourses.length === 0) return student;
+
+          const updatedEnrollments = await Promise.all(student.enrolledCourses.map(async (enrollment: any) => {
+            const courseRef = enrollment.courseId; // May be populated doc or ObjectId/string
+            const rawCourseKey = (courseRef && (courseRef._id || courseRef.id || courseRef)) || enrollment.courseId;
+            const courseKey = normalizeCourseKey(courseRef) || normalizeCourseKey(rawCourseKey) || rawCourseKey;
+            const localDefs = getAssignmentDefinitions(courseKey as string);
+            try {
+              const resp = await fetch(`${BASE_URL}/api/progress/student/${student._id}/course/${courseKey}/summary`);
+              if (resp.ok) {
+                const result = await resp.json();
+                const data = result?.data || {};
+                return {
+                  ...enrollment,
+                  assignments: {
+                    completed: data.assignments?.completed || 0,
+                    total: (localDefs?.length || data.assignments?.total || 0),
+                    list: data.assignments?.list || []
+                  },
+                  tests: data.quizzes || { completed: 0, total: 0, list: [] }
+                };
+              }
+            } catch (err) {
+              console.error('Failed to fetch progress summary for', student._id, courseKey, err);
+            }
+            return {
+              ...enrollment,
+              assignments: enrollment.assignments || { completed: 0, total: (localDefs?.length || 0), list: [] },
+              tests: enrollment.tests || { completed: 0, total: 0, list: [] }
+            };
+          }));
+
+          return { ...student, enrolledCourses: updatedEnrollments };
+        }));
+
+        setStudents(updated);
+      } catch (e) {
+        console.error('Error augmenting assignment/test counts:', e);
+      }
+    };
+
+    augmentCounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [students.length]);
 
   // Function to fetch student submissions
   const fetchStudentSubmissions = async () => {
@@ -527,6 +641,69 @@ const AdminPanel: React.FC = () => {
   const handleDeleteStudent = (student: Student) => {
     setStudentToDelete(student);
     setShowDeleteConfirm(true);
+  };
+
+  // Open Credentials Modal
+  const openStudentCredentials = (student: Student) => {
+    setActiveCredentialsStudent(student);
+    setCredentialsError(null);
+    setCredentialsInfo({ studentId: student.studentId });
+    setShowCredentialsModal(true);
+    // Auto-generate a temporary password when opening the modal
+    generateAndShowTempPassword(student);
+  };
+
+  // Reset password to generate a temporary password
+  const resetStudentPassword = async () => {
+    if (!activeCredentialsStudent) return;
+    setCredentialsLoading(true);
+    setCredentialsError(null);
+    try {
+      const response = await fetch(`${BASE_URL}/api/students/admin/reset-password/${activeCredentialsStudent._id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Failed to reset password');
+      }
+      const data = result.data || {};
+      setCredentialsInfo({
+        studentId: data.studentId || activeCredentialsStudent.studentId,
+        username: data.username,
+        tempPassword: data.tempPassword
+      });
+    } catch (error: any) {
+      setCredentialsError(error.message || 'Error generating temporary password');
+    } finally {
+      setCredentialsLoading(false);
+    }
+  };
+
+  // Generate temp password for a given student (used on modal open)
+  const generateAndShowTempPassword = async (student: Student) => {
+    setCredentialsLoading(true);
+    setCredentialsError(null);
+    try {
+      const response = await fetch(`${BASE_URL}/api/students/admin/reset-password/${student._id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Failed to reset password');
+      }
+      const data = result.data || {};
+      setCredentialsInfo({
+        studentId: data.studentId || student.studentId,
+        username: data.username,
+        tempPassword: data.tempPassword
+      });
+    } catch (error: any) {
+      setCredentialsError(error.message || 'Error generating temporary password');
+    } finally {
+      setCredentialsLoading(false);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -1194,8 +1371,32 @@ const AdminPanel: React.FC = () => {
         {activeTab === 'courses' && (
           <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Student Enrollments ({students.length})</h2>
+              <h2 className="text-2xl font-bold text-white">Student Enrollments ({filteredStudents.length})</h2>
               <div className="flex items-center space-x-3">
+                {/* Search by Student ID */}
+                <div className="flex items-center space-x-2 bg-black/30 border border-white/10 rounded-lg px-3 py-2">
+                  <span className="text-white/60 text-sm">Search</span>
+                  <input
+                    value={studentSearchId}
+                    onChange={(e) => setStudentSearchId(e.target.value)}
+                    placeholder="Student ID"
+                    className="bg-transparent border border-white/10 rounded px-2 py-1 text-sm text-white placeholder-white/40 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                {/* Filter by payment status */}
+                <div className="flex items-center space-x-2 bg-black/30 border border-white/10 rounded-lg px-3 py-2">
+                  <span className="text-white/60 text-sm">Filter</span>
+                  <select
+                    value={studentFilter}
+                    onChange={(e) => setStudentFilter(e.target.value as 'all' | 'pending' | 'confirmed' | 'error')}
+                    className="bg-transparent text-white text-sm focus:outline-none"
+                  >
+                    <option value="all">All</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="error">Error</option>
+                  </select>
+                </div>
                 <button
                   onClick={() => {
                     setShowSubmissions(!showSubmissions);
@@ -1342,8 +1543,18 @@ const AdminPanel: React.FC = () => {
                 <p className="text-white/40 text-sm">Students will appear here after course purchases</p>
               </div>
             ) : (
-              <div className="space-y-6">
-                {students.map(student => (
+              <div>
+                {/* Empty state for filter */}
+                {filteredStudents.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">🔎</div>
+                    <p className="text-white/60 text-lg">No students match this filter</p>
+                    <p className="text-white/40 text-sm">Try changing the payment status filter</p>
+                  </div>
+                ) : null}
+
+                <div className="space-y-6">
+                {paginatedStudents.map(student => (
                   <div key={student._id} className="bg-white/5 rounded-lg p-6 border border-white/10">
                     {/* Student Header */}
                     <div className="flex items-center justify-between mb-4">
@@ -1371,22 +1582,30 @@ const AdminPanel: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <div className="text-white/60 text-sm">Joined</div>
-                          <div className="text-white text-sm">
-                            {new Date(student.createdAt).toLocaleDateString()}
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => handleDeleteStudent(student)}
-                          className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center space-x-2"
-                          title="Delete Student"
-                        >
-                          <span>🗑️</span>
-                          <span>Delete</span>
-                        </button>
-                      </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <div className="text-white/60 text-sm">Joined</div>
+                <div className="text-white text-sm">
+                  {new Date(student.createdAt).toLocaleDateString()}
+                </div>
+              </div>
+              <button
+                onClick={() => openStudentCredentials(student)}
+                className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                title="Show Student Credentials"
+              >
+                <span>ℹ️</span>
+                <span>Info</span>
+              </button>
+              <button
+                onClick={() => handleDeleteStudent(student)}
+                className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                title="Delete Student"
+              >
+                <span>🗑️</span>
+                <span>Delete</span>
+              </button>
+            </div>
                     </div>
 
                     {/* Enrolled Courses */}
@@ -1778,8 +1997,109 @@ const AdminPanel: React.FC = () => {
                     )}
                   </div>
                 ))}
+                </div>
+
+                {/* Pagination controls */}
+                {filteredStudents.length > 0 && totalStudentPages > 1 && (
+                  <div className="mt-6 flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => setCurrentStudentPage(p => Math.max(1, p - 1))}
+                      disabled={currentStudentPage === 1}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium border border-white/10 transition-colors ${currentStudentPage === 1 ? 'bg-gray-700 text-white/40 cursor-not-allowed' : 'bg-gray-600 hover:bg-gray-700 text-white'}`}
+                    >
+                      ◀ Prev
+                    </button>
+                    {Array.from({ length: totalStudentPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentStudentPage(page)}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium border ${page === currentStudentPage ? 'bg-blue-600 border-blue-500 text-white' : 'bg-black/30 border-white/10 text-white hover:bg-black/40'}`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setCurrentStudentPage(p => Math.min(totalStudentPages, p + 1))}
+                      disabled={currentStudentPage === totalStudentPages}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium border border-white/10 transition-colors ${currentStudentPage === totalStudentPages ? 'bg-gray-700 text-white/40 cursor-not-allowed' : 'bg-gray-600 hover:bg-gray-700 text-white'}`}
+                    >
+                      Next ▶
+                    </button>
+                  </div>
+                )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Credentials Modal */}
+        {showCredentialsModal && activeCredentialsStudent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+            <div className="bg-gray-900 rounded-xl p-6 w-full max-w-md border border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white text-xl font-bold">Student Credentials</h3>
+                <button
+                  onClick={() => setShowCredentialsModal(false)}
+                  className="text-white/70 hover:text-white"
+                >
+                  ✖
+                </button>
+              </div>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-white/60">Name</span>
+                  <span className="text-white font-medium">{activeCredentialsStudent.firstName} {activeCredentialsStudent.lastName}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/60">Email</span>
+                  <span className="text-white font-medium">{activeCredentialsStudent.email}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/60">Student ID</span>
+                  <span className="text-white font-medium">{credentialsInfo?.studentId || activeCredentialsStudent.studentId}</span>
+                </div>
+                {credentialsInfo?.username && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60">Username</span>
+                    <span className="text-white font-medium">{credentialsInfo.username}</span>
+                  </div>
+                )}
+                <div className="mt-4">
+                  <button
+                    onClick={resetStudentPassword}
+                    disabled={credentialsLoading}
+                    className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white rounded-lg font-medium transition-colors"
+                  >
+                    {credentialsLoading ? 'Generating...' : 'Generate Temporary Password'}
+                  </button>
+                </div>
+                {credentialsError && (
+                  <div className="mt-3 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm">
+                    {credentialsError}
+                  </div>
+                )}
+                {credentialsInfo?.tempPassword && (
+                  <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
+                    <div className="text-white/80 text-sm mb-2">Temporary Password</div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        value={credentialsInfo.tempPassword}
+                        className="flex-1 bg-black/50 border border-white/20 rounded px-3 py-2 text-white text-sm"
+                      />
+                      <button
+                        onClick={() => navigator.clipboard.writeText(credentialsInfo.tempPassword || '')}
+                        className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                    <p className="text-white/50 text-xs mt-2">Share this password with the student and advise them to change it after logging in.</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 

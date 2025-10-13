@@ -3042,13 +3042,79 @@ Docker in DevOps:
      }
    };
 
-   const handleSubmitTest = () => {
+   const handleSubmitTest = async () => {
      const correctAnswers = assignmentData!.questions.filter((question, index) => 
        selectedAnswers[index] === question.correctAnswer
      ).length;
      
      setScore(correctAnswers);
      setShowResults(true);
+ 
+     const percentScore = Math.round((correctAnswers / assignmentData!.questions.length) * 100);
+ 
+     // Persist completion locally so Student Portal can reflect counts immediately
+     try {
+       const updatesRaw = localStorage.getItem('assignmentStatusUpdates') || '{}';
+       const updates = JSON.parse(updatesRaw);
+       updates[assignmentId as string] = 'graded';
+       localStorage.setItem('assignmentStatusUpdates', JSON.stringify(updates));
+     } catch (e) {
+       console.error('Failed to save local assignment status update', e);
+     }
+ 
+    // Attempt to update backend progress via courses endpoint
+    try {
+      const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+      const currentUserStr = localStorage.getItem('currentUser');
+      const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
+      const studentId = currentUser?.id || currentUser?._id;
+      const token = localStorage.getItem('token') || currentUser?.token;
+
+      if (studentId) {
+        const payload = {
+          studentId,
+          courseId: assignmentData?.courseId || '',
+          // Optionally map quiz completion to course progress percentage
+          progress: Math.min(100, percentScore),
+          // lessonId can be sent when available; omitted for MCQ-only
+        };
+
+        await fetch(`${BASE_URL}/api/courses/progress/update`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify(payload),
+        });
+
+        // Update assignment progress via new progress endpoint
+        const assignmentPayload = {
+          courseId: assignmentData?.courseId || '',
+          moduleId: `${assignmentData?.courseId}-assignments`,
+          assignmentId: (assignmentId as string) || `${assignmentData?.courseId}-assignment`,
+          assignmentTitle: assignmentData?.title || 'Assignment',
+          status: 'graded',
+          score: percentScore,
+          maxScore: 100,
+          timeSpent: 0,
+          feedback: 'Auto-graded MCQ assignment'
+        };
+
+        await fetch(`${BASE_URL}/api/progress/student/${studentId}/assignment`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify(assignmentPayload),
+        });
+      } else {
+        console.warn('Student ID not found for progress update.');
+      }
+    } catch (error) {
+      console.error('Failed to update course progress on backend', error);
+    }
      
      if (correctAnswers >= Math.ceil(assignmentData!.questions.length * 0.7)) {
        setTestCompleted(true);
@@ -3493,15 +3559,7 @@ Docker in DevOps:
                        >
                          ← Previous
                        </motion.button>
-                       
-                       <div className="text-center">
-                         <div className="text-sm text-gray-400 mb-1">Progress</div>
-                         <div className="text-lg font-semibold text-white">
-                           {Object.keys(selectedAnswers).length} / {assignmentData.questions.length}
-                         </div>
-                         <div className="text-xs text-gray-500">questions answered</div>
-                       </div>
-                       
+                      
                        {currentQuestionIndex === assignmentData.questions.length - 1 ? (
                          <motion.button
                            onClick={handleSubmitTest}

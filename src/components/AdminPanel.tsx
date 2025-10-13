@@ -194,7 +194,7 @@ const AdminPanel: React.FC = () => {
   // Student Courses: Filter & Pagination
   const [studentFilter, setStudentFilter] = useState<'all' | 'pending' | 'confirmed' | 'error'>('all');
   const [currentStudentPage, setCurrentStudentPage] = useState(1);
-  const studentsPerPage = 10;
+  const studentsPerPage = 8;
   const [studentSearchId, setStudentSearchId] = useState('');
 
   const filteredStudents = useMemo(() => {

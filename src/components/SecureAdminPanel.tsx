@@ -17,6 +17,8 @@ const SecureAdminPanel: React.FC = () => {
   const [isBlocked, setIsBlocked] = useState(false);
   const [blockTimeRemaining, setBlockTimeRemaining] = useState(0);
 
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
   // Security constants
   const CORRECT_USER_ID = '8328246413';
   const CORRECT_PASSWORD = '9441206407';
@@ -126,27 +128,47 @@ const SecureAdminPanel: React.FC = () => {
     // Simulate processing time to prevent timing attacks
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
 
-    // Validate credentials
-    if (sanitizedUserId === CORRECT_USER_ID && sanitizedPassword === CORRECT_PASSWORD) {
-      // Generate secure session token
-      const token = btoa(Date.now() + Math.random().toString());
-      
-      // Store authentication data
-      sessionStorage.setItem('admin_auth_token', token);
-      sessionStorage.setItem('admin_auth_timestamp', Date.now().toString());
-      
-      // Clear login attempts on successful login
-      setLoginAttempts([]);
-      localStorage.removeItem('admin_login_attempts');
-      
-      setIsAuthenticated(true);
-      setUserId('');
-      setPassword('');
-    } else {
+    // Validate credentials locally first
+    const localValid = sanitizedUserId === CORRECT_USER_ID && sanitizedPassword === CORRECT_PASSWORD;
+
+    if (!localValid) {
       recordFailedAttempt();
       setError('Invalid credentials. Please check your User ID and Password.');
       setUserId('');
       setPassword('');
+      setIsLoading(false);
+      return;
+    }
+
+    // Authenticate with backend to obtain JWT for secured APIs
+    try {
+      const resp = await fetch(`${BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: sanitizedUserId, password: sanitizedPassword })
+      });
+
+      const data = await resp.json();
+      if (resp.ok && data?.success && data?.data?.token) {
+        const token = data.data.token;
+        sessionStorage.setItem('admin_auth_token', token);
+        sessionStorage.setItem('admin_auth_timestamp', Date.now().toString());
+
+        // Clear login attempts on successful login
+        setLoginAttempts([]);
+        localStorage.removeItem('admin_login_attempts');
+
+        setIsAuthenticated(true);
+        setUserId('');
+        setPassword('');
+      } else {
+        recordFailedAttempt();
+        setError(data?.message || 'Authentication failed on server.');
+      }
+    } catch (err) {
+      console.error('Admin login error:', err);
+      recordFailedAttempt();
+      setError('Network or server error during authentication.');
     }
 
     setIsLoading(false);

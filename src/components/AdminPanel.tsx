@@ -387,7 +387,10 @@ const AdminPanel: React.FC = () => {
   const fetchStudents = async () => {
     try {
       console.log('🔍 Fetching students...');
-      const response = await fetch(`${BASE_URL}/api/students`);
+      const token = sessionStorage.getItem('admin_auth_token') || '';
+      const response = await fetch(`${BASE_URL}/api/students?all=true&includeInactive=true`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       if (response.ok) {
         const result = await response.json();
         const data = result.data || result;

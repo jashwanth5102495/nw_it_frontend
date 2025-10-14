@@ -210,6 +210,14 @@ const StudentPortal: React.FC = () => {
   // Module submission tracking state
   const [moduleSubmissions, setModuleSubmissions] = useState<{ [courseId: string]: { [moduleId: string]: { submissionUrl: string; submittedAt: string } } }>({});
 
+  // Password update state (Settings tab)
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [passwordUpdateError, setPasswordUpdateError] = useState<string | null>(null);
+  const [passwordUpdateSuccess, setPasswordUpdateSuccess] = useState<string | null>(null);
+
   // Load locally persisted assignment status updates (e.g., MCQ completion)
   useEffect(() => {
     try {
@@ -504,6 +512,74 @@ const StudentPortal: React.FC = () => {
       console.error('Error submitting module:', error);
       alert('Error submitting module. Please try again.');
       return false;
+    }
+  };
+
+  // Update password (current password NOT required)
+  const updatePassword = async () => {
+    setPasswordUpdateError(null);
+    setPasswordUpdateSuccess(null);
+
+    // Basic validations
+    if (!newPassword || !confirmNewPassword) {
+      setPasswordUpdateError('Please enter and confirm your new password.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordUpdateError('New password must be at least 6 characters long.');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setPasswordUpdateError('New password and confirmation do not match.');
+      return;
+    }
+
+    try {
+      const currentUserRaw = localStorage.getItem('currentUser');
+      if (!currentUserRaw) {
+        setPasswordUpdateError('Please log in to update your password.');
+        return;
+      }
+      const currentUser = JSON.parse(currentUserRaw);
+      const studentId = currentUser.id || currentUser._id;
+      const token = currentUser.token;
+      if (!studentId || !token) {
+        setPasswordUpdateError('Missing authentication. Please re-login.');
+        return;
+      }
+
+      setIsUpdatingPassword(true);
+      const response = await fetch(`${BASE_URL}/api/students/${studentId}/password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ newPassword })
+      });
+
+      let result: any = null;
+      let rawText = '';
+      try {
+        result = await response.json();
+      } catch (parseErr) {
+        rawText = await response.text();
+      }
+
+      if (response.ok && result && result.success) {
+        setPasswordUpdateSuccess(result.message || 'Password updated successfully.');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmNewPassword('');
+      } else {
+        const errMsg = (result && (result.message || result.error)) || rawText || 'Failed to update password.';
+        setPasswordUpdateError(errMsg);
+      }
+    } catch (err) {
+      console.error('Password update error:', err);
+      setPasswordUpdateError('An error occurred. Please try again.');
+    } finally {
+      setIsUpdatingPassword(false);
     }
   };
 
@@ -2629,22 +2705,39 @@ const StudentPortal: React.FC = () => {
                   <div className="space-y-3">
                     <input
                       type="password"
-                      placeholder="Current Password"
+                      placeholder="Current Password (optional)"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
                       className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
                     />
                     <input
                       type="password"
                       placeholder="New Password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
                       className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
                     />
                     <input
                       type="password"
                       placeholder="Confirm New Password"
+                      value={confirmNewPassword}
+                      onChange={(e) => setConfirmNewPassword(e.target.value)}
                       className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
                     />
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
-                      Update Password
+                    {passwordUpdateError && (
+                      <p className="text-red-400 text-sm">{passwordUpdateError}</p>
+                    )}
+                    {passwordUpdateSuccess && (
+                      <p className="text-green-400 text-sm">{passwordUpdateSuccess}</p>
+                    )}
+                    <button
+                      onClick={updatePassword}
+                      disabled={isUpdatingPassword}
+                      className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors ${isUpdatingPassword ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    >
+                      {isUpdatingPassword ? 'Updating...' : 'Update Password'}
                     </button>
+                    <p className="text-gray-400 text-xs">Current password is not required.</p>
                   </div>
                 </div>
               </div>

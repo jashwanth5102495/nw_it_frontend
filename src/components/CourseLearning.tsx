@@ -2739,14 +2739,6 @@ body {
           id: 'css-box-model',
           title: 'CSS Box Model and Layout',
           content: `
-            <div style="margin-bottom: 20px; text-align: center;">
-              <h3>📹 Video Explanation</h3>
-              <div style="width: 100%; max-width: 800px; height: 400px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold;">
-                📹 Video Explanation Coming Soon
-              </div>
-              <p style="margin-top: 10px; color: #666; font-size: 14px;">Video explanation coming soon - stay tuned!</p>
-            </div>
-            
             <h2>📦 The CSS Box Model</h2>
             <p>Every HTML element is a rectangular box. The CSS box model describes how the size of these boxes is calculated.</p>
             
@@ -8994,13 +8986,6 @@ app.listen(PORT, () => {
 
   return (
     <div className="h-screen bg-black relative overflow-hidden flex flex-col">
-      {/* Scrolling banner keyframes (local to this component) */}
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(100%); }
-          100% { transform: translateX(-100%); }
-        }
-      `}</style>
       {/* MagnetLines Background */}
       <div className="fixed inset-0 z-0">
         <MagnetLines 
@@ -9068,18 +9053,7 @@ app.listen(PORT, () => {
               </div> */}
             </div>
           </div>
-          {/* Scrolling Feedback & Contact Banner */}
-          <div className="mt-2 mb-2 border-t border-b border-gray-800/50 bg-black/30">
-            <div className="overflow-hidden whitespace-nowrap">
-              <div
-                className="inline-block will-change-transform text-[12px] md:text-sm text-gray-100"
-                style={{ animation: 'marquee 28s linear infinite' }}
-              >
-                <span aria-label="note" title="Note" className="mr-2">📌</span>
-                Our video explanations are a new initiative and will continue improving day by day. We value your feedback and suggestions to help us make them better. For any changes, issues, or ideas, please reach out to us at:  📧 jasnav.co@gmail.com or info@jasnav.co.in  Thank you for your support and for learning with us!
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
       

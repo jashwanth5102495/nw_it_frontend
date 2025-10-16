@@ -132,6 +132,62 @@ const Courses = () => {
       ]
     },
     {
+      id: 'frontend-intermediate',
+      title: 'Frontend Development - Intermediate',
+      category: 'frontend',
+      level: 'intermediate',
+      description: 'Learn Django fundamentals, databases (MySQL & MongoDB), API integration, environment configuration, and web security best practices. Build backend-powered web applications while strengthening frontend integration skills.',
+      technologies: [
+        'HTML',
+        'Web Development',
+        'Object-Relational Mapping (ORM)',
+        'Django',
+        'MySQL',
+        'Model View Controller (MVC)',
+        'Database Development',
+        'Web Applications',
+        'Application Frameworks',
+        'Back-End Web Development',
+        'Database Management',
+        'Application Security',
+        'Web Servers',
+        'Data Modeling',
+        'MongoDB',
+        'API Integration',
+        'Environment Variables'
+      ],
+      price: 1950,
+      duration: '10 weeks',
+      projects: 4,
+      modules: [
+        {
+          title: 'Module 1: Django Fundamentals & MVC',
+          duration: '3 weeks',
+          topics: ['Project setup', 'Apps & URL routing', 'Views & templates', 'Models & ORM']
+        },
+        {
+          title: 'Module 2: Relational & Document Databases',
+          duration: '3 weeks',
+          topics: ['MySQL schema design', 'MongoDB collections', 'Data modeling patterns', 'CRUD operations']
+        },
+        {
+          title: 'Module 3: API Integration & Environment Config',
+          duration: '2 weeks',
+          topics: ['REST APIs & requests', 'Authentication tokens', 'Environment variables (.env)', 'Config management']
+        },
+        {
+          title: 'Module 4: Web Security Best Practices',
+          duration: '2 weeks',
+          topics: ['Input validation', 'Authentication & sessions', 'CSRF protection', 'Secure deployment']
+        }
+      ],
+      image: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?w=400&h=250&fit=crop&crop=center',
+      rating: 4.7,
+      students: 8453,
+      maxStudents: 8453,
+      instructor: 'Priya Sharma'
+    },
+    {
       id: 'frontend-advanced',
       title: 'Frontend Development - Advanced',
       category: 'frontend',
@@ -293,18 +349,7 @@ const Courses = () => {
       theme === 'dark' ? 'bg-black text-white' : 'bg-gray-50 text-gray-900'
     }`}>
       <Header />
-      {/* Scrolling announcement banner */}
-      <div className="relative overflow-hidden border-y border-yellow-600/40 bg-yellow-900/20">
-        <style>
-          {`@keyframes scrollAnnouncement { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }`}
-        </style>
-        <div
-          className="whitespace-nowrap text-sm md:text-base text-yellow-300 py-2"
-          style={{ animation: 'scrollAnnouncement 18s linear infinite' }}
-        >
-          Announcement: Slots for Frontend Development - Beginner and DevOps - Beginner will be closing on wednesday at 4 PM (Austin, Texas) — 2:30 am in India.
-        </div>
-      </div>
+      {/* Announcement banner removed per request */}
 
       <div className="pt-20">
         {/* Header Section */}
@@ -609,6 +654,13 @@ const Courses = () => {
                           }`}>
                             ₹{course.price.toLocaleString()}
                           </span>
+                          {course.id === 'frontend-intermediate' && (
+                            <span className={`${
+                              theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                            } text-xs`}>
+                              One-time payment • Lifetime access
+                            </span>
+                          )}
                         </div>
                         {(() => {
                           // Time-based closing: Monday 4 PM (Austin, Texas) — 2:30 am in India

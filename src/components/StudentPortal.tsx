@@ -236,6 +236,7 @@ const StudentPortal: React.FC = () => {
     const mappings: { [key: string]: string[] } = {
       'ai-tools-mastery': ['1', 'AI-TOOLS-MASTERY', 'ai-tools-mastery', 'AI Tools Mastery'],
       'frontend-beginner': ['frontend-beginner', 'Frontend Development - Beginner', 'FRONTEND-BEGINNER'],
+      'frontend-intermediate': ['frontend-intermediate', 'Frontend Development - Intermediate', 'FRONTEND-INTERMEDIATE'],
       'frontend-advanced': ['3', 'frontend-advanced', 'Frontend Development - Advanced'],
       'devops-beginner': ['DEVOPS-BEGINNER', 'devops-beginner', 'DevOps - Beginner'],
       'devops-intermediate': ['4', 'devops-intermediate', 'DevOps - Intermediate'],
@@ -245,7 +246,9 @@ const StudentPortal: React.FC = () => {
       'AI-TOOLS-MASTERY': ['ai-tools-mastery', '1', 'AI-TOOLS-MASTERY'],
       'AI Tools Mastery': ['ai-tools-mastery', '1', 'AI-TOOLS-MASTERY'],
       'Frontend Development - Beginner': ['frontend-beginner', 'FRONTEND-BEGINNER'],
+      'Frontend Development - Intermediate': ['frontend-intermediate', 'FRONTEND-INTERMEDIATE'],
       'FRONTEND-BEGINNER': ['frontend-beginner', 'Frontend Development - Beginner'],
+      'FRONTEND-INTERMEDIATE': ['frontend-intermediate', 'Frontend Development - Intermediate'],
       'DevOps - Beginner': ['devops-beginner', 'DEVOPS-BEGINNER'],
       'DEVOPS-BEGINNER': ['devops-beginner', 'DevOps - Beginner']
     };
@@ -824,6 +827,62 @@ const StudentPortal: React.FC = () => {
           title: 'Project Development',
           duration: '1 week',
           topics: ['Portfolio website', 'Responsive design', 'Code optimization', 'Deployment']
+        }
+      ]
+    },
+    {
+      id: 'frontend-intermediate',
+      title: 'Frontend Development - Intermediate',
+      category: 'frontend',
+      level: 'intermediate',
+      description: 'Students will learn Django, MongoDB, API integration, environment variable configuration, and related Python topics with a strong focus on secure, backend-powered web applications integrated with modern frontend.',
+      technologies: [
+        'HTML',
+        'Web Development',
+        'Object-Relational Mapping (ORM)',
+        'Django',
+        'MySQL',
+        'Model View Controller (MVC)',
+        'Database Development',
+        'Web Applications',
+        'Application Frameworks',
+        'Back-End Web Development',
+        'Database Management',
+        'Application Security',
+        'Web Servers',
+        'Data Modeling',
+        'MongoDB',
+        'API Integration',
+        'Environment Variables'
+      ],
+      price: 1950,
+      duration: '10 weeks',
+      projects: 4,
+      image: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?w=400&h=250&fit=crop&crop=center',
+      rating: 4.7,
+      students: 8453,
+      maxStudents: 8453,
+      instructor: 'Anita Rao',
+      modules: [
+        {
+          title: 'Module 1: Django Fundamentals & MVC',
+          duration: '3 weeks',
+          topics: ['Project setup', 'Apps & URL routing', 'Views & templates', 'Models & ORM']
+        },
+        {
+          title: 'Module 2: Relational & Document Databases',
+          duration: '3 weeks',
+          topics: ['MySQL schema design', 'MongoDB collections', 'Data modeling patterns', 'CRUD operations']
+        },
+        {
+          title: 'Module 3: API Integration & Environment Config',
+          duration: '2 weeks',
+          topics: ['REST APIs & requests', 'Authentication tokens', 'Environment variables (.env)', 'Config management']
+        },
+        {
+          title: 'Module 4: Web Security Best Practices',
+          duration: '2 weeks',
+          topics: ['Input validation', 'Authentication & sessions', 'CSRF protection', 'Secure deployment']
         }
       ]
     },
@@ -2152,18 +2211,7 @@ const StudentPortal: React.FC = () => {
       case 'courses':
         return (
           <div className="space-y-6">
-            {/* Scrolling announcement: closing slots notice */}
-            <div className="relative overflow-hidden rounded-lg border border-yellow-600/40 bg-yellow-900/20">
-              <style>
-                {`@keyframes scrollBanner { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }`}
-              </style>
-              <div
-                className="whitespace-nowrap text-sm md:text-base text-yellow-300 py-2"
-                style={{ animation: 'scrollBanner 18s linear infinite' }}
-              >
-                Announcement: Slots for Frontend Development - Beginner and DevOps - Beginner will be closing on wednesday at 4 PM (Austin, Texas) — 2:30 am in India.
-              </div>
-            </div>
+            {/* Announcement banner removed per request */}
             <div className="flex items-center justify-between">
               <h2 className="text-white text-2xl font-bold">My Courses</h2>
               <button
@@ -2665,6 +2713,11 @@ const StudentPortal: React.FC = () => {
                       <span className="text-2xl font-bold text-white">
                         {'₹'}{course.price.toLocaleString()}
                       </span>
+                      {course.id === 'frontend-intermediate' && (
+                        <div className="text-xs text-gray-400 mt-1">
+                          One-time payment • Lifetime access
+                        </div>
+                      )}
                     </div>
 
                     {/* Purchase Button */}

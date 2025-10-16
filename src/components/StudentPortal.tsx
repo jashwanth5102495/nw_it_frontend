@@ -210,33 +210,11 @@ const StudentPortal: React.FC = () => {
   // Module submission tracking state
   const [moduleSubmissions, setModuleSubmissions] = useState<{ [courseId: string]: { [moduleId: string]: { submissionUrl: string; submittedAt: string } } }>({});
 
-  // Password update state (Settings tab)
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmNewPassword, setConfirmNewPassword] = useState('');
-  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
-  const [passwordUpdateError, setPasswordUpdateError] = useState<string | null>(null);
-  const [passwordUpdateSuccess, setPasswordUpdateSuccess] = useState<string | null>(null);
-
-  // Load locally persisted assignment status updates (e.g., MCQ completion)
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('assignmentStatusUpdates');
-      const parsed = saved ? JSON.parse(saved) : {};
-      if (parsed && typeof parsed === 'object') {
-        setAssignmentStatuses(prev => ({ ...prev, ...parsed }));
-      }
-    } catch (e) {
-      console.error('Failed to load assignment status updates from storage', e);
-    }
-  }, []);
-
   // Course ID mapping function to handle inconsistent courseId values
   const getCourseIdMapping = (courseId: string): string[] => {
     const mappings: { [key: string]: string[] } = {
       'ai-tools-mastery': ['1', 'AI-TOOLS-MASTERY', 'ai-tools-mastery', 'AI Tools Mastery'],
       'frontend-beginner': ['frontend-beginner', 'Frontend Development - Beginner', 'FRONTEND-BEGINNER'],
-      'frontend-intermediate': ['frontend-intermediate', 'Frontend Development - Intermediate', 'FRONTEND-INTERMEDIATE'],
       'frontend-advanced': ['3', 'frontend-advanced', 'Frontend Development - Advanced'],
       'devops-beginner': ['DEVOPS-BEGINNER', 'devops-beginner', 'DevOps - Beginner'],
       'devops-intermediate': ['4', 'devops-intermediate', 'DevOps - Intermediate'],
@@ -246,9 +224,7 @@ const StudentPortal: React.FC = () => {
       'AI-TOOLS-MASTERY': ['ai-tools-mastery', '1', 'AI-TOOLS-MASTERY'],
       'AI Tools Mastery': ['ai-tools-mastery', '1', 'AI-TOOLS-MASTERY'],
       'Frontend Development - Beginner': ['frontend-beginner', 'FRONTEND-BEGINNER'],
-      'Frontend Development - Intermediate': ['frontend-intermediate', 'FRONTEND-INTERMEDIATE'],
       'FRONTEND-BEGINNER': ['frontend-beginner', 'Frontend Development - Beginner'],
-      'FRONTEND-INTERMEDIATE': ['frontend-intermediate', 'Frontend Development - Intermediate'],
       'DevOps - Beginner': ['devops-beginner', 'DEVOPS-BEGINNER'],
       'DEVOPS-BEGINNER': ['devops-beginner', 'DevOps - Beginner']
     };
@@ -394,8 +370,7 @@ const StudentPortal: React.FC = () => {
         'project-1': 0, // HTML Fundamentals
         'project-2': 1, // CSS Styling
         'project-3': 2, // JavaScript Basics
-        // Map E-commerce Product Catalog to JavaScript Basics module (index 2)
-        'project-4': 2
+        'project-4': 3  // Project Development
       },
       'devops-beginner': {
         'devops-project-1': 0, // DevOps Fundamentals
@@ -515,74 +490,6 @@ const StudentPortal: React.FC = () => {
       console.error('Error submitting module:', error);
       alert('Error submitting module. Please try again.');
       return false;
-    }
-  };
-
-  // Update password (current password NOT required)
-  const updatePassword = async () => {
-    setPasswordUpdateError(null);
-    setPasswordUpdateSuccess(null);
-
-    // Basic validations
-    if (!newPassword || !confirmNewPassword) {
-      setPasswordUpdateError('Please enter and confirm your new password.');
-      return;
-    }
-    if (newPassword.length < 6) {
-      setPasswordUpdateError('New password must be at least 6 characters long.');
-      return;
-    }
-    if (newPassword !== confirmNewPassword) {
-      setPasswordUpdateError('New password and confirmation do not match.');
-      return;
-    }
-
-    try {
-      const currentUserRaw = localStorage.getItem('currentUser');
-      if (!currentUserRaw) {
-        setPasswordUpdateError('Please log in to update your password.');
-        return;
-      }
-      const currentUser = JSON.parse(currentUserRaw);
-      const studentId = currentUser.id || currentUser._id;
-      const token = currentUser.token;
-      if (!studentId || !token) {
-        setPasswordUpdateError('Missing authentication. Please re-login.');
-        return;
-      }
-
-      setIsUpdatingPassword(true);
-      const response = await fetch(`${BASE_URL}/api/students/${studentId}/password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ newPassword })
-      });
-
-      let result: any = null;
-      let rawText = '';
-      try {
-        result = await response.json();
-      } catch (parseErr) {
-        rawText = await response.text();
-      }
-
-      if (response.ok && result && result.success) {
-        setPasswordUpdateSuccess(result.message || 'Password updated successfully.');
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmNewPassword('');
-      } else {
-        const errMsg = (result && (result.message || result.error)) || rawText || 'Failed to update password.';
-        setPasswordUpdateError(errMsg);
-      }
-    } catch (err) {
-      console.error('Password update error:', err);
-      setPasswordUpdateError('An error occurred. Please try again.');
-    } finally {
-      setIsUpdatingPassword(false);
     }
   };
 
@@ -831,69 +738,13 @@ const StudentPortal: React.FC = () => {
       ]
     },
     {
-      id: 'frontend-intermediate',
-      title: 'Frontend Development - Intermediate',
-      category: 'frontend',
-      level: 'intermediate',
-      description: 'Students will learn Django, MongoDB, API integration, environment variable configuration, and related Python topics with a strong focus on secure, backend-powered web applications integrated with modern frontend.',
-      technologies: [
-        'HTML',
-        'Web Development',
-        'Object-Relational Mapping (ORM)',
-        'Django',
-        'MySQL',
-        'Model View Controller (MVC)',
-        'Database Development',
-        'Web Applications',
-        'Application Frameworks',
-        'Back-End Web Development',
-        'Database Management',
-        'Application Security',
-        'Web Servers',
-        'Data Modeling',
-        'MongoDB',
-        'API Integration',
-        'Environment Variables'
-      ],
-      price: 1950,
-      duration: '10 weeks',
-      projects: 4,
-      image: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?w=400&h=250&fit=crop&crop=center',
-      rating: 4.7,
-      students: 8453,
-      maxStudents: 8453,
-      instructor: 'Anita Rao',
-      modules: [
-        {
-          title: 'Module 1: Django Fundamentals & MVC',
-          duration: '3 weeks',
-          topics: ['Project setup', 'Apps & URL routing', 'Views & templates', 'Models & ORM']
-        },
-        {
-          title: 'Module 2: Relational & Document Databases',
-          duration: '3 weeks',
-          topics: ['MySQL schema design', 'MongoDB collections', 'Data modeling patterns', 'CRUD operations']
-        },
-        {
-          title: 'Module 3: API Integration & Environment Config',
-          duration: '2 weeks',
-          topics: ['REST APIs & requests', 'Authentication tokens', 'Environment variables (.env)', 'Config management']
-        },
-        {
-          title: 'Module 4: Web Security Best Practices',
-          duration: '2 weeks',
-          topics: ['Input validation', 'Authentication & sessions', 'CSRF protection', 'Secure deployment']
-        }
-      ]
-    },
-    {
       id: 'frontend-advanced',
       title: 'Frontend Development - Advanced',
       category: 'frontend',
       level: 'advanced',
-      description: 'Master advanced frontend concepts with Next.js, state management, and performance optimization',
-      technologies: ['Next.js', 'Redux Toolkit', 'GraphQL', 'Jest', 'Cypress'],
-      price: 2000,
+      description: 'Master modern frontend with MongoDB, Node.js, React, Django and similar tools — with integrated prompt engineering for Frontend Development',
+      technologies: ['MongoDB', 'Node.js', 'React', 'Django', 'Prompt Engineering'],
+      price: 9500,
       duration: '12 weeks',
       projects: 8,
       image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop&crop=center',
@@ -1984,35 +1835,7 @@ const StudentPortal: React.FC = () => {
       }
 
       try {
-        // First, try validating as a faculty referral code
-        const facultyRes = await fetch(`${BASE_URL}/api/faculty/validate-referral`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            referralCode: code.trim(),
-            coursePrice: paymentModalData.originalPrice
-          })
-        });
-
-        let facData: any = null;
-        try { facData = await facultyRes.json(); } catch {}
-
-        if (facultyRes.ok && facData && facData.success && facData.data) {
-          const finalPrice = facData.data.finalPrice;
-          const savings = paymentModalData.originalPrice - finalPrice;
-          const discountPercent = Math.round((savings / paymentModalData.originalPrice) * 100);
-          setPaymentModalData({
-            ...paymentModalData,
-            discount: discountPercent,
-            discountedPrice: finalPrice,
-            referralCode: code.toUpperCase()
-          });
-          return;
-        }
-
-        // Fallback: verify via general referral codes
+        // Verify referral code with backend
         const response = await fetch(`${BASE_URL}/api/courses/verify-referral`, {
           method: 'POST',
           headers: {
@@ -2210,8 +2033,19 @@ const StudentPortal: React.FC = () => {
     switch (activeTab) {
       case 'courses':
         return (
-          <div className="space-y-6">
-            {/* Announcement banner removed per request */}
+          <div className="space-y-6 max-w-full">
+            {/* Scrolling suggestion banner for Frontend Development - Advanced */}
+            <div className="relative overflow-hidden rounded-lg border border-green-600/40 bg-green-900/20">
+              <style>
+                {`@keyframes scrollBanner { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }`}
+              </style>
+              <div
+                className="whitespace-nowrap text-sm md:text-base text-green-300 py-2"
+                style={{ animation: 'scrollBanner 18s linear infinite' }}
+              >
+                Continuity tip: Purchase Frontend Development - Advanced to learn in depth with React basics, Django, MongoDB, Node.js and similar tools — integrated prompt engineering for Frontend Development included. Recommended upgrade. Price: ₹9,500.
+              </div>
+            </div>
             <div className="flex items-center justify-between">
               <h2 className="text-white text-2xl font-bold">My Courses</h2>
               <button
@@ -2505,9 +2339,10 @@ const StudentPortal: React.FC = () => {
               )}
             </div>
 
-            {/* Assignment Progress Summary */}
-            {selectedCourseForAssignments && (
+            {/* Assignment Progress Summary commented out */}
+            {/* {selectedCourseForAssignments && (
               <div className="bg-gray-800 rounded-lg p-6 mb-6">
+                <h3 className="text-white text-lg font-semibold mb-4">Assignment Progress</h3>
                 {(() => {
                   const mappedIds = getCourseIdMapping(selectedCourseForAssignments);
                   const courseAssignments = assignments.filter(assignment => 
@@ -2518,46 +2353,43 @@ const StudentPortal: React.FC = () => {
                   const submittedAssignments = courseAssignments.filter(a => (assignmentStatuses[a.id] || a.status) === 'submitted').length;
                   const pendingAssignments = courseAssignments.filter(a => (assignmentStatuses[a.id] || a.status) === 'pending').length;
                   const progressPercentage = totalAssignments > 0 ? (completedAssignments / totalAssignments) * 100 : 0;
-
+                  
                   return (
-                    <React.Fragment>
-                      <h3 className="text-white text-lg font-semibold mb-4">Assignment Progress</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="bg-gray-700 rounded-lg p-4 text-center">
-                          <div className="text-2xl font-bold text-white">{totalAssignments}</div>
-                          <div className="text-gray-400 text-sm">Total Assignments</div>
-                        </div>
-                        <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-4 text-center">
-                          <div className="text-2xl font-bold text-green-400">{completedAssignments}</div>
-                          <div className="text-gray-400 text-sm">Completed</div>
-                        </div>
-                        <div className="bg-blue-600/20 border border-blue-600/30 rounded-lg p-4 text-center">
-                          <div className="text-2xl font-bold text-blue-400">{submittedAssignments}</div>
-                          <div className="text-gray-400 text-sm">Submitted</div>
-                        </div>
-                        <div className="bg-yellow-600/20 border border-yellow-600/30 rounded-lg p-4 text-center">
-                          <div className="text-2xl font-bold text-yellow-400">{pendingAssignments}</div>
-                          <div className="text-gray-400 text-sm">Pending</div>
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="bg-gray-700 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-white">{totalAssignments}</div>
+                        <div className="text-gray-400 text-sm">Total Assignments</div>
                       </div>
-
-                      <div className="mt-4">
-                        <div className="flex justify-between text-sm text-gray-400 mb-2">
-                          <span>Overall Progress</span>
-                          <span>{Math.round(progressPercentage)}%</span>
-                        </div>
-                        <div className="w-full bg-gray-700 rounded-full h-2">
-                          <div 
-                            className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${progressPercentage}%` }}
-                          ></div>
-                        </div>
+                      <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-green-400">{completedAssignments}</div>
+                        <div className="text-gray-400 text-sm">Completed</div>
                       </div>
-                    </React.Fragment>
+                      <div className="bg-blue-600/20 border border-blue-600/30 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-blue-400">{submittedAssignments}</div>
+                        <div className="text-gray-400 text-sm">Submitted</div>
+                      </div>
+                      <div className="bg-yellow-600/20 border border-yellow-600/30 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-yellow-400">{pendingAssignments}</div>
+                        <div className="text-gray-400 text-sm">Pending</div>
+                      </div>
+                    </div>
                   );
                 })()}
+                
+                <div className="mt-4">
+                  <div className="flex justify-between text-sm text-gray-400 mb-2">
+                    <span>Overall Progress</span>
+                    <span>{Math.round(progressPercentage)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${progressPercentage}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
-            )}
+            )} */}
 
             {/* Assignments List */}
             {selectedCourseForAssignments && (
@@ -2706,18 +2538,23 @@ const StudentPortal: React.FC = () => {
                       )}
                     </div>
 
-                    
+                    {/* Referral Code Message (hidden for AI Tools Mastery) */}
+                    {!(course.id === 'ai-tools-mastery' || (course as any).courseId === 'AI-TOOLS-MASTERY' || (course.title || '').toLowerCase().includes('ai tools')) && (
+                      <div className="mb-4 p-2 bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded">
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-400 text-sm">🎯</span>
+                          <span className="text-xs font-medium text-green-400">
+                            Use referral code for 60% OFF!
+                          </span>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Pricing */}
                     <div className="mb-4">
                       <span className="text-2xl font-bold text-white">
                         {'₹'}{course.price.toLocaleString()}
                       </span>
-                      {course.id === 'frontend-intermediate' && (
-                        <div className="text-xs text-gray-400 mt-1">
-                          One-time payment • Lifetime access
-                        </div>
-                      )}
                     </div>
 
                     {/* Purchase Button */}
@@ -2758,39 +2595,22 @@ const StudentPortal: React.FC = () => {
                   <div className="space-y-3">
                     <input
                       type="password"
-                      placeholder="Current Password (optional)"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="Current Password"
                       className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
                     />
                     <input
                       type="password"
                       placeholder="New Password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
                       className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
                     />
                     <input
                       type="password"
                       placeholder="Confirm New Password"
-                      value={confirmNewPassword}
-                      onChange={(e) => setConfirmNewPassword(e.target.value)}
                       className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
                     />
-                    {passwordUpdateError && (
-                      <p className="text-red-400 text-sm">{passwordUpdateError}</p>
-                    )}
-                    {passwordUpdateSuccess && (
-                      <p className="text-green-400 text-sm">{passwordUpdateSuccess}</p>
-                    )}
-                    <button
-                      onClick={updatePassword}
-                      disabled={isUpdatingPassword}
-                      className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors ${isUpdatingPassword ? 'opacity-70 cursor-not-allowed' : ''}`}
-                    >
-                      {isUpdatingPassword ? 'Updating...' : 'Update Password'}
+                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                      Update Password
                     </button>
-                    <p className="text-gray-400 text-xs">Current password is not required.</p>
                   </div>
                 </div>
               </div>
@@ -3552,43 +3372,12 @@ const StudentPortal: React.FC = () => {
                       </div>
                       <div>
                         <h3 className="text-white font-semibold">Assignments</h3>
-                        {(() => {
-                          const accessibleMappedIds = allCourses
-                            .filter(course => isCourseAccessible(course.id))
-                            .flatMap(course => getCourseIdMapping(course.id));
-                          const courseAssignments = assignments.filter(a => accessibleMappedIds.includes(a.courseId));
-                          const total = courseAssignments.length;
-                          const completed = courseAssignments.filter(a => (assignmentStatuses[a.id] || a.status) === 'graded').length;
-                          const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-                          return (
-                            <p className="text-gray-400 text-sm">{completed}/{total}</p>
-                          );
-                        })()}
+                        <p className="text-gray-400 text-sm">0/0</p>
                       </div>
                     </div>
-                    {(() => {
-                      const accessibleMappedIds = allCourses
-                        .filter(course => isCourseAccessible(course.id))
-                        .flatMap(course => getCourseIdMapping(course.id));
-                      const courseAssignments = assignments.filter(a => accessibleMappedIds.includes(a.courseId));
-                      const total = courseAssignments.length;
-                      const completed = courseAssignments.filter(a => (assignmentStatuses[a.id] || a.status) === 'graded').length;
-                      const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-                      return (
-                        <span className="text-gray-500 text-sm">{percentage}%</span>
-                      );
-                    })()}
+                    <span className="text-gray-500 text-sm">0.0</span>
                   </div>
-                  {(() => {
-                    const accessibleMappedIds = allCourses
-                      .filter(course => isCourseAccessible(course.id))
-                      .flatMap(course => getCourseIdMapping(course.id));
-                    const courseAssignments = assignments.filter(a => accessibleMappedIds.includes(a.courseId));
-                    const total = courseAssignments.length;
-                    return (
-                      <p className="text-gray-400 text-sm">{total === 0 ? 'No assignments available' : 'Track your assignment progress here.'}</p>
-                    );
-                  })()}
+                  <p className="text-gray-400 text-sm">No assignments available</p>
                 </div>
 
                 {/* Test Results Box */}
@@ -4250,7 +4039,14 @@ const StudentPortal: React.FC = () => {
                       <span className="text-white">{selectedCourseForDetails.projects}</span>
                     </div>
                   </div>
-                  
+                  <div className="mb-4 p-3 bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded">
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-400 text-sm">🎯</span>
+                      <span className="text-xs font-medium text-green-400">
+                        Use referral code for 60% OFF!
+                      </span>
+                    </div>
+                  </div>
                   {selectedCourseForDetails.students >= selectedCourseForDetails.maxStudents ? (
                     <button
                       disabled

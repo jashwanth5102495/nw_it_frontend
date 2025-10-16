@@ -24,6 +24,46 @@ import cssInternal from '../../video-explanations/topics/html/internal css.mp4';
 import cssExternal from '../../video-explanations/topics/html/external css.mp4';
 import cssTypography from '../../video-explanations/topics/html/Typography.mp4';
 
+// Helper to generate preview HTML for code editor output (supports JS-only and HTML)
+const generatePreviewHtml = (code: string): string => {
+  const hasHtmlStructure = /<\s*(html|body|head|!DOCTYPE)/i.test(code);
+  const hasAnyTag = /<\s*[a-zA-Z]+[\s>]/.test(code);
+  const isLikelyJsOnly = !hasAnyTag;
+
+  const consoleCapture = `
+    <script>
+      (function(){
+        const out = document.getElementById('output');
+        function write(type, args){
+          const div = document.createElement('div');
+          div.className = type;
+          try {
+            div.textContent = args.map(a => {
+              if (typeof a === 'object') {
+                try { return JSON.stringify(a); } catch(e){ return String(a); }
+              }
+              return String(a);
+            }).join(' ');
+          } catch(e) {
+            div.textContent = String(args);
+          }
+          if (out) out.appendChild(div);
+        }
+        const origLog = console.log, origErr = console.error;
+        console.log = function(...args){ write('log', args); origLog.apply(console, args); };
+        console.error = function(...args){ write('error', args); origErr.apply(console, args); };
+        window.onerror = function(msg){ write('error', [msg]); };
+      })();
+    </script>`;
+
+  if (isLikelyJsOnly) {
+    return `<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:monospace;background:#fff;color:#222}#output{white-space:pre-wrap;padding:8px;border-top:1px solid #ddd}</style></head><body><div>Program Output:</div><div id="output"></div>${consoleCapture}<script>try{${code}}catch(e){console.error(e && e.stack ? e.stack : e);}</script></body></html>`;
+  }
+
+  const userHtml = hasHtmlStructure ? code : `<div>${code}</div>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:system-ui}</style></head><body>${userHtml}<div id="output" style="position:fixed;bottom:0;left:0;right:0;max-height:40%;overflow:auto;background:#f7f7f7;border-top:1px solid #ddd;padding:6px;font-family:monospace"></div>${consoleCapture}</body></html>`;
+};
+
 interface Lesson {
   id: string;
   title: string;
@@ -266,6 +306,15 @@ window.addEventListener('load', addInteractivity);`
       // no-op: keep UI stable if speech fails
     }
   };
+
+  // Pause/stop teacher audio whenever leaving Teacher tab
+  useEffect(() => {
+    try {
+      if (activeTab !== 'teacher') {
+        window.speechSynthesis.cancel();
+      }
+    } catch {}
+  }, [activeTab]);
 
   // Function to process content and replace video placeholders
   const processContent = (content: string) => {
@@ -714,16 +763,16 @@ window.addEventListener('load', addInteractivity);`
                           <button className="px-2 py-1 text-xs rounded bg-blue-700 text-white hover:bg-blue-600" title="Edit" onClick={() => setShowRenderedOutput(false)}>Edit</button>
                         )}
                         <button className="px-2 py-1 text-xs rounded bg-gray-700 text-white hover:bg-gray-600" title="Reset" onClick={() => { setCodeEditorText(''); setShowRenderedOutput(false); setRenderedHtml(''); }}>Reset</button>
-                        <button className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600" title="Run" onClick={() => { setRenderedHtml(codeEditorText); setShowRenderedOutput(true); }}>Run</button>
+                        <button className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600" title="Run" onClick={() => { setRenderedHtml(generatePreviewHtml(codeEditorText)); setShowRenderedOutput(true); }}>Run</button>
                       </div>
                     </div>
                     <div className="w-full h-[calc(100%-8px)]" style={{ perspective: '1000px' }}>
                       <div
                         className="relative w-full h-full transform-gpu transition-transform duration-500"
-                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
+                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)', transformStyle: 'preserve-3d' }}
                       >
                         {/* Front: Textarea */}
-                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
+                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}>
                           <textarea
                             value={codeEditorText}
                             onChange={e => setCodeEditorText(e.target.value)}
@@ -1288,16 +1337,16 @@ window.addEventListener('load', addInteractivity);`
                           <button className="px-2 py-1 text-xs rounded bg-blue-700 text-white hover:bg-blue-600" title="Edit" onClick={() => setShowRenderedOutput(false)}>Edit</button>
                         )}
                         <button className="px-2 py-1 text-xs rounded bg-gray-700 text-white hover:bg-gray-600" title="Reset" onClick={() => { setCodeEditorText(''); setShowRenderedOutput(false); setRenderedHtml(''); }}>Reset</button>
-                        <button className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600" title="Run" onClick={() => { setRenderedHtml(codeEditorText); setShowRenderedOutput(true); }}>Run</button>
+                        <button className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600" title="Run" onClick={() => { setRenderedHtml(generatePreviewHtml(codeEditorText)); setShowRenderedOutput(true); }}>Run</button>
                       </div>
                     </div>
                     <div className="w-full h-[calc(100%-8px)]" style={{ perspective: '1000px' }}>
                       <div
                         className="relative w-full h-full transform-gpu transition-transform duration-500"
-                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
+                        style={{ transform: showRenderedOutput ? 'rotateY(180deg)' : 'rotateY(0deg)', transformStyle: 'preserve-3d' }}
                       >
                         {/* Front: Textarea */}
-                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
+                        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}>
                           <textarea
                             value={codeEditorText}
                             onChange={e => setCodeEditorText(e.target.value)}
@@ -2739,6 +2788,14 @@ body {
           id: 'css-box-model',
           title: 'CSS Box Model and Layout',
           content: `
+            <div style="margin-bottom: 20px; text-align: center;">
+              <h3>📹 Video Explanation</h3>
+              <div style="width: 100%; max-width: 800px; height: 400px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold;">
+                📹 Video Explanation Coming Soon
+              </div>
+              <p style="margin-top: 10px; color: #666; font-size: 14px;">Video explanation coming soon - stay tuned!</p>
+            </div>
+            
             <h2>📦 The CSS Box Model</h2>
             <p>Every HTML element is a rectangular box. The CSS box model describes how the size of these boxes is calculated.</p>
             
@@ -2893,71 +2950,13 @@ body {
           id: 'css-layout',
           title: 'CSS Box Model and Layout',
           content: `
-            <div class="topic-box">
-              <div class="topic-title">Detailed Explanation</div>
-              <p>CSS controls presentation and layout. The box model defines how size and space are calculated for every element (content, padding, border, margin). Layout systems like Flexbox and Grid position and align elements across the page.</p>
-              <ul>
-                <li>Use <code>box-sizing: border-box</code> to simplify sizing.</li>
-                <li>Prefer Flexbox for one‑dimensional layouts (rows/columns).</li>
-                <li>Use Grid for two‑dimensional layouts (rows + columns).</li>
-              </ul>
+            <div style="margin-bottom: 20px; text-align: center;">
+              <h3>📹 Video Explanation</h3>
+              <div style="width: 100%; max-width: 800px; height: 400px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold;">
+                📹 Video Explanation Coming Soon
+              </div>
+              <p style="margin-top: 10px; color: #666; font-size: 14px;">Video explanation coming soon - stay tuned!</p>
             </div>
-            <div class="topic-box">
-              <div class="topic-title">Advantages & Disadvantages</div>
-              <ul>
-                <li><strong>Pros:</strong> Precise alignment, responsive design, clean separation of concerns.</li>
-                <li><strong>Cons:</strong> Complexity in nested layouts, cross‑browser nuances, potential overflow issues.</li>
-              </ul>
-            </div>
-            <div class="topic-box">
-              <div class="topic-title">Syntax Quick Reference</div>
-              <pre><code>/* Box model */
-selector {
-  box-sizing: border-box;
-  padding: 16px; border: 1px solid #ccc; margin: 12px;
-}
-
-/* Flexbox */
-.row { display: flex; gap: 12px; justify-content: space-between; align-items: center; }
-
-/* Grid */
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }</code></pre>
-            </div>
-            <div class="topic-box">
-              <div class="topic-title">Example</div>
-              <p>Create a card list with Flexbox or a dashboard with Grid for clean, responsive alignment. Start with a container and add items that align and wrap based on available space.</p>
-            </div>
-            <h2>🧾 Detailed Explanation</h2>
-            <h3>Main Use</h3>
-            <p>CSS controls presentation and layout. The box model defines how size and space are calculated for every element (content, padding, border, margin). Layout systems like Flexbox and Grid position and align elements across the page.</p>
-            <h3>Advantages</h3>
-            <ul>
-              <li>Precise control of spacing and alignment</li>
-              <li>Responsive layouts using Flexbox and Grid</li>
-              <li>Separation of concerns: structure in HTML, presentation in CSS</li>
-            </ul>
-            <h3>Disadvantages</h3>
-            <ul>
-              <li>Complexity can grow with nested layouts</li>
-              <li>Cross-browser nuances require testing</li>
-              <li>Improper box sizing can cause overflow issues</li>
-            </ul>
-            <h3>Syntax Quick Reference</h3>
-            <pre><code>/* Box model */
-selector {
-  box-sizing: border-box; /* include padding/border in width */
-  padding: 16px;
-  border: 1px solid #ccc;
-  margin: 12px;
-}
-
-/* Flexbox (1D layout) */
-.row { display: flex; gap: 12px; justify-content: space-between; align-items: center; }
-
-/* Grid (2D layout) */
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }</code></pre>
-            <h3>Example</h3>
-            <p>Create a card list with Flexbox or a dashboard with Grid for clean, responsive alignment.</p>
             
             <h2>📦 The CSS Box Model</h2>
             <p>Every HTML element is a rectangular box with:</p>
@@ -3004,26 +3003,12 @@ selector {
           id: 'responsive-basics',
           title: 'Responsive Design Basics',
           content: `
-            <div class="topic-box">
-              <div class="topic-title">Detailed Explanation</div>
-              <p>Responsive design ensures pages adapt to different devices and screen sizes using fluid layouts, flexible media, and media queries.</p>
-            </div>
-            <div class="topic-box">
-              <div class="topic-title">Advantages & Disadvantages</div>
-              <ul>
-                <li><strong>Pros:</strong> Consistent UX across devices, single codebase, better SEO.</li>
-                <li><strong>Cons:</strong> More breakpoint testing, complex layouts, media optimization required.</li>
-              </ul>
-            </div>
-            <div class="topic-box">
-              <div class="topic-title">Syntax Quick Reference</div>
-              <pre><code>&lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;
-.container { width: 90%; max-width: 1200px; margin: 0 auto; }
-@media (max-width: 768px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 22px; } }</code></pre>
-            </div>
-            <div class="topic-box">
-              <div class="topic-title">Example</div>
-              <p>Use CSS Grid with <code>repeat(auto-fit, minmax(200px, 1fr))</code> to create card layouts that wrap gracefully on smaller screens.</p>
+            <div style="margin-bottom: 20px; text-align: center;">
+              <h3>📹 Video Explanation</h3>
+              <div style="width: 100%; max-width: 800px; height: 400px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold;">
+                📹 Video Explanation Coming Soon
+              </div>
+              <p style="margin-top: 10px; color: #666; font-size: 14px;">Video explanation coming soon - stay tuned!</p>
             </div>
             
             <h2>📱 What is Responsive Design?</h2>
@@ -3088,37 +3073,12 @@ selector {
           id: 'js-intro',
           title: 'Introduction to JavaScript',
           content: `
-            <div class="topic-box">
-              <div class="topic-title">Detailed Explanation</div>
-              <p>JavaScript brings interactivity to the web: handling events, manipulating the DOM, communicating with servers, and building rich user interfaces.</p>
-            </div>
-            <div class="topic-box">
-              <div class="topic-title">Advantages & Disadvantages</div>
-              <ul>
-                <li><strong>Pros:</strong> Runs in all modern browsers, huge ecosystem, great for interactive UX.</li>
-                <li><strong>Cons:</strong> Compatibility differences, complex state, security pitfalls with user input.</li>
-              </ul>
-            </div>
-            <div class="topic-box">
-              <div class="topic-title">Syntax Quick Reference</div>
-              <pre><code>// Variables
-let count = 0; const title = 'JS';
-
-// Functions
-function add(a, b) { return a + b; }
-const multiply = (a, b) => a * b;
-
-// DOM
-document.querySelector('#btn').addEventListener('click', () => {
-  document.getElementById('demo').textContent = 'Clicked!';
-});
-
-// Fetch
-fetch('/api/data').then(r => r.json()).then(console.log);</code></pre>
-            </div>
-            <div class="topic-box">
-              <div class="topic-title">Example</div>
-              <p>Create a button that updates text on click and fetches data from an API to render a list.</p>
+            <div style="margin-bottom: 20px; text-align: center;">
+              <h3>📹 Video Explanation</h3>
+              <div style="width: 100%; max-width: 800px; height: 400px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold;">
+                📹 Video Explanation Coming Soon
+              </div>
+              <p style="margin-top: 10px; color: #666; font-size: 14px;">Video explanation coming soon - stay tuned!</p>
             </div>
             
             <h2>⚡ What is JavaScript?</h2>
@@ -4110,37 +4070,12 @@ fetch('/api/data').then(r => r.json()).then(console.log);</code></pre>
           id: 'python-intro',
           title: 'Introduction to Python',
           content: `
-            <div class="topic-box">
-              <div class="topic-title">Detailed Explanation</div>
-              <p>Python is a general‑purpose language used for web apps, automation, data science, AI/ML, scripting, and more.</p>
-            </div>
-            <div class="topic-box">
-              <div class="topic-title">Advantages & Disadvantages</div>
-              <ul>
-                <li><strong>Pros:</strong> Readable syntax, rich libraries, cross‑platform, beginner‑friendly.</li>
-                <li><strong>Cons:</strong> Slower for CPU‑heavy tasks, GIL limits threads, environment/version management.</li>
-              </ul>
-            </div>
-            <div class="topic-box">
-              <div class="topic-title">Syntax Quick Reference</div>
-              <pre><code># Variables
-name = 'Alice'; age = 25
-
-# Function
-def greet(user):
-    return f"Hello, {user}!"
-
-# List & loop
-items = [1, 2, 3]
-for x in items:
-    print(x)
-
-# Dictionary
-user = { 'name': 'Alice', 'active': True }</code></pre>
-            </div>
-            <div class="topic-box">
-              <div class="topic-title">Example</div>
-              <p>Write a small script that reads input, processes data (e.g., filtering a list), and prints results. Use virtual environments for package management.</p>
+            <div style="margin-bottom: 20px; text-align: center;">
+              <h3>📹 Video Explanation</h3>
+              <div style="width: 100%; max-width: 800px; height: 400px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold;">
+                📹 Video Explanation Coming Soon
+              </div>
+              <p style="margin-top: 10px; color: #666; font-size: 14px;">Video explanation coming soon - stay tuned!</p>
             </div>
             
             <h2>🐍 Welcome to Python Programming</h2>
@@ -8986,6 +8921,13 @@ app.listen(PORT, () => {
 
   return (
     <div className="h-screen bg-black relative overflow-hidden flex flex-col">
+      {/* Scrolling banner keyframes (local to this component) */}
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(100%); }
+          100% { transform: translateX(-100%); }
+        }
+      `}</style>
       {/* MagnetLines Background */}
       <div className="fixed inset-0 z-0">
         <MagnetLines 
@@ -9053,7 +8995,18 @@ app.listen(PORT, () => {
               </div> */}
             </div>
           </div>
-          
+          {/* Scrolling Feedback & Contact Banner */}
+          <div className="mt-2 mb-2 border-t border-b border-gray-800/50 bg-black/30">
+            <div className="overflow-hidden whitespace-nowrap">
+              <div
+                className="inline-block will-change-transform text-[12px] md:text-sm text-gray-100"
+                style={{ animation: 'marquee 28s linear infinite' }}
+              >
+                <span aria-label="note" title="Note" className="mr-2">📌</span>
+                Our video explanations are a new initiative and will continue improving day by day. We value your feedback and suggestions to help us make them better. For any changes, issues, or ideas, please reach out to us at:  📧 jasnav.co@gmail.com or info@jasnav.co.in  Thank you for your support and for learning with us!
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -9276,7 +9229,7 @@ app.listen(PORT, () => {
               <div className="flex space-x-1 bg-gray-800/60 rounded-lg p-1">
                 <ClickSpark sparkColor="#60a5fa" sparkSize={8} sparkRadius={12} sparkCount={6} duration={300}>
                   <button
-                    onClick={() => setActiveTab('theory')}
+                    onClick={() => { setActiveTab('theory'); try { window.speechSynthesis.cancel(); } catch {} }}
                     className={`flex-1 px-2 lg:px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                       activeTab === 'theory'
                         ? 'bg-gray-700/80 text-white shadow-sm'

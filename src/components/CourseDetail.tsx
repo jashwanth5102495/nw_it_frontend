@@ -62,7 +62,7 @@ const CourseDetail = () => {
 
   const courses: Course[] = [
     {
-      id: 'ai-tools-mastery',
+      id: 'AI-TOOLS-MASTERY',
       title: 'A.I Tools Mastery - Professional Certification Program',
       category: 'ai',
       level: 'professional',
@@ -170,7 +170,7 @@ const CourseDetail = () => {
       ]
     },
     {
-      id: 'frontend-beginner',
+      id: 'FRONTEND-BEGINNER',
       title: 'Frontend Development - Beginner',
       category: 'frontend',
       level: 'beginner',
@@ -208,7 +208,7 @@ const CourseDetail = () => {
       ]
     },
     {
-      id: 'frontend-advanced',
+      id: 'FRONTEND-ADVANCED',
       title: 'Frontend Development - Advanced',
       category: 'frontend',
       level: 'advanced',
@@ -251,7 +251,7 @@ const CourseDetail = () => {
       ]
     },
     {
-      id: 'devops-beginner',
+      id: 'DEVOPS-BEGINNER',
       title: 'DevOps - Beginner',
       category: 'devops',
       level: 'beginner',
@@ -294,7 +294,7 @@ const CourseDetail = () => {
       ]
     },
     {
-      id: 'devops-advanced',
+      id: 'DEVOPS-ADVANCED',
       title: 'DevOps - Advanced',
       category: 'devops',
       level: 'advanced',

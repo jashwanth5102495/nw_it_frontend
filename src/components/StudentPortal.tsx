@@ -645,7 +645,7 @@ const StudentPortal: React.FC = () => {
   // All available courses from the Courses page
   const allCourses: Course[] = [
     {
-      id: 'ai-tools-mastery',
+      id: 'AI-TOOLS-MASTERY',
       title: 'A.I Tools Mastery - Professional Certification Program',
       category: 'ai',
       level: 'professional',
@@ -703,7 +703,7 @@ const StudentPortal: React.FC = () => {
       ]
     },
     {
-      id: 'frontend-beginner',
+      id: 'FRONTEND-BEGINNER',
       title: 'Frontend Development - Beginner',
       category: 'frontend',
       level: 'beginner',
@@ -741,7 +741,7 @@ const StudentPortal: React.FC = () => {
       ]
     },
     {
-      id: 'frontend-intermediate',
+      id: 'FRONTEND-INTERMEDIATE',
       title: 'Frontend Development - Intermediate',
       category: 'frontend',
       level: 'intermediate',
@@ -796,7 +796,7 @@ const StudentPortal: React.FC = () => {
       ]
     },
     {
-      id: 'frontend-advanced',
+      id: 'FRONTEND-ADVANCED',
       title: 'Frontend Development - Advanced',
       category: 'frontend',
       level: 'advanced',
@@ -834,7 +834,7 @@ const StudentPortal: React.FC = () => {
       ]
     },
     {
-      id: 'devops-beginner',
+      id: 'DEVOPS-BEGINNER',
       title: 'DevOps - Beginner',
       category: 'devops',
       level: 'beginner',

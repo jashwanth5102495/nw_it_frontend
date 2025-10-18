@@ -99,7 +99,7 @@ const Courses = () => {
       ]
     },
     {
-      id: 'frontend-beginner',
+      id: 'FRONTEND-BEGINNER',
       title: 'Frontend Development - Beginner',
       category: 'frontend',
       level: 'beginner',
@@ -132,7 +132,7 @@ const Courses = () => {
       ]
     },
     {
-      id: 'frontend-intermediate',
+      id: 'FRONTEND-INTERMEDIATE',
       title: 'Frontend Development - Intermediate',
       category: 'frontend',
       level: 'intermediate',
@@ -188,7 +188,7 @@ const Courses = () => {
       instructor: 'Priya Sharma'
     },
     {
-      id: 'frontend-advanced',
+      id: 'FRONTEND-ADVANCED',
       title: 'Frontend Development - Advanced',
       category: 'frontend',
       level: 'advanced',
@@ -226,7 +226,7 @@ const Courses = () => {
       ]
     },
     {
-      id: 'devops-beginner',
+      id: 'DEVOPS-BEGINNER',
       title: 'DevOps - Beginner',
       category: 'devops',
       level: 'beginner',
@@ -264,7 +264,7 @@ const Courses = () => {
       ]
     },
     {
-      id: 'devops-advanced',
+      id: 'DEVOPS-ADVANCED',
       title: 'DevOps - Advanced',
       category: 'devops',
       level: 'advanced',

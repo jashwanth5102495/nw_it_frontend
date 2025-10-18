@@ -219,7 +219,11 @@ const AdminPanel: React.FC = () => {
       const hasConfirmed = studentPayments.some(p => isConfirmed(p.confirmationStatus));
       const hasError = studentPayments.some(p => isError(p.confirmationStatus));
       const hasPendingForAnyCourse = (s.enrolledCourses || []).some(e => {
-        const payment = studentPayments.find(p => p.courseId && p.courseId._id === e.courseId._id);
+        const enrollmentCourseId = typeof e.courseId === 'object' ? (e.courseId?._id || null) : (typeof e.courseId === 'string' ? e.courseId : null);
+        const payment = studentPayments.find(p => {
+          const paymentCourseId = p.courseId?._id;
+          return !!paymentCourseId && !!enrollmentCourseId && paymentCourseId === enrollmentCourseId;
+        });
         // Treat no payment as pending review
         if (!payment) return true;
         return isPending(payment.confirmationStatus);
@@ -292,6 +296,16 @@ const AdminPanel: React.FC = () => {
             const rawCourseKey = (courseRef && (courseRef._id || courseRef.id || courseRef)) || enrollment.courseId;
             const courseKey = normalizeCourseKey(courseRef) || normalizeCourseKey(rawCourseKey) || rawCourseKey;
             const localDefs = getAssignmentDefinitions(courseKey as string);
+
+            // Guard: if courseKey is missing, skip backend call and use local/defaults
+            if (!courseKey) {
+              return {
+                ...enrollment,
+                assignments: enrollment.assignments || { completed: 0, total: (localDefs?.length || 0), list: [] },
+                tests: enrollment.tests || { completed: 0, total: 0, list: [] }
+              };
+            }
+
             try {
               const resp = await fetch(`${BASE_URL}/api/progress/student/${student._id}/course/${courseKey}/summary`);
               if (resp.ok) {
@@ -823,7 +837,10 @@ const AdminPanel: React.FC = () => {
       if (change.isNewPayment) {
         // Create a new payment record first
         const student = students.find(s => s._id === change.studentId);
-        const course = student?.enrolledCourses.find(e => e.courseId._id === change.courseId)?.courseId;
+        const course = student?.enrolledCourses.find(e => {
+          const eCourseId = typeof e.courseId === 'object' ? (e.courseId?._id || null) : (typeof e.courseId === 'string' ? e.courseId : null);
+          return !!eCourseId && eCourseId === change.courseId;
+        })?.courseId;
         
         if (!student || !course) {
           alert('Error: Student or course information not found.');
@@ -1823,9 +1840,11 @@ const AdminPanel: React.FC = () => {
                                 {(() => {
                                   // Check if there's a confirmed payment for this course using Payment model data
                                   const studentPayments = getStudentPayments(student._id);
-                                  const coursePayment = studentPayments.find(payment => 
-                                    payment.courseId._id === enrollment.courseId._id
-                                  );
+                                  const enrollmentCourseIdSafe = typeof enrollment.courseId === 'object' ? (enrollment.courseId?._id || null) : (typeof enrollment.courseId === 'string' ? enrollment.courseId : null);
+                                  const coursePayment = studentPayments.find(payment => {
+                                    const paymentCourseId = payment.courseId?._id;
+                                    return !!paymentCourseId && !!enrollmentCourseIdSafe && paymentCourseId === enrollmentCourseIdSafe;
+                                  });
                                   const hasConfirmedPayment = coursePayment?.confirmationStatus === 'confirmed';
                                   
                                   return (
@@ -1846,7 +1865,8 @@ const AdminPanel: React.FC = () => {
                                         <label className="text-white/60 text-sm">Admin Control:</label>
                                         <select
                                            value={(() => {
-                                             const paymentId = coursePayment?.paymentId || `new_payment_${student._id}_${enrollment.courseId._id}`;
+                                             const safeCourseId = (typeof enrollment.courseId === 'object' ? (enrollment.courseId?._id || '') : (typeof enrollment.courseId === 'string' ? enrollment.courseId : '')) || 'unknownCourse';
+                                             const paymentId = coursePayment?.paymentId || `new_payment_${student._id}_${safeCourseId}`;
                                              const changeKey = `${student._id}-${paymentId}`;
                                              const pendingChange = pendingPaymentChanges[changeKey];
                                              
@@ -1865,13 +1885,19 @@ const AdminPanel: React.FC = () => {
                                            })()}
                                            onChange={(e) => {
                                              let paymentId;
+                                             const safeCourseId = (typeof enrollment.courseId === 'object' ? (enrollment.courseId?._id || '') : (typeof enrollment.courseId === 'string' ? enrollment.courseId : '')) || 'unknownCourse';
                                              if (coursePayment) {
                                                paymentId = coursePayment.paymentId;
                                              } else {
                                                // Use a consistent paymentId for new payments based on student and course
-                                               paymentId = `new_payment_${student._id}_${enrollment.courseId._id}`;
+                                               paymentId = `new_payment_${student._id}_${safeCourseId}`;
                                              }
-                                             handlePaymentStatusUpdate(student._id, paymentId, e.target.value, enrollment.courseId._id);
+                                             const updateCourseId = (typeof enrollment.courseId === 'object' ? (enrollment.courseId?._id || '') : (typeof enrollment.courseId === 'string' ? enrollment.courseId : ''));
+                                             if (!updateCourseId) {
+                                               alert('Course ID missing for this enrollment; please refresh and try again.');
+                                               return;
+                                             }
+                                             handlePaymentStatusUpdate(student._id, paymentId, e.target.value, updateCourseId);
                                            }}
                                           className="bg-black/50 border border-white/20 rounded px-3 py-1 text-sm text-white focus:outline-none focus:border-blue-500"
                                         >
@@ -1881,13 +1907,14 @@ const AdminPanel: React.FC = () => {
                                         </select>
                                         {(() => {
                                           // Find the pending change for this student and payment
-                                          const paymentId = coursePayment?.paymentId || `new_payment_${student._id}_${enrollment.courseId._id}`;
+                                          const safeCourseId = (typeof enrollment.courseId === 'object' ? (enrollment.courseId?._id || '') : (typeof enrollment.courseId === 'string' ? enrollment.courseId : '')) || 'unknownCourse';
+                                          const paymentId = coursePayment?.paymentId || `new_payment_${student._id}_${safeCourseId}`;
                                           const changeKey = `${student._id}-${paymentId}`;
                                           const hasPendingChange = pendingPaymentChanges[changeKey];
                                           const isSaving = savingPayments[changeKey];
-                                          
+                                           
                                           if (!hasPendingChange) return null;
-                                          
+                                           
                                           return (
                                             <button
                                               onClick={() => savePaymentStatusChange(changeKey)}

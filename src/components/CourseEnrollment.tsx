@@ -163,6 +163,50 @@ const CourseEnrollment: React.FC = () => {
       ]
     },
     {
+      id: 'frontend-intermediate',
+      title: 'Frontend Development - Intermediate',
+      category: 'frontend',
+      level: 'intermediate',
+      description: 'Learn Django fundamentals, databases (MySQL & MongoDB), API integration, environment configuration, and web security best practices. Build backend-powered web applications while strengthening frontend integration skills.',
+      detailedDescription: 'This intermediate course bridges frontend and backend development. You will build web applications using Django (MVC), integrate MySQL and MongoDB, consume and secure REST APIs, manage environment configuration, and apply security best practices to real-world projects.',
+      technologies: [
+        'HTML', 'Django', 'MySQL', 'MongoDB', 'ORM', 'MVC', 'API Integration', 'Environment Variables', 'Web Security'
+      ],
+      price: 1950,
+      duration: '10 weeks',
+      projects: 4,
+      modules: [
+        {
+          title: 'Module 1: Django Fundamentals & MVC',
+          duration: '3 weeks',
+          topics: ['Project setup', 'Apps & URL routing', 'Views & templates', 'Models & ORM']
+        },
+        {
+          title: 'Module 2: Relational & Document Databases',
+          duration: '3 weeks',
+          topics: ['MySQL schema design', 'MongoDB collections', 'Data modeling patterns', 'CRUD operations']
+        },
+        {
+          title: 'Module 3: API Integration & Environment Config',
+          duration: '2 weeks',
+          topics: ['REST APIs & requests', 'Authentication tokens', 'Environment variables (.env)', 'Config management']
+        },
+        {
+          title: 'Module 4: Web Security Best Practices',
+          duration: '2 weeks',
+          topics: ['Input validation', 'Authentication & sessions', 'CSRF protection', 'Secure deployment']
+        }
+      ],
+      prerequisites: ['Frontend beginner knowledge or equivalent', 'Basic JavaScript', 'Basic database concepts'],
+      whatYouWillLearn: [
+        'Use Django MVC architecture to build web apps',
+        'Design relational and document databases effectively',
+        'Integrate REST APIs with secure authentication',
+        'Manage environment configuration for deployments',
+        'Apply core web security practices in your projects'
+      ]
+    },
+    {
       id: 'frontend-advanced',
       title: 'Frontend Development - Advanced',
       category: 'frontend',

@@ -215,6 +215,7 @@ const StudentPortal: React.FC = () => {
     const mappings: { [key: string]: string[] } = {
       'ai-tools-mastery': ['1', 'AI-TOOLS-MASTERY', 'ai-tools-mastery', 'AI Tools Mastery'],
       'frontend-beginner': ['frontend-beginner', 'Frontend Development - Beginner', 'FRONTEND-BEGINNER'],
+      'frontend-intermediate': ['frontend-intermediate', 'Frontend Development - Intermediate', 'FRONTEND-INTERMEDIATE', 'frontend_intermediate', 'front-end-intermediate', 'Front-End Intermediate', 'Intermediate Frontend'],
       'frontend-advanced': ['3', 'frontend-advanced', 'Frontend Development - Advanced'],
       'devops-beginner': ['DEVOPS-BEGINNER', 'devops-beginner', 'DevOps - Beginner'],
       'devops-intermediate': ['4', 'devops-intermediate', 'DevOps - Intermediate'],
@@ -224,6 +225,8 @@ const StudentPortal: React.FC = () => {
       'AI-TOOLS-MASTERY': ['ai-tools-mastery', '1', 'AI-TOOLS-MASTERY'],
       'AI Tools Mastery': ['ai-tools-mastery', '1', 'AI-TOOLS-MASTERY'],
       'Frontend Development - Beginner': ['frontend-beginner', 'FRONTEND-BEGINNER'],
+      'Frontend Development - Intermediate': ['frontend-intermediate', 'FRONTEND-INTERMEDIATE'],
+      'FRONTEND-INTERMEDIATE': ['frontend-intermediate', 'Frontend Development - Intermediate'],
       'FRONTEND-BEGINNER': ['frontend-beginner', 'Frontend Development - Beginner'],
       'DevOps - Beginner': ['devops-beginner', 'DEVOPS-BEGINNER'],
       'DEVOPS-BEGINNER': ['devops-beginner', 'DevOps - Beginner']
@@ -734,6 +737,61 @@ const StudentPortal: React.FC = () => {
           title: 'Project Development',
           duration: '1 week',
           topics: ['Portfolio website', 'Responsive design', 'Code optimization', 'Deployment']
+        }
+      ]
+    },
+    {
+      id: 'frontend-intermediate',
+      title: 'Frontend Development - Intermediate',
+      category: 'frontend',
+      level: 'intermediate',
+      description: 'Learn Django fundamentals, databases (MySQL & MongoDB), API integration, environment configuration, and web security best practices. Build backend-powered web applications while strengthening frontend integration skills.',
+      technologies: [
+        'HTML',
+        'Web Development',
+        'Object-Relational Mapping (ORM)',
+        'Django',
+        'MySQL',
+        'Model View Controller (MVC)',
+        'Database Development',
+        'Web Applications',
+        'Application Frameworks',
+        'Back-End Web Development',
+        'Database Management',
+        'Web Servers',
+        'Data Modeling',
+        'MongoDB',
+        'API Integration',
+        'Environment Variables'
+      ],
+      price: 1950,
+      duration: '10 weeks',
+      projects: 4,
+      image: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?w=400&h=250&fit=crop&crop=center',
+      rating: 4.7,
+      students: 8453,
+      maxStudents: 20000,
+      instructor: 'Priya Sharma',
+      modules: [
+        {
+          title: 'Module 1: Django Fundamentals & MVC',
+          duration: '3 weeks',
+          topics: ['Project setup', 'Apps & URL routing', 'Views & templates', 'Models & ORM']
+        },
+        {
+          title: 'Module 2: Relational & Document Databases',
+          duration: '3 weeks',
+          topics: ['MySQL schema design', 'MongoDB collections', 'Data modeling patterns', 'CRUD operations']
+        },
+        {
+          title: 'Module 3: API Integration & Environment Config',
+          duration: '2 weeks',
+          topics: ['REST APIs & requests', 'Authentication tokens', 'Environment variables (.env)', 'Config management']
+        },
+        {
+          title: 'Module 4: Web Security Best Practices',
+          duration: '2 weeks',
+          topics: ['Input validation', 'Authentication & sessions', 'CSRF protection', 'Secure deployment']
         }
       ]
     },

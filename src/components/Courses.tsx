@@ -184,7 +184,7 @@ const Courses = () => {
       image: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?w=400&h=250&fit=crop&crop=center',
       rating: 4.7,
       students: 8453,
-      maxStudents: 8453,
+      maxStudents: 20000,
       instructor: 'Priya Sharma'
     },
     {
@@ -654,18 +654,11 @@ const Courses = () => {
                           }`}>
                             ₹{course.price.toLocaleString()}
                           </span>
-                          {course.id === 'frontend-intermediate' && (
-                            <span className={`${
-                              theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                            } text-xs`}>
-                              One-time payment • Lifetime access
-                            </span>
-                          )}
                         </div>
                         {(() => {
                           // Time-based closing: Monday 4 PM (Austin, Texas) — 2:30 am in India
                           // Set the closing time in UTC: 2025-10-13 21:00:00Z (corresponds to Monday 4 PM CT during DST)
-                          const closingTimeUTC = new Date('2025-10-13T21:00:00Z');
+                          const closingTimeUTC = new Date('2099-12-31T23:59:59Z');
                           const nowUTC = new Date();
                           const isClosingCourse = course.id === 'frontend-beginner' || course.id === 'devops-beginner';
                           const isClosedByTime = isClosingCourse && nowUTC >= closingTimeUTC;

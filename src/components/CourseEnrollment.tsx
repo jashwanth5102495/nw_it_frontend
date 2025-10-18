@@ -472,47 +472,72 @@ const CourseEnrollment: React.FC = () => {
         user: currentUser.email
       });
 
-      // Prepare enrollment data for backend
-      const enrollmentData = {
-        courseId: course.id,
-        paymentDetails: {
-          amount: finalPrice,
-          method: 'upi',
-          transactionId: transactionId
-        },
-        referralCode: referralCode || null
-      };
+      // Prepare courseId variants to handle backend differences (prod vs local)
+      const baseId = (course.id || '').trim();
+      const courseIdVariants = Array.from(new Set([
+        baseId,
+        baseId.toUpperCase(),
+        baseId.toLowerCase()
+      ].filter(Boolean)));
 
-      // Send enrollment to backend
-      const token = JSON.parse(localStorage.getItem('currentUser') || '{}').token;
-      const enrollResponse = await fetch(`${BASE_URL}/api/students/${currentUser.id}/enroll`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(enrollmentData)
-      });
-        
-      const enrollResult = await enrollResponse.json();
-      console.log('Backend enrollment response:', enrollResult);
+      let enrollResponse: Response | null = null;
+      let enrollResult: any = null;
+      let lastErrorMessage = '';
 
-      if (enrollResponse.ok && enrollResult.success) {
+      for (const variant of courseIdVariants) {
+        console.log('Attempting enrollment with courseId variant:', variant);
+        const enrollmentData = {
+          courseId: variant,
+          paymentDetails: {
+            amount: finalPrice,
+            method: 'upi',
+            transactionId: transactionId
+          },
+          referralCode: referralCode || null
+        };
+
+        // Send enrollment to backend
+        const token = JSON.parse(localStorage.getItem('currentUser') || '{}').token;
+        const resp = await fetch(`${BASE_URL}/api/students/${currentUser.id}/enroll`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(enrollmentData)
+        });
+
+        enrollResponse = resp;
+        try {
+          enrollResult = await resp.json();
+        } catch (e) {
+          // Fallback when response is not JSON
+          const txt = await resp.text();
+          enrollResult = { success: false, message: txt };
+        }
+        console.log('Backend enrollment response (variant:', variant, '):', enrollResult);
+
+        if (resp.ok && enrollResult?.success) {
+          // Success -> stop retrying
+          break;
+        }
+
+        // Capture error and retry on known course lookup failures
+        lastErrorMessage = String(enrollResult?.message || `HTTP ${resp.status}`);
+        const isCourseNotFound = lastErrorMessage.toLowerCase().includes('course not found');
+        if (!isCourseNotFound) {
+          // Different error -> don't retry further variants
+          break;
+        }
+      }
+
+      if (enrollResponse && enrollResponse.ok && enrollResult?.success) {
         setIsSubmittingPayment(false);
         setShowQRPayment(false);
         setPaymentStatus('waiting_for_confirmation');
         setShowStatusModal(true);
       } else {
-        // Gracefully handle already-enrolled case
-        const msg = (enrollResult?.message || '').toLowerCase();
-        if (msg.includes('already enrolled')) {
-          alert('You are already enrolled in this course. Please check the Student Portal → My Courses to continue learning.');
-          navigate('/student-portal');
-          setShowQRPayment(false);
-          setIsSubmittingPayment(false);
-          return;
-        }
-        throw new Error(enrollResult.message || 'Failed to submit payment details');
+        throw new Error(lastErrorMessage || 'Failed to submit payment details');
       }
     } catch (error) {
       console.error('Error submitting payment:', error);

@@ -624,17 +624,25 @@ const AdminPanel: React.FC = () => {
     try {
       // Fetch students who used this referral code from the backend
       const response = await fetch(`${BASE_URL}/api/students/by-referral/${referralCode}`);
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success) {
-          setReferredStudents(result.data);
-          console.log("Response from Refered Students: ", result.data);
-        } else {
-          console.error('Failed to fetch referred students:', result.message);
-          setReferredStudents([]);
-        }
+
+      let result: any = null;
+      let rawText = '';
+      try {
+        result = await response.json();
+      } catch (e) {
+        rawText = await response.text();
+      }
+
+      if (response.ok && result && result.success) {
+        const data = Array.isArray(result.data) ? result.data : [];
+        setReferredStudents(data);
+        console.log('Referred students fetched:', { count: data.length, sample: data[0] });
       } else {
-        console.error('Failed to fetch referred students:', response.statusText);
+        console.error('Failed to fetch referred students', {
+          status: response.status,
+          statusText: response.statusText,
+          body: result || rawText
+        });
         setReferredStudents([]);
       }
     } catch (error) {

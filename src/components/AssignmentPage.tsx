@@ -55,6 +55,13 @@ interface AttemptHistory {
 const AssignmentPage = () => {
   const { assignmentId } = useParams<{ assignmentId: string }>();
   const navigate = useNavigate();
+
+  // Map legacy or invalid IDs to valid backend IDs
+  const idMap: Record<string, string> = {
+    'frontend-beginner-1': 'frontend-beginner-4',
+    'frontend-beginner-2': 'frontend-beginner-5'
+  };
+  const effectiveAssignmentId = assignmentId ? (idMap[assignmentId] || assignmentId) : undefined;
   
   const [currentView, setCurrentView] = useState<'study' | 'test' | 'results'>('study');
   const [assignment, setAssignment] = useState<Assignment | null>(null);
@@ -84,7 +91,7 @@ const AssignmentPage = () => {
         
         const userData = JSON.parse(currentUser);
         
-        const response = await fetch(`${BASE_URL}/api/assignments/${assignmentId}`, {
+        const response = await fetch(`${BASE_URL}/api/assignments/${effectiveAssignmentId}`, {
           headers: {
             'Authorization': `Bearer ${userData.token}`,
             'Content-Type': 'application/json'
@@ -113,10 +120,10 @@ const AssignmentPage = () => {
       }
     };
     
-    if (assignmentId) {
+    if (effectiveAssignmentId) {
       fetchAssignment();
     }
-  }, [assignmentId, navigate]);
+  }, [effectiveAssignmentId, navigate]);
 
   const fetchAttemptHistory = async () => {
     try {
@@ -125,7 +132,7 @@ const AssignmentPage = () => {
       
       const userData = JSON.parse(currentUser);
       
-      const response = await fetch(`${BASE_URL}/api/assignments/${assignmentId}/attempts`, {
+      const response = await fetch(`${BASE_URL}/api/assignments/${effectiveAssignmentId}/attempts`, {
         headers: {
           'Authorization': `Bearer ${userData.token}`,
           'Content-Type': 'application/json'
@@ -171,7 +178,7 @@ const AssignmentPage = () => {
       const userData = JSON.parse(currentUser);
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
       
-      const response = await fetch(`${BASE_URL}/api/assignments/${assignmentId}/submit`, {
+      const response = await fetch(`${BASE_URL}/api/assignments/${effectiveAssignmentId}/submit`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${userData.token}`,

@@ -2467,12 +2467,8 @@ const StudentPortal: React.FC = () => {
                 <button
                   key={assignment.id}
                   onClick={() => {
-                    const idMap: Record<string, string> = {
-                      'frontend-beginner-1': 'frontend-beginner-4',
-                      'frontend-beginner-2': 'frontend-beginner-5'
-                    };
-                    const targetId = idMap[assignment.id] || assignment.id;
-                    navigate(`/assignment/${targetId}`);
+                    // Navigate using the actual assignment ID without remapping
+                    navigate(`/assignment/${assignment.id}`);
                   }}
                   className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/20 text-left"
                 >

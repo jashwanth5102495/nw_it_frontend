@@ -56,12 +56,8 @@ const AssignmentPage = () => {
   const { assignmentId } = useParams<{ assignmentId: string }>();
   const navigate = useNavigate();
 
-  // Map legacy or invalid IDs to valid backend IDs
-  const idMap: Record<string, string> = {
-    'frontend-beginner-1': 'frontend-beginner-4',
-    'frontend-beginner-2': 'frontend-beginner-5'
-  };
-  const effectiveAssignmentId = assignmentId ? (idMap[assignmentId] || assignmentId) : undefined;
+  // Use the assignmentId directly without remapping
+  const effectiveAssignmentId = assignmentId;
   
   const [currentView, setCurrentView] = useState<'study' | 'test' | 'results'>('study');
   const [assignment, setAssignment] = useState<Assignment | null>(null);

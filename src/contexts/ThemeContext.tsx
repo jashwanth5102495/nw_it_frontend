@@ -10,10 +10,17 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme] = useState<Theme>('dark');
+  const getInitialTheme = (): Theme => {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'light' || stored === 'dark') return stored as Theme;
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return prefersDark ? 'dark' : 'light';
+  };
+
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {
-    
+    localStorage.setItem('theme', theme);
     if (theme === 'dark') {
       document.documentElement.style.setProperty('--bg-primary', '#000000');
       document.documentElement.style.setProperty('--bg-secondary', '#111111');
@@ -42,7 +49,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [theme]);
 
   const toggleTheme = () => {
-    // Theme is permanently set to dark - no toggle functionality
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   return (

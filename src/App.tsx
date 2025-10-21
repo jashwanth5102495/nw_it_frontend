@@ -7,6 +7,8 @@ import Hero from './components/Hero';
 import ServicesSection from './components/ServicesSection';
 import TradingSection from './components/TradingSection';
 import TechnologiesCarousel from './components/TechnologiesCarousel';
+import IntroductionPage from './pages/IntroductionPage.jsx';
+import ModuleComingSoon from './pages/ModuleComingSoon.jsx';
 
 import Footer from './components/Footer';
 import About from './components/About';
@@ -257,6 +259,8 @@ function AppInner() {
           <Route path="/contact" element={<><Header /><Contact /></>} />
 
           <Route path="/courses" element={<><Header /><Courses /></>} />
+          <Route path="/frontend-development-intermediate" element={<><Header hideDock={true} /><IntroductionPage /></>} />
+          <Route path="/frontend-development-intermediate/module/:slug" element={<><Header hideDock={true} /><ModuleComingSoon /></>} />
           <Route path="/course-enrollment/:courseId" element={<CourseEnrollment />} />
           <Route path="/student-registration" element={<StudentRegistration />} />
           <Route path="/student-login" element={<><Header /><StudentLogin /></>} />

@@ -1825,7 +1825,8 @@ const StudentPortal: React.FC = () => {
     
     // Map course IDs to their respective learning routes
     const courseRoutes: { [key: string]: string } = {
-      'frontend-beginner': '/course-learning/frontend-beginner/html-fundamentals/html-structure',
+      'frontend-beginner': '/course-learning/frontend-beginner/html-fundamentals/html-structure',      'frontend-intermediate': '/frontend-development-intermediate',
+      'FRONTEND-INTERMEDIATE': '/frontend-development-intermediate',
       'frontend-advanced': '/course-learning-advanced/frontend-advanced/advanced-react/performance-optimization',
       'devops-beginner': '/course-learning-devops-beginner/devops-beginner/devops-fundamentals/devops-intro',
       'DEVOPS-BEGINNER': '/course-learning-devops-beginner/devops-beginner/devops-fundamentals/devops-intro',

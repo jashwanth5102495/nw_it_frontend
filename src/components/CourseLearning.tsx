@@ -1401,6 +1401,12 @@ window.addEventListener('load', addInteractivity);`
   const renderContentWithVideos = (content: string, videos?: string[], useHtmlIntro?: boolean) => {
     const processedContent = processContent(content);
     const parts = processedContent.split('[VIDEO_PLACEHOLDER]');
+
+    // Suppress placeholder box for specific Beginner lessons
+    const suppressPlaceholder = !!(currentLesson && (
+      currentLesson.id === 'css-box-model' ||
+      currentLesson.id === 'responsive-basics'
+    ));
     
     const elements = [];
     for (let i = 0; i < parts.length; i++) {
@@ -1418,7 +1424,7 @@ window.addEventListener('load', addInteractivity);`
           elements.push(
             <video key={`video-${i}`} className="w-full h-auto bg-black rounded-lg border border-gray-700" controls preload="metadata" src={videos[0]} />
           );
-        } else {
+        } else if (!suppressPlaceholder) {
           elements.push(
             <VideoPlaceholder 
               key={`video-${i}`} 
@@ -8997,15 +9003,7 @@ app.listen(PORT, () => {
           </div>
           {/* Scrolling Feedback & Contact Banner */}
           <div className="mt-2 mb-2 border-t border-b border-gray-800/50 bg-black/30">
-            <div className="overflow-hidden whitespace-nowrap">
-              <div
-                className="inline-block will-change-transform text-[12px] md:text-sm text-gray-100"
-                style={{ animation: 'marquee 28s linear infinite' }}
-              >
-                <span aria-label="note" title="Note" className="mr-2">📌</span>
-                Our video explanations are a new initiative and will continue improving day by day. We value your feedback and suggestions to help us make them better. For any changes, issues, or ideas, please reach out to us at:  📧 jasnav.co@gmail.com or info@jasnav.co.in  Thank you for your support and for learning with us!
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
@@ -9291,7 +9289,7 @@ app.listen(PORT, () => {
                       Progress: {exerciseProgress[currentLesson.id] || 0}% complete
                     </p> */}
                   </div>
-                  <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600 max-h-[calc(100vh-340px)] overflow-y-auto">
+                  <div className="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-700/50 dark:border-gray-700 max-h-[calc(100vh-340px)] overflow-y-auto">
                   <div className="text-[15px] md:text-[16px] leading-7 text-gray-800 dark:text-gray-100 text-left">
             {renderContentWithVideos(
               currentLesson.content,

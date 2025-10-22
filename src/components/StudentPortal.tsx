@@ -2093,18 +2093,7 @@ const StudentPortal: React.FC = () => {
       case 'courses':
         return (
           <div className="space-y-6 max-w-full">
-            {/* Scrolling suggestion banner for Frontend Development - Advanced */}
-            <div className="relative overflow-hidden rounded-lg border border-green-600/40 bg-green-900/20">
-              <style>
-                {`@keyframes scrollBanner { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }`}
-              </style>
-              <div
-                className="whitespace-nowrap text-sm md:text-base text-green-300 py-2"
-                style={{ animation: 'scrollBanner 18s linear infinite' }}
-              >
-                Continuity tip: Purchase Frontend Development - Advanced to learn in depth with React basics, Django, MongoDB, Node.js and similar tools — integrated prompt engineering for Frontend Development included. Recommended upgrade. Price: ₹9,500.
-              </div>
-            </div>
+
             <div className="flex items-center justify-between">
               <h2 className="text-white text-2xl font-bold">My Courses</h2>
               <button

@@ -23,6 +23,17 @@ import cssInline from '../../video-explanations/topics/html/inline css.mp4';
 import cssInternal from '../../video-explanations/topics/html/internal css.mp4';
 import cssExternal from '../../video-explanations/topics/html/external css.mp4';
 import cssTypography from '../../video-explanations/topics/html/Typography.mp4';
+import htmlSemanticVideo from '../../video-explanations/topics/html/sem.mp4';
+import cssLayoutVideo from '../../video-explanations/topics/javascript-basics/box done.mp4';
+import jsIntroVideo from '../../video-explanations/topics/javascript-basics/javas.mp4';
+import jsVariablesVideo from '../../video-explanations/topics/javascript-basics/var.mp4';
+import jsFunctionsVideo from '../../video-explanations/topics/javascript-basics/fundd.mp4';
+import jsDomVideo from '../../video-explanations/topics/javascript-basics/DOMM.mp4';
+import jsEventsVideo from '../../video-explanations/topics/javascript-basics/finalevents.mp4';
+import resVideo from '../../video-explanations/topics/css-grid/res.mp4';
+import pythonIntroVideo from '../../video-explanations/topics/py/pyinto.mp4';
+import pythonDataTypesVideo from '../../video-explanations/topics/py/datatypes.mp4';
+import pythonControlFlowVideo from '../../video-explanations/topics/py/python-control-flow.mp4';
 
 // Helper to generate preview HTML for code editor output (supports JS-only and HTML)
 const generatePreviewHtml = (code: string): string => {
@@ -1389,12 +1400,26 @@ window.addEventListener('load', addInteractivity);`
     'html-images': [imagesVideo],
     'html-tables': [tablesVideo],
     'html-forms': [formsVideo],
+    'html-semantic': [htmlSemanticVideo],
     // CSS Module
     'css-intro': [cssWhatIs],
     'css-inline': [cssInline],
     'css-internal': [cssInternal],
     'css-external': [cssExternal],
     'css-colors-fonts': [cssTypography],
+    // CSS Advanced Module
+    'css-layout': [cssLayoutVideo],
+    // JavaScript Module
+    'js-intro': [jsIntroVideo],
+    'js-variables': [jsVariablesVideo],
+    'js-functions': [jsFunctionsVideo],
+    'js-dom': [jsDomVideo],
+    'js-events': [jsEventsVideo],
+    'responsive-basics': [resVideo],
+    // Python Module
+    'python-intro': [pythonIntroVideo],
+    'python-data-types': [pythonDataTypesVideo],
+    'python-control-flow': [pythonControlFlowVideo],
   };
 
   // Function to render content with video placeholders
@@ -1491,6 +1516,57 @@ window.addEventListener('load', addInteractivity);`
         <li>Reduce motion for accessibility with <code>@media (prefers-reduced-motion)</code>.</li>
       </ul>
     `,
+    'css-box-model': `
+      <h3>📦 Deeper Explanation: Box Model & box-sizing</h3>
+      <p>The browser computes an element’s rendered size from four layers: <strong>content</strong>, <strong>padding</strong>, <strong>border</strong>, and <strong>margin</strong>. Margin is always outside the box and doesn’t affect width/height.</p>
+      <ul>
+        <li><strong>content-box</strong> (default): <code>width</code> excludes padding and border.</li>
+        <li><strong>border-box</strong>: <code>width</code> includes padding and border; simplifies layouts.</li>
+      </ul>
+      <pre><code>/* Recommended baseline */
+*, *::before, *::after { box-sizing: border-box; }</code></pre>
+      <h4>🧭 Spacing strategy</h4>
+      <ul>
+        <li>Use <strong>padding</strong> for inner breathing room; <strong>margin</strong> for external separation.</li>
+        <li>Inline elements ignore top/bottom margins; set <code>display: block</code> or <code>inline-block</code> when needed.</li>
+        <li>Prefer consistent spacing scales (4/8/12/16px or rem equivalents) across components.</li>
+      </ul>
+      <h4>⬇️ Margin collapsing (vertical)</h4>
+      <p>For block elements, adjacent vertical margins can collapse into a single margin (the larger value wins). It occurs between siblings, parent ⇄ first/last child, and empty blocks.</p>
+      <pre><code>.a { margin-bottom: 20px; }
+.b { margin-top: 30px; }
+/* Actual vertical space is 30px, not 50px */</code></pre>
+      <h4>📐 Layout tips</h4>
+      <ul>
+        <li>Avoid relying on <code>width + padding + border</code> math—use <strong>border-box</strong>.</li>
+        <li>Use Flexbox or Grid for alignment and two-dimensional layouts instead of floats.</li>
+        <li>Set <code>max-width</code> for readable text blocks and allow containers to shrink on mobile.</li>
+      </ul>
+    `,
+    'responsive-basics': `
+      <h3>📱 Deeper Explanation: Mobile‑first Responsive Flow</h3>
+      <p>Design for small screens first, then progressively enhance for larger viewports using <code>@media (min-width)</code> queries.</p>
+      <ul>
+        <li>Prefer fluid units: <code>%</code>, <code>vw</code>, and <code>rem</code> over fixed <code>px</code>.</li>
+        <li>Images and media: <code>max-width: 100%</code>, <code>height: auto</code>.</li>
+        <li>Use content‑driven breakpoints; common examples: 480px, 768px, 1024px, 1280px.</li>
+        <li>Structure with Flexbox/Grid; avoid absolute positioning for general layout.</li>
+      </ul>
+      <pre><code>/* Typography scales smoothly */
+h1 { font-size: clamp(1.5rem, 2.5vw, 2.25rem); }
+
+/* Container centers and caps width */
+.container { width: min(92%, 72rem); margin-inline: auto; }
+
+/* Mobile-first media queries */
+@media (min-width: 768px) {
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+}
+@media (min-width: 1024px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+}</code></pre>
+      <p>Test across devices and orientations. Use browser devtools for responsive simulation and keep touch targets large enough (≈44×44px).</p>
+    `,
   };
 
   // Complete Frontend Development Beginner Course - Module-based
@@ -1503,14 +1579,7 @@ window.addEventListener('load', addInteractivity);`
           id: 'html-intro',
           title: 'Introduction to HTML',
           content: `
-            <div style="margin-bottom: 20px; text-align: center;">
-              <h3>📹 Video Explanation</h3>
-              <div style="width: 100%; max-width: 800px; height: 400px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold;">
-                📹 Video Explanation Coming Soon
-              </div>
-              <p style="margin-top: 10px; color: #666; font-size: 14px;">Video explanation coming soon - stay tuned!</p>
-            </div>
-            
+            [VIDEO_PLACEHOLDER]
             <h2>🌟 What is HTML?</h2>
             <p>HTML (HyperText Markup Language) is the standard markup language for creating web pages. It describes the structure of a web page using markup tags.</p>
             
@@ -2794,13 +2863,6 @@ body {
           id: 'css-box-model',
           title: 'CSS Box Model and Layout',
           content: `
-            <div style="margin-bottom: 20px; text-align: center;">
-              <h3>📹 Video Explanation</h3>
-              <div style="width: 100%; max-width: 800px; height: 400px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold;">
-                📹 Video Explanation Coming Soon
-              </div>
-              <p style="margin-top: 10px; color: #666; font-size: 14px;">Video explanation coming soon - stay tuned!</p>
-            </div>
             
             <h2>📦 The CSS Box Model</h2>
             <p>Every HTML element is a rectangular box. The CSS box model describes how the size of these boxes is calculated.</p>
@@ -3009,14 +3071,8 @@ body {
           id: 'responsive-basics',
           title: 'Responsive Design Basics',
           content: `
-            <div style="margin-bottom: 20px; text-align: center;">
-              <h3>📹 Video Explanation</h3>
-              <div style="width: 100%; max-width: 800px; height: 400px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold;">
-                📹 Video Explanation Coming Soon
-              </div>
-              <p style="margin-top: 10px; color: #666; font-size: 14px;">Video explanation coming soon - stay tuned!</p>
-            </div>
             
+            [VIDEO_PLACEHOLDER]
             <h2>📱 What is Responsive Design?</h2>
             <p>Responsive design makes websites look good on all devices - desktops, tablets, and phones.</p>
             

@@ -16,6 +16,21 @@ import MagnetLines from './MagnetLines';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
+// Helper: derive courseId and moduleId from assignmentId
+const getCourseAndModuleForAssignment = (id: string, title?: string) => {
+  let courseId: string | null = null;
+  let moduleId = 'assignments';
+  if (id?.startsWith('frontend-beginner')) {
+    courseId = 'frontend-beginner';
+  } else if (id?.startsWith('devops-beginner')) {
+    courseId = 'devops-beginner';
+  } else if (id?.startsWith('ai-tools')) {
+    courseId = 'ai-tools-mastery';
+    const numMatch = id.match(/ai-tools-(\d+)/);
+    if (numMatch) moduleId = `module_${numMatch[1]}`;
+  }
+  return { courseId, moduleId, assignmentTitle: title || id };
+};
 interface Question {
   questionId: number;
   question: string;
@@ -194,6 +209,34 @@ const AssignmentPage = () => {
       
       if (result.success) {
         setTestResult(result.data);
+
+        // Record progress in backend (assignments summary)
+        try {
+          const { courseId, moduleId, assignmentTitle } = getCourseAndModuleForAssignment(effectiveAssignmentId, assignment?.title);
+          const percentage = typeof result?.data?.percentage === 'number' ? Math.round(result.data.percentage) : null;
+          if (courseId && percentage !== null) {
+            await fetch(`${BASE_URL}/api/progress/student/${userData.id}/assignment`, {
+              method: 'PUT',
+              headers: {
+                'Authorization': `Bearer ${userData.token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                courseId,
+                moduleId,
+                assignmentId: effectiveAssignmentId,
+                assignmentTitle,
+                status: 'graded',
+                score: percentage,
+                maxScore: 100,
+                timeSpent
+              })
+            });
+          }
+        } catch (progressErr) {
+          console.error('Failed to record assignment progress:', progressErr);
+        }
+
         setCurrentView('results');
         await fetchAttemptHistory();
       } else {

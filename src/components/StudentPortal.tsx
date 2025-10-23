@@ -206,6 +206,7 @@ const StudentPortal: React.FC = () => {
   // Assignment tracking state
   const [assignmentStatuses, setAssignmentStatuses] = useState<{ [assignmentId: string]: Assignment['status'] }>({});
   const [assignmentSubmissions, setAssignmentSubmissions] = useState<{ [assignmentId: string]: { type: 'file' | 'git', content: string, submittedAt: string } }>({});
+  const [assignmentSummary, setAssignmentSummary] = useState<{ total: number; completed: number; pending: number } | null>(null);
   
   // Module submission tracking state
   const [moduleSubmissions, setModuleSubmissions] = useState<{ [courseId: string]: { [moduleId: string]: { submissionUrl: string; submittedAt: string } } }>({});
@@ -233,6 +234,61 @@ const StudentPortal: React.FC = () => {
     };
     return mappings[courseId] || [courseId];
   };
+
+  // Compute assignment summary (completed/pending) when course selection changes
+  useEffect(() => {
+    const fetchSummary = async () => {
+      if (!selectedCourseForAssignments) {
+        setAssignmentSummary(null);
+        return;
+      }
+      try {
+        const currentUserRaw = localStorage.getItem('currentUser');
+        const currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : null;
+        const mappedIds = getCourseIdMapping(selectedCourseForAssignments);
+        const courseKey = mappedIds[0] || selectedCourseForAssignments;
+
+        const courseAssignments = assignments.filter(a => mappedIds.includes(a.courseId));
+        const totalLocal = courseAssignments.length;
+        const completedLocal = courseAssignments.filter(a => (a.grade || 0) > 5).length;
+        let total = totalLocal;
+        let completed = completedLocal;
+
+        if (currentUser?.id) {
+          const headers: Record<string, string> | undefined = currentUser?.token ? { Authorization: `Bearer ${currentUser.token}` } : undefined;
+          try {
+            const resp = await fetch(`${BASE_URL}/api/progress/student/${currentUser.id}/course/${courseKey}/summary`, { headers });
+            if (resp.ok) {
+              const result = await resp.json();
+              const list = result?.data?.assignments?.list;
+              const totalApi: number | undefined = result?.data?.assignments?.total;
+
+              if (Array.isArray(list)) {
+                total = Math.max(totalLocal, list.length);
+                completed = list.filter((item: any) => Number(item?.score ?? 0) > 5).length;
+              } else if (typeof totalApi === 'number' && totalApi > 0) {
+                total = Math.max(totalLocal, totalApi);
+              }
+            }
+          } catch (apiErr) {
+            console.error('Summary API failed, falling back to local data', apiErr);
+          }
+        }
+
+        const pending = Math.max(total - completed, 0);
+        setAssignmentSummary({ total, completed, pending });
+      } catch (e) {
+        console.error('Failed to compute assignment summary', e);
+        const mappedIds = getCourseIdMapping(selectedCourseForAssignments);
+        const courseAssignments = assignments.filter(a => mappedIds.includes(a.courseId));
+        const total = courseAssignments.length;
+        const completed = courseAssignments.filter(a => (a.grade || 0) > 5).length;
+        setAssignmentSummary({ total, completed, pending: Math.max(total - completed, 0) });
+      }
+    };
+
+    fetchSummary();
+  }, [selectedCourseForAssignments]);
 
   // Helper to render Project Submission Modal (refactored from inline IIFE)
   const renderProjectSubmissionModal = () => {
@@ -2387,34 +2443,27 @@ const StudentPortal: React.FC = () => {
               )}
             </div>
 
-            {/* Assignment Progress Summary commented out */}
-            {/* {selectedCourseForAssignments && (
+            {selectedCourseForAssignments && (
               <div className="bg-gray-800 rounded-lg p-6 mb-6">
-                <h3 className="text-white text-lg font-semibold mb-4">Assignment Progress</h3>
+                <h3 className="text-white text-lg font-semibold mb-4">Assignment Summary</h3>
                 {(() => {
                   const mappedIds = getCourseIdMapping(selectedCourseForAssignments);
                   const courseAssignments = assignments.filter(assignment => 
                     mappedIds.includes(assignment.courseId)
                   );
-                  const totalAssignments = courseAssignments.length;
-                  const completedAssignments = courseAssignments.filter(a => (assignmentStatuses[a.id] || a.status) === 'graded').length;
-                  const submittedAssignments = courseAssignments.filter(a => (assignmentStatuses[a.id] || a.status) === 'submitted').length;
-                  const pendingAssignments = courseAssignments.filter(a => (assignmentStatuses[a.id] || a.status) === 'pending').length;
-                  const progressPercentage = totalAssignments > 0 ? (completedAssignments / totalAssignments) * 100 : 0;
-                  
+                  const totalAssignments = assignmentSummary?.total ?? courseAssignments.length;
+                  const completedAssignments = assignmentSummary?.completed ?? courseAssignments.filter(a => (a.grade || 0) > 5).length;
+                  const pendingAssignments = assignmentSummary?.pending ?? Math.max(totalAssignments - completedAssignments, 0);
+
                   return (
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="bg-gray-700 rounded-lg p-4 text-center">
                         <div className="text-2xl font-bold text-white">{totalAssignments}</div>
-                        <div className="text-gray-400 text-sm">Total Assignments</div>
+                        <div className="text-gray-400 text-sm">Total</div>
                       </div>
                       <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-4 text-center">
                         <div className="text-2xl font-bold text-green-400">{completedAssignments}</div>
-                        <div className="text-gray-400 text-sm">Completed</div>
-                      </div>
-                      <div className="bg-blue-600/20 border border-blue-600/30 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-blue-400">{submittedAssignments}</div>
-                        <div className="text-gray-400 text-sm">Submitted</div>
+                        <div className="text-gray-400 text-sm">Completed (score &gt; 5)</div>
                       </div>
                       <div className="bg-yellow-600/20 border border-yellow-600/30 rounded-lg p-4 text-center">
                         <div className="text-2xl font-bold text-yellow-400">{pendingAssignments}</div>
@@ -2423,21 +2472,8 @@ const StudentPortal: React.FC = () => {
                     </div>
                   );
                 })()}
-                
-                <div className="mt-4">
-                  <div className="flex justify-between text-sm text-gray-400 mb-2">
-                    <span>Overall Progress</span>
-                    <span>{Math.round(progressPercentage)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${progressPercentage}%` }}
-                    ></div>
-                  </div>
-                </div>
               </div>
-            )} */}
+            )}
 
             {/* Assignments List */}
             {selectedCourseForAssignments && (

@@ -148,6 +148,12 @@ const StudentPortal: React.FC = () => {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [pwdCurrent, setPwdCurrent] = useState('');
+  const [pwdNew, setPwdNew] = useState('');
+  const [pwdConfirm, setPwdConfirm] = useState('');
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [pwdSuccess, setPwdSuccess] = useState<string | null>(null);
+  const [pwdError, setPwdError] = useState<string | null>(null);
 
   // Logout handler: clear session and go to company landing page
   const handleLogout = () => {
@@ -2679,24 +2685,85 @@ const StudentPortal: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <h4 className="text-white font-medium mb-2">Change Password</h4>
+                  {pwdSuccess && (
+                    <div className="p-2 bg-green-600/20 border border-green-500/30 rounded text-green-300 text-sm">{pwdSuccess}</div>
+                  )}
+                  {pwdError && (
+                    <div className="p-2 bg-red-600/20 border border-red-500/30 rounded text-red-300 text-sm">{pwdError}</div>
+                  )}
                   <div className="space-y-3">
                     <input
                       type="password"
-                      placeholder="Current Password"
+                      placeholder="Current Password (optional)"
+                      value={pwdCurrent}
+                      onChange={(e) => setPwdCurrent(e.target.value)}
                       className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
                     />
                     <input
                       type="password"
                       placeholder="New Password"
+                      value={pwdNew}
+                      onChange={(e) => setPwdNew(e.target.value)}
                       className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
                     />
                     <input
                       type="password"
                       placeholder="Confirm New Password"
+                      value={pwdConfirm}
+                      onChange={(e) => setPwdConfirm(e.target.value)}
                       className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
                     />
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
-                      Update Password
+                    <button
+                      onClick={async () => {
+                        setPwdError(null);
+                        setPwdSuccess(null);
+                        if (!pwdNew || pwdNew.length < 6) {
+                          setPwdError('New password must be at least 6 characters.');
+                          return;
+                        }
+                        if (pwdNew !== pwdConfirm) {
+                          setPwdError('New password and confirm do not match.');
+                          return;
+                        }
+                        setPwdLoading(true);
+                        try {
+                          const currentUserRaw = localStorage.getItem('currentUser');
+                          if (!currentUserRaw) {
+                            setPwdError('Please login to update password.');
+                            navigate('/student-login');
+                            return;
+                          }
+                          const currentUser = JSON.parse(currentUserRaw);
+                          const studentId = currentUser.id ?? currentUser._id;
+                          const token = currentUser.token ?? localStorage.getItem('token');
+                          const resp = await fetch(`${BASE_URL}/api/students/${studentId}/password`, {
+                            method: 'PUT',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              ...(token ? { Authorization: `Bearer ${token}` } : {})
+                            },
+                            body: JSON.stringify({ newPassword: pwdNew })
+                          });
+                          const result = await resp.json().catch(async () => ({ success: false, message: await resp.text() }));
+                          if (resp.ok && result?.success) {
+                            setPwdSuccess('Password updated successfully.');
+                            setPwdCurrent('');
+                            setPwdNew('');
+                            setPwdConfirm('');
+                          } else {
+                            setPwdError(result?.message || 'Failed to update password.');
+                          }
+                        } catch (err) {
+                          console.error('Password update error:', err);
+                          setPwdError('Network or server error while updating password.');
+                        } finally {
+                          setPwdLoading(false);
+                        }
+                      }}
+                      disabled={pwdLoading}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+                    >
+                      {pwdLoading ? 'Updating...' : 'Update Password'}
                     </button>
                   </div>
                 </div>

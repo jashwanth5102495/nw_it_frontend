@@ -290,7 +290,7 @@ function AppInner() {
 function App() {
   return (
     <ThemeProvider>
-      <Router>
+      <Router basename={import.meta.env.VITE_BASE_PATH || '/'}>
         <AppInner />
       </Router>
     </ThemeProvider>

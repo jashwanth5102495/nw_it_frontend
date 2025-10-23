@@ -456,10 +456,20 @@ const StudentPortal: React.FC = () => {
     }
     
     const moduleIndex = projectToModuleIndex[courseType]?.[projectId];
-    if (moduleIndex !== undefined && courseData.modules[moduleIndex]) {
-      return courseData.modules[moduleIndex]._id;
+
+    // Fallback: if mapped index is missing/out of range, use last available module
+    if (Array.isArray(courseData.modules) && courseData.modules.length > 0) {
+      const indexToUse = (typeof moduleIndex === 'number' && courseData.modules[moduleIndex])
+        ? moduleIndex
+        : (courseData.modules.length - 1);
+
+      const selectedModule = courseData.modules[indexToUse];
+      // Only return a valid backend module _id; if absent, treat as not found
+      if (selectedModule && selectedModule._id) {
+        return selectedModule._id;
+      }
     }
-    
+
     return null;
   };
 

@@ -2509,7 +2509,6 @@ const StudentPortal: React.FC = () => {
                       <h4 className="text-white text-lg font-semibold">{assignment.title}</h4>
                       <p className="text-gray-400 text-sm">{assignment.courseName}</p>
                       <p className="text-gray-300 text-sm mt-2">{assignment.description}</p>
-                      <p className="text-gray-400 text-sm mt-1">Due: {new Date(assignment.dueDate).toLocaleDateString()}</p>
                     </div>
                     {/* Assignment status badge commented out */}
                     {/* <span className={`px-3 py-1 rounded-full text-sm font-medium ${

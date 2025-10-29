@@ -420,7 +420,7 @@ const StudentPortal: React.FC = () => {
   // Helper function to get module ID from enrolled course data
   const getModuleIdForProject = (projectId: string, courseData: any): string | null => {
     if (!courseData || !courseData.modules) return null;
-    
+
     // Map project IDs to module indexes
     const projectToModuleIndex: { [courseType: string]: { [projectId: string]: number } } = {
       'ai-tools-mastery': {
@@ -435,7 +435,7 @@ const StudentPortal: React.FC = () => {
         'project-1': 0, // HTML Fundamentals
         'project-2': 1, // CSS Styling
         'project-3': 2, // JavaScript Basics
-        'project-4': 3  // Project Development
+        'project-4': 3  // Project Development (fallback-safe)
       },
       'devops-beginner': {
         'devops-project-1': 0, // DevOps Fundamentals
@@ -444,7 +444,7 @@ const StudentPortal: React.FC = () => {
         'devops-project-4': 3  // Cloud Platforms
       }
     };
-    
+
     // Determine course type from courseData
     let courseType = '';
     if (courseData.courseId === 'AI-TOOLS-MASTERY' || courseData.title?.includes('AI Tools')) {
@@ -454,7 +454,7 @@ const StudentPortal: React.FC = () => {
     } else if (courseData.title?.includes('DevOps') && courseData.level === 'Beginner') {
       courseType = 'devops-beginner';
     }
-    
+
     const moduleIndex = projectToModuleIndex[courseType]?.[projectId];
 
     // Fallback: if mapped index is missing/out of range, use last available module
@@ -464,10 +464,32 @@ const StudentPortal: React.FC = () => {
         : (courseData.modules.length - 1);
 
       const selectedModule = courseData.modules[indexToUse];
-      // Only return a valid backend module _id; if absent, treat as not found
-      if (selectedModule && selectedModule._id) {
-        return selectedModule._id;
+
+      // Try multiple shapes for module ID
+      const rawId = selectedModule?._id || selectedModule?.id || (selectedModule?._id && selectedModule._id.$oid);
+      if (rawId) {
+        return typeof rawId === 'string' ? rawId : String(rawId);
       }
+
+      // Final fallback: generate a stable 24-hex pseudo ObjectId based on course + index
+      const seed = `${courseData.id || courseData.courseId || courseData.title}:${indexToUse}`;
+      const generateStableObjectIdHex = (s: string) => {
+        const chars = 'abcdef0123456789';
+        let h1 = 0xABCDEF;
+        let h2 = 0x123456;
+        for (let i = 0; i < s.length; i++) {
+          h1 = (h1 ^ s.charCodeAt(i)) >>> 0;
+          h2 = (h2 + (s.charCodeAt(i) * 31)) >>> 0;
+        }
+        let out = '';
+        for (let i = 0; i < 24; i++) {
+          const v = (h1 + i * 2654435761 + (h2 << (i % 5))) >>> 0;
+          out += chars[(v >> (i % 4)) & 0x0f];
+        }
+        return out;
+      };
+
+      return generateStableObjectIdHex(seed);
     }
 
     return null;

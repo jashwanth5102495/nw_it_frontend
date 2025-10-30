@@ -214,6 +214,7 @@ const AssignmentPage = () => {
         try {
           const { courseId, moduleId, assignmentTitle } = getCourseAndModuleForAssignment(effectiveAssignmentId, assignment?.title);
           const percentage = typeof result?.data?.percentage === 'number' ? Math.round(result.data.percentage) : null;
+          const passed = Boolean(result?.data?.passed);
           if (courseId && percentage !== null) {
             await fetch(`${BASE_URL}/api/progress/student/${userData.id}/assignment`, {
               method: 'PUT',
@@ -226,7 +227,7 @@ const AssignmentPage = () => {
                 moduleId,
                 assignmentId: effectiveAssignmentId,
                 assignmentTitle,
-                status: 'graded',
+                status: passed ? 'graded' : 'submitted',
                 score: percentage,
                 maxScore: 100,
                 timeSpent

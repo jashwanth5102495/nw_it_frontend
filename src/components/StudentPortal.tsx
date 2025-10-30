@@ -256,7 +256,7 @@ const StudentPortal: React.FC = () => {
 
         const courseAssignments = assignments.filter(a => mappedIds.includes(a.courseId));
         const totalLocal = courseAssignments.length;
-        const completedLocal = courseAssignments.filter(a => (a.grade || 0) > 5).length;
+        const completedLocal = courseAssignments.filter(a => (a.grade || 0) >= 5).length;
         let total = totalLocal;
         let completed = completedLocal;
 
@@ -271,7 +271,25 @@ const StudentPortal: React.FC = () => {
 
               if (Array.isArray(list)) {
                 total = Math.max(totalLocal, list.length);
-                completed = list.filter((item: any) => Number(item?.score ?? 0) > 5).length;
+                completed = list.filter((item: any) => (item?.status === 'graded') || Number(item?.score ?? 0) >= 5).length;
+
+                // Sync assignment status badges with backend summary for current course
+                try {
+                  const courseAssignments = assignments.filter(a => mappedIds.includes(a.courseId));
+                  const updatedStatuses: { [assignmentId: string]: Assignment['status'] } = {};
+                  for (const a of courseAssignments) {
+                    const match = list.find((it: any) => it?.title === a.title);
+                    if (match) {
+                      const s: Assignment['status'] = match.status === 'graded' ? 'graded' : (match.status === 'submitted' ? 'submitted' : 'pending');
+                      updatedStatuses[a.id] = s;
+                    }
+                  }
+                  if (Object.keys(updatedStatuses).length > 0) {
+                    setAssignmentStatuses(prev => ({ ...prev, ...updatedStatuses }));
+                  }
+                } catch (mapErr) {
+                  console.warn('Could not map assignment statuses from summary', mapErr);
+                }
               } else if (typeof totalApi === 'number' && totalApi > 0) {
                 total = Math.max(totalLocal, totalApi);
               }
@@ -288,7 +306,7 @@ const StudentPortal: React.FC = () => {
         const mappedIds = getCourseIdMapping(selectedCourseForAssignments);
         const courseAssignments = assignments.filter(a => mappedIds.includes(a.courseId));
         const total = courseAssignments.length;
-        const completed = courseAssignments.filter(a => (a.grade || 0) > 5).length;
+        const completed = courseAssignments.filter(a => (a.grade || 0) >= 5).length;
         setAssignmentSummary({ total, completed, pending: Math.max(total - completed, 0) });
       }
     };
@@ -2490,7 +2508,7 @@ const StudentPortal: React.FC = () => {
                     mappedIds.includes(assignment.courseId)
                   );
                   const totalAssignments = assignmentSummary?.total ?? courseAssignments.length;
-                  const completedAssignments = assignmentSummary?.completed ?? courseAssignments.filter(a => (a.grade || 0) > 5).length;
+                  const completedAssignments = assignmentSummary?.completed ?? courseAssignments.filter(a => (a.grade || 0) >= 5).length;
                   const pendingAssignments = assignmentSummary?.pending ?? Math.max(totalAssignments - completedAssignments, 0);
 
                   return (
@@ -2501,7 +2519,7 @@ const StudentPortal: React.FC = () => {
                       </div>
                       <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-4 text-center">
                         <div className="text-2xl font-bold text-green-400">{completedAssignments}</div>
-                        <div className="text-gray-400 text-sm">Completed (score &gt; 5)</div>
+                        <div className="text-gray-400 text-sm">Completed (score ≥ 5)</div>
                       </div>
                       <div className="bg-yellow-600/20 border border-yellow-600/30 rounded-lg p-4 text-center">
                         <div className="text-2xl font-bold text-yellow-400">{pendingAssignments}</div>
@@ -2542,14 +2560,19 @@ const StudentPortal: React.FC = () => {
                       <p className="text-gray-400 text-sm">{assignment.courseName}</p>
                       <p className="text-gray-300 text-sm mt-2">{assignment.description}</p>
                     </div>
-                    {/* Assignment status badge commented out */}
-                    {/* <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      (assignmentStatuses[assignment.id] || assignment.status) === 'pending' ? 'bg-yellow-600 text-yellow-100' :
-                      (assignmentStatuses[assignment.id] || assignment.status) === 'submitted' ? 'bg-blue-600 text-blue-100' :
-                      'bg-green-600 text-green-100'
-                    }`}>
-                      {((assignmentStatuses[assignment.id] || assignment.status).charAt(0).toUpperCase() + (assignmentStatuses[assignment.id] || assignment.status).slice(1))}
-                    </span> */}
+                    {(() => {
+                      const rawStatus = assignmentStatuses[assignment.id] || assignment.status;
+                      const isCompleted = rawStatus === 'graded' || (assignment.grade || 0) >= 5;
+                      const label = isCompleted ? 'Completed' : (rawStatus === 'submitted' ? 'Submitted' : 'Pending');
+                      const cls = isCompleted
+                        ? 'bg-green-600 text-green-100'
+                        : (rawStatus === 'submitted' ? 'bg-blue-600 text-blue-100' : 'bg-yellow-600 text-yellow-100');
+                      return (
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${cls}`}>
+                          {label}
+                        </span>
+                      );
+                    })()}
                   </div>
                   
                   <div className="flex items-center justify-between">

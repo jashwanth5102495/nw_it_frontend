@@ -9,6 +9,7 @@ import TradingSection from './components/TradingSection';
 import TechnologiesCarousel from './components/TechnologiesCarousel';
 import IntroductionPage from './pages/IntroductionPage.jsx';
 import ModuleComingSoon from './pages/ModuleComingSoon.jsx';
+import FrontendProjectPage from './components/FrontendProjectPage';
 
 import Footer from './components/Footer';
 import About from './components/About';
@@ -280,6 +281,7 @@ function AppInner() {
           <Route path="/assignment/:assignmentId" element={<AssignmentPage />} />
           <Route path="/ai-tools-project/:projectId" element={<AIToolsProjectPage />} />
           <Route path="/devops-project/:projectId" element={<DevOpsProjectPage />} />
+          <Route path="/frontend-project/:projectId" element={<FrontendProjectPage />} />
           {/* Plasma/Dither demo routes removed */}
 
         </Routes>

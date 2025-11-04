@@ -467,9 +467,9 @@ const StudentPortal: React.FC = () => {
     let courseType = '';
     if (courseData.courseId === 'AI-TOOLS-MASTERY' || courseData.title?.includes('AI Tools')) {
       courseType = 'ai-tools-mastery';
-    } else if (courseData.title?.includes('Frontend') && courseData.level === 'Beginner') {
+    } else if (courseData.title?.includes('Frontend') && (courseData.level || '').toLowerCase() === 'beginner') {
       courseType = 'frontend-beginner';
-    } else if (courseData.title?.includes('DevOps') && courseData.level === 'Beginner') {
+    } else if (courseData.title?.includes('DevOps') && (courseData.level || '').toLowerCase() === 'beginner') {
       courseType = 'devops-beginner';
     }
 
@@ -477,20 +477,19 @@ const StudentPortal: React.FC = () => {
 
     // Fallback: if mapped index is missing/out of range, use last available module
     if (Array.isArray(courseData.modules) && courseData.modules.length > 0) {
-      const indexToUse = (typeof moduleIndex === 'number' && courseData.modules[moduleIndex])
-        ? moduleIndex
-        : (courseData.modules.length - 1);
+      const isIndexValid = typeof moduleIndex === 'number' && moduleIndex >= 0 && moduleIndex < courseData.modules.length;
 
-      const selectedModule = courseData.modules[indexToUse];
-
-      // Try multiple shapes for module ID
-      const rawId = selectedModule?._id || selectedModule?.id || (selectedModule?._id && selectedModule._id.$oid);
-      if (rawId) {
-        return typeof rawId === 'string' ? rawId : String(rawId);
+      if (isIndexValid) {
+        const selectedModule = courseData.modules[moduleIndex];
+        // Try multiple shapes for module ID
+        const rawId = selectedModule?._id || selectedModule?.id || (selectedModule?._id && selectedModule._id.$oid);
+        if (rawId) {
+          return typeof rawId === 'string' ? rawId : String(rawId);
+        }
       }
 
-      // Final fallback: generate a stable 24-hex pseudo ObjectId based on course + index
-      const seed = `${courseData.id || courseData.courseId || courseData.title}:${indexToUse}`;
+      // Out-of-range or missing mapping: generate a stable 24-hex pseudo ObjectId based on course + project
+      const seed = `${courseData.id || courseData.courseId || courseData.title}:${projectId}`;
       const generateStableObjectIdHex = (s: string) => {
         const chars = 'abcdef0123456789';
         let h1 = 0xABCDEF;
@@ -3062,7 +3061,7 @@ const StudentPortal: React.FC = () => {
                                 </svg>
                               </div>
                               <div className="flex-1">
-                                <h4 className="text-green-400 font-medium mb-2">Project Submitted Successfully!</h4>
+                                <h4 className="text-green-400 font-medium mb-2">Existing Module Submission Found</h4>
                                 <p className="text-gray-300 text-sm mb-3">
                                   Submitted on {new Date(isSubmitted.submittedAt).toLocaleDateString()}
                                 </p>
@@ -3105,6 +3104,8 @@ const StudentPortal: React.FC = () => {
                                   navigate(`/ai-tools-project/${project.id}`);
                                 } else if (project.courseId === 'devops-beginner' || project.courseId === 'devops-advanced') {
                                   navigate(`/devops-project/${project.id}`);
+                                } else if (project.courseId === 'frontend-beginner') {
+                                  navigate(`/frontend-project/${project.id}`);
                                 } else {
                                   // For other courses, show alert for now
                                   alert('Project details page coming soon for this course!');
@@ -3169,6 +3170,8 @@ const StudentPortal: React.FC = () => {
                                   navigate(`/ai-tools-project/${project.id}`);
                                 } else if (project.courseId === 'devops-beginner' || project.courseId === 'devops-advanced') {
                                   navigate(`/devops-project/${project.id}`);
+                                } else if (project.courseId === 'frontend-beginner') {
+                                  navigate(`/frontend-project/${project.id}`);
                                 } else {
                                   // For other courses, show alert for now
                                   alert('Project details page coming soon for this course!');

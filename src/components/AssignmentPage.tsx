@@ -24,6 +24,8 @@ const getCourseAndModuleForAssignment = (id: string, title?: string) => {
     courseId = 'frontend-beginner';
   } else if (id?.startsWith('devops-beginner')) {
     courseId = 'devops-beginner';
+  } else if (id?.startsWith('frontend-intermediate')) {
+    courseId = 'frontend-intermediate';
   } else if (id?.startsWith('ai-tools')) {
     courseId = 'ai-tools-mastery';
     const numMatch = id.match(/ai-tools-(\d+)/);

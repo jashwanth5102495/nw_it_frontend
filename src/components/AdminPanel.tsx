@@ -190,6 +190,8 @@ const AdminPanel: React.FC = () => {
   const [credentialsError, setCredentialsError] = useState<string | null>(null);
   const [credentialsInfo, setCredentialsInfo] = useState<{ studentId: string; username?: string; tempPassword?: string } | null>(null);
   const [activeCredentialsStudent, setActiveCredentialsStudent] = useState<Student | null>(null);
+  // View toggle for Student Courses
+  const [courseView, setCourseView] = useState<'all' | 'completed'>('all');
 
   // Student Courses: Filter & Pagination
   const [studentFilter, setStudentFilter] = useState<'all' | 'pending' | 'confirmed' | 'error'>('all');
@@ -264,6 +266,26 @@ const AdminPanel: React.FC = () => {
   // from memoized filters defined earlier in the component.
   function getStudentPayments(studentId: string) {
     return payments.filter(payment => payment.studentId && payment.studentId._id === studentId);
+  }
+
+  // Project requirements per course and completion helpers
+  const PROJECT_REQUIREMENTS: Record<string, number> = {
+    'frontend-beginner': 4,
+    'ai-tools-mastery': 4,
+    'devops-beginner': 4,
+  };
+
+  function getCourseKeyFromEnrollment(enrollment: any) {
+    const courseRef = enrollment.courseId;
+    const rawCourseKey = (courseRef && (courseRef._id || courseRef.id || courseRef)) || enrollment.courseId;
+    return normalizeCourseKey(courseRef) || normalizeCourseKey(rawCourseKey) || rawCourseKey;
+  }
+
+  function isEnrollmentFullyCompleted(enrollment: any) {
+    const courseKey = getCourseKeyFromEnrollment(enrollment);
+    const assignmentsDone = (enrollment.assignments?.completed || 0) >= (enrollment.assignments?.total || 0) && (enrollment.assignments?.total || 0) > 0;
+    const projectsDone = (enrollment.completedModules?.length || 0) >= (PROJECT_REQUIREMENTS[courseKey] || 0);
+    return assignmentsDone && projectsDone;
   }
 
   const projectPhases = [
@@ -1456,6 +1478,76 @@ const AdminPanel: React.FC = () => {
               </div>
             </div>
 
+            {/* Student Courses view toggle */}
+            <div className="mb-4 flex items-center space-x-2">
+              <button
+                onClick={() => setCourseView('all')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium ${courseView === 'all' ? 'bg-blue-600 text-white' : 'bg-black/30 text-white/80 border border-white/10'}`}
+              >
+                All Enrollments
+              </button>
+              <button
+                onClick={() => setCourseView('completed')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium ${courseView === 'completed' ? 'bg-green-600 text-white' : 'bg-black/30 text-white/80 border border-white/10'}`}
+                title="Show students who completed all assignments and projects"
+              >
+                Completed Students
+              </button>
+            </div>
+
+            {courseView === 'completed' && (
+              <div className="mb-8 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-2xl p-6 border border-emerald-500/30">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-white flex items-center space-x-2">
+                    <span>✅</span>
+                    <span>Completed Students</span>
+                  </h3>
+                </div>
+                <div className="space-y-3">
+                  {(() => {
+                    const completed = students.flatMap(s => (s.enrolledCourses || []).filter(isEnrollmentFullyCompleted).map(enr => ({ s, enr })));
+                    if (completed.length === 0) {
+                      return <p className="text-white/60 text-sm">No students have fully completed a course yet.</p>;
+                    }
+                    return completed.map(({ s, enr }, i) => (
+                      <div key={`${s._id}-${i}`} className="bg-black/30 rounded-lg p-4 border border-white/10">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <div className="text-white font-medium flex items-center">
+                              <span>{s.firstName} {s.lastName}</span>
+                              <span className="ml-2 text-white/60 text-xs">{s.email}</span>
+                            </div>
+                            <div className="text-white/80 text-sm mt-1">
+                              Course: <span className="font-semibold">{enr.courseId?.title}</span>
+                            </div>
+                            <div className="text-white/60 text-xs">Enrolled: {new Date(enr.enrollmentDate).toLocaleDateString()}</div>
+                          </div>
+                          <span className="px-2 py-1 rounded-full text-xs bg-emerald-600 text-white">all assignments and projects completed</span>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-lg p-3 border border-blue-500/30">
+                            <h5 className="text-white font-medium mb-2 flex items-center">📝 Assignments</h5>
+                            <div className="text-white/80 text-sm">Completed: {enr.assignments?.completed || 0} / {enr.assignments?.total || 0}</div>
+                          </div>
+                          <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-lg p-3 border border-orange-500/30">
+                            <h5 className="text-white font-medium mb-2 flex items-center">🚀 Projects</h5>
+                            <div className="space-y-2">
+                              {(enr.completedModules || []).map((m: any, idx: number) => (
+                                <div key={idx} className="flex items-center justify-between text-sm">
+                                  <span className="text-white/80">Module {idx + 1}</span>
+                                  <a href={m.submissionUrl} target="_blank" rel="noopener noreferrer" className="px-2 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded text-xs">Git URL</a>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
+            )}
+
             {/* Student Submissions View */}
             {showSubmissions && (
               <div className="mb-8 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl p-6 border border-purple-500/30">
@@ -1573,7 +1665,7 @@ const AdminPanel: React.FC = () => {
             ) : (
               <div>
                 {/* Empty state for filter */}
-                {filteredStudents.length === 0 ? (
+                {(activeTab === 'courses' && courseView === 'completed' ? filteredStudents.filter(s => (s.enrolledCourses || []).some(isEnrollmentFullyCompleted)).length === 0 : filteredStudents.length === 0) ? (
                   <div className="text-center py-12">
                     <div className="text-6xl mb-4">🔎</div>
                     <p className="text-white/60 text-lg">No students match this filter</p>
@@ -1582,7 +1674,7 @@ const AdminPanel: React.FC = () => {
                 ) : null}
 
                 <div className="space-y-6">
-                {paginatedStudents.map(student => (
+                {(activeTab === 'courses' && courseView === 'completed' ? paginatedStudents.filter(s => (s.enrolledCourses || []).some(isEnrollmentFullyCompleted)) : paginatedStudents).map(student => (
                   <div key={student._id} className="bg-white/5 rounded-lg p-6 border border-white/10">
                     {/* Student Header */}
                     <div className="flex items-center justify-between mb-4">
@@ -1650,12 +1742,17 @@ const AdminPanel: React.FC = () => {
                         </div>
                         {expandedStudents[student._id]?.courses && (
                           <div className="space-y-3 mt-3">
-                          {student.enrolledCourses.map((enrollment, index) => (
+                          {(courseView === 'completed' ? student.enrolledCourses.filter(isEnrollmentFullyCompleted) : student.enrolledCourses).map((enrollment, index) => (
                             <div key={index} className="bg-black/30 rounded-lg p-4 border border-white/10">
                               <div className="flex items-center justify-between mb-3">
                                 <div>
-                                  <div className="text-white font-medium">
-                                    {enrollment.courseId?.title || 'Course Title N/A'}
+                                  <div className="text-white font-medium flex items-center">
+                                    <span>{enrollment.courseId?.title || 'Course Title N/A'}</span>
+                                    {isEnrollmentFullyCompleted(enrollment) && (
+                                      <span className="ml-2 px-2 py-1 bg-emerald-600 text-white text-xs rounded-full">
+                                        all assignments and projects completed
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white/60 text-sm">
                                     Enrolled: {new Date(enrollment.enrollmentDate).toLocaleDateString()}

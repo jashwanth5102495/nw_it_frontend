@@ -10,6 +10,7 @@ import TechnologiesCarousel from './components/TechnologiesCarousel';
 import IntroductionPage from './pages/IntroductionPage.jsx';
 import ModuleComingSoon from './pages/ModuleComingSoon.jsx';
 import FrontendProjectPage from './components/FrontendProjectPage';
+import DevOpsBeginnerIntroductionPage from './pages/DevOpsBeginnerIntroductionPage.jsx'
 
 import Footer from './components/Footer';
 import About from './components/About';
@@ -278,6 +279,11 @@ function AppInner() {
           <Route path="/ai-study-material" element={<AIStudyMaterialProtected />} />
           {/* Unique, protected per-student URL for Frontend Beginner HTML intro */}
           <Route path="/learn/:studentSlug/frontend-development-beginner" element={<IntroHtmlProtected />} />
+          
+          {/* DevOps Beginner introduction and module routes */}
+          <Route path="/devops-beginner" element={<><Header hideDock={true} /><DevOpsBeginnerIntroductionPage /></>} />
+          <Route path="/devops-beginner/module/:slug" element={<><Header hideDock={true} /><ModuleComingSoon /></>} />
+          
           <Route path="/assignment/:assignmentId" element={<AssignmentPage />} />
           <Route path="/ai-tools-project/:projectId" element={<AIToolsProjectPage />} />
           <Route path="/devops-project/:projectId" element={<DevOpsProjectPage />} />

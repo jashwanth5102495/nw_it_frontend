@@ -21,6 +21,8 @@ interface ProjectData {
   estimatedTime: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   steps: { title: string; detail: string }[];
+  stepHints?: string[];
+  stepExplanations?: string[];
   deliverables: string[];
   submissionInstructions: string[];
 }
@@ -167,6 +169,197 @@ const FrontendProjectPage: React.FC = () => {
           'Include a thorough README: setup, run, features, screenshots',
           'Deploy to Netlify/Vercel/GitHub Pages and include live URL'
         ]
+      },
+      'frontend-intermediate-project-1': {
+        id: 'frontend-intermediate-project-1',
+        title: 'Modern JavaScript SPA Refactor',
+        description:
+          'Refactor a vanilla JS app into modular ES6 with routing, async data, and robust error handling.',
+        requirements: [
+          'Convert legacy code into ES modules',
+          'Add client-side routing (hash/history)',
+          'Use async/await and handle API errors gracefully',
+          'Write unit tests for utility functions',
+          'Optimize bundle via Vite'
+        ],
+        technologies: ['JavaScript (ES6+)', 'Vite', 'Routing', 'Jest'],
+        estimatedTime: '1.5–2 weeks',
+        difficulty: 'intermediate',
+        steps: [
+          { title: 'Audit Codebase', detail: 'Identify globals, side effects, and split into modules.' },
+          { title: 'Routing', detail: 'Implement route handling and link navigation.' },
+          { title: 'Async Data', detail: 'Create fetch utilities with retries and error boundaries.' },
+          { title: 'Testing', detail: 'Add Jest tests for pure functions and helpers.' },
+          { title: 'Build & Optimize', detail: 'Configure Vite, analyze bundle, and ship.' }
+        ],
+        stepHints: [
+          'List all global variables and side-effect heavy functions. Start by extracting pure utilities into separate files.',
+          'Use hash-based routing for simplicity first. Create a route table and render views based on location.hash.',
+          'Wrap fetch in try/catch, add exponential backoff and timeouts. Always check response.ok before parsing JSON.',
+          'Prioritize tests for pure functions. Mock network calls and avoid brittle snapshots.',
+          'Use dynamic import() for route-level code splitting. Remove unused dependencies and analyze bundle size.'
+        ],
+        stepExplanations: [
+          'Modularization reduces coupling and improves testability. Aim for pure functions and create an index.ts to export modules.',
+          'Decoupling navigation state from rendering keeps views independent. History API can follow after hash routing works.',
+          'A centralized fetch utility ensures consistent error handling and retry logic. Consider AbortController for cancellations.',
+          'Unit tests build confidence. Keep tests close to modules and ensure CI-friendly, deterministic behavior.',
+          'Code splitting improves performance. Cache bust assets and verify improvements with Lighthouse and Vite Analyze.'
+        ],
+        deliverables: [
+          'Modularized codebase',
+          'Routing and error handling implemented',
+          'Unit tests and coverage report',
+          'Live demo and repository link'
+        ],
+        submissionInstructions: [
+          'Push to GitHub and include setup instructions',
+          'Add testing instructions and coverage output',
+          'Deploy and provide the live URL'
+        ]
+      },
+      'frontend-intermediate-project-2': {
+        id: 'frontend-intermediate-project-2',
+        title: 'Advanced CSS Themes & Animations',
+        description:
+          'Create a theme system with CSS variables, dark mode, and tasteful micro-interactions with accessibility in mind.',
+        requirements: [
+          'Theme switching with CSS variables',
+          'Responsive Grid/Flexbox layout',
+          'Accessible focus states',
+          'Keyframe animations and transitions',
+          'Respect prefers-reduced-motion'
+        ],
+        technologies: ['CSS Variables', 'Grid/Flexbox', 'Animations', 'Accessibility'],
+        estimatedTime: '1–1.5 weeks',
+        difficulty: 'intermediate',
+        steps: [
+          { title: 'Design Tokens', detail: 'Define color, spacing, and typography as CSS variables.' },
+          { title: 'Layout', detail: 'Build a responsive layout with grid and flex patterns.' },
+          { title: 'Interactions', detail: 'Add micro-interactions and motion with accessibility.' },
+          { title: 'Dark Mode', detail: 'Implement theme toggle and persist preference.' },
+          { title: 'Polish', detail: 'QA for accessibility, performance, and consistency.' }
+        ],
+        stepHints: [
+          'Declare tokens in :root and override in [data-theme="dark"]. Group tokens by color, spacing, and typography.',
+          'Use CSS Grid template areas with auto-fit/minmax for responsive behavior. Keep layout semantics intact.',
+          'Animate transform and opacity for performance. Pair animations with clear focus-visible styles.',
+          'Persist theme in localStorage and set documentElement dataset. Respect prefers-color-scheme when no preference is stored.',
+          'Run an accessibility audit, verify contrast ratios, and ensure motion respects prefers-reduced-motion.'
+        ],
+        stepExplanations: [
+          'Attribute-based theming enables instant theme switches without recompiling CSS and keeps selectors predictable.',
+          'Grid allows rearranging content without DOM changes, making layouts easier to adapt at breakpoints.',
+          'GPU-friendly properties prevent jank. Micro-interactions should support UX, not distract from it.',
+          'User preference drives theme selection. System preference is a sensible default with graceful fallback.',
+          'Polish includes accessibility, performance, and consistency checks to ensure a professional finish.'
+        ],
+        deliverables: [
+          'Theme system with light/dark',
+          'Responsive layout and components',
+          'Animations with accessibility considerations',
+          'README with screenshots and feature list'
+        ],
+        submissionInstructions: [
+          'Create a public repository',
+          'Document theme architecture in README',
+          'Deploy and share the live demo URL'
+        ]
+      },
+      'frontend-intermediate-project-3': {
+        id: 'frontend-intermediate-project-3',
+        title: 'TypeScript React Component Library',
+        description:
+          'Build a small React component library with TypeScript, strong typing, demos, and tests.',
+        requirements: [
+          'Strongly type components and hooks',
+          'Storybook demos and docs',
+          'Unit tests with Testing Library',
+          'CI lint/test workflow',
+          'Optional publish to npm/GitHub Packages'
+        ],
+        technologies: ['React', 'TypeScript', 'Storybook', 'Testing Library', 'CI'],
+        estimatedTime: '2–3 weeks',
+        difficulty: 'advanced',
+        steps: [
+          { title: 'Setup', detail: 'Configure TS, ESLint, Prettier, and React.' },
+          { title: 'Components', detail: 'Build 3–5 components with props typing and docs.' },
+          { title: 'Testing', detail: 'Write tests and achieve solid coverage.' },
+          { title: 'Storybook', detail: 'Add stories and usage examples.' },
+          { title: 'CI', detail: 'Configure CI for lint and tests.' }
+        ],
+        stepHints: [
+          'Enable TypeScript strict mode, set up path aliases, and configure ESLint with TypeScript rules.',
+          'Start with core components (Button, Input, Modal). Use discriminated unions for complex prop variants.',
+          'Write behavior-focused tests with React Testing Library. Mock minimal DOM and avoid testing implementation details.',
+          'Create stories for all component variants with controls to explore props. Use MDX for docs pages.',
+          'Use GitHub Actions to run lint and tests. Cache dependencies and run on multiple Node versions.'
+        ],
+        stepExplanations: [
+          'Strict typing catches bugs early and clarifies APIs. A clean setup increases developer velocity.',
+          'Typing props well creates a stable public API. Export types to encourage correct usage downstream.',
+          'Behavior tests are resilient and user-centric. Coverage helps maintain confidence during refactors.',
+          'Storybook acts as living documentation. It improves discoverability and promotes consistent usage.',
+          'CI enforces quality gates and prevents regressions by automating checks on every push.'
+        ],
+        deliverables: [
+          'Typed component library',
+          'Docs and demos with Storybook',
+          'Test suite and CI pipeline',
+          'Repository and optional package'
+        ],
+        submissionInstructions: [
+          'Push code and stories to GitHub',
+          'Include installation and usage in README',
+          'Publish or deploy Storybook and share URL'
+        ]
+      },
+      'frontend-intermediate-project-4': {
+        id: 'frontend-intermediate-project-4',
+        title: 'React Data Fetching & Caching',
+        description:
+          'Implement data fetching with caching, pagination, optimistic updates, and error boundaries in React.',
+        requirements: [
+          'Reusable fetch hooks with caching',
+          'Loading skeletons and error boundaries',
+          'Pagination/infinite scroll',
+          'Optimistic updates for mutations',
+          'State persistence across routes'
+        ],
+        technologies: ['React', 'TypeScript', 'SWR or RTK Query patterns'],
+        estimatedTime: '2 weeks',
+        difficulty: 'intermediate',
+        steps: [
+          { title: 'API Layer', detail: 'Create fetch utilities and hook wrappers.' },
+          { title: 'Caching', detail: 'Implement cache keys and invalidation strategies.' },
+          { title: 'UI States', detail: 'Add skeletons, spinners, and friendly error messages.' },
+          { title: 'Pagination', detail: 'Implement pages or infinite scroll.' },
+          { title: 'Mutations', detail: 'Add optimistic updates and rollback on error.' }
+        ],
+        stepHints: [
+          'Create an apiClient with base URL and generic get<T>/post<T> helpers. Normalize errors to a single shape.',
+          'Key caches by endpoint and params. Use stale-while-revalidate and explicit invalidation on mutations.',
+          'Show skeletons for loading and friendly error components with retry. Wrap routes with ErrorBoundary.',
+          'Use cursor-based or page params. Keep cache per page and merge results immutably.',
+          'Update the cache optimistically and rollback if the server rejects. Surface success/error toasts.'
+        ],
+        stepExplanations: [
+          'Centralizing fetch logic simplifies hooks and ensures consistent error handling and typing.',
+          'Predictable cache lifecycles avoid refetch storms and keep UI responsive.',
+          'Clear UI states communicate system status and reduce user confusion during network operations.',
+          'Efficient pagination improves UX. Infinite scroll benefits from IntersectionObserver and careful cache merges.',
+          'Optimistic updates improve perceived performance while keeping server truth authoritative.'
+        ],
+        deliverables: [
+          'Robust data fetching layer',
+          'Polished UI states and interactions',
+          'Live demo and repository link'
+        ],
+        submissionInstructions: [
+          'Create a public repository with README',
+          'Document caching strategies and patterns used',
+          'Deploy and provide the live URL'
+        ]
       }
     };
 
@@ -280,13 +473,33 @@ const FrontendProjectPage: React.FC = () => {
                 <CodeBracketIcon className="h-5 w-5 text-cyan-400" />
                 <h2 className="text-lg font-semibold">Project Steps</h2>
               </div>
-              <ol className="space-y-3 text-gray-300 list-decimal list-inside">
+              <div className="space-y-4">
                 {projectData.steps.map((step, idx) => (
-                  <li key={idx}>
-                    <span className="font-medium text-white">{step.title}:</span> {step.detail}
-                  </li>
+                  <div key={idx} className="border border-gray-700 rounded-lg p-4 bg-gray-900/40">
+                    <div className="text-gray-300">
+                      <span className="font-medium text-white">{idx + 1}. {step.title}:</span> {step.detail}
+                    </div>
+                    {projectData.stepHints?.[idx] && (
+                      <div className="mt-2 text-sm bg-blue-900/20 border border-blue-700/30 rounded p-3">
+                        <div className="flex items-center gap-2 text-blue-300">
+                          <SparklesIcon className="h-4 w-4" />
+                          <span className="font-semibold">Hint</span>
+                        </div>
+                        <p className="mt-1 text-blue-200">{projectData.stepHints[idx]}</p>
+                      </div>
+                    )}
+                    {projectData.stepExplanations?.[idx] && (
+                      <div className="mt-2 text-sm bg-purple-900/20 border border-purple-700/30 rounded p-3">
+                        <div className="flex items-center gap-2 text-purple-300">
+                          <CodeBracketIcon className="h-4 w-4" />
+                          <span className="font-semibold">Explanation</span>
+                        </div>
+                        <p className="mt-1 text-purple-200">{projectData.stepExplanations[idx]}</p>
+                      </div>
+                    )}
+                  </div>
                 ))}
-              </ol>
+              </div>
             </div>
           </div>
 

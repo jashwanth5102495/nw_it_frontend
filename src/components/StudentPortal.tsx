@@ -455,6 +455,12 @@ const StudentPortal: React.FC = () => {
         'project-3': 2, // JavaScript Basics
         'project-4': 3  // Project Development (fallback-safe)
       },
+      'frontend-intermediate': {
+        'frontend-intermediate-project-1': 0, // Modern JS Patterns
+        'frontend-intermediate-project-2': 1, // Advanced CSS & Themes
+        'frontend-intermediate-project-3': 2, // TypeScript Component Library
+        'frontend-intermediate-project-4': 3  // React Data Fetching
+      },
       'devops-beginner': {
         'devops-project-1': 0, // DevOps Fundamentals
         'devops-project-2': 1, // Containerization
@@ -469,6 +475,8 @@ const StudentPortal: React.FC = () => {
       courseType = 'ai-tools-mastery';
     } else if (courseData.title?.includes('Frontend') && (courseData.level || '').toLowerCase() === 'beginner') {
       courseType = 'frontend-beginner';
+    } else if (courseData.title?.includes('Frontend') && (courseData.level || '').toLowerCase() === 'intermediate') {
+      courseType = 'frontend-intermediate';
     } else if (courseData.title?.includes('DevOps') && (courseData.level || '').toLowerCase() === 'beginner') {
       courseType = 'devops-beginner';
     }
@@ -1346,6 +1354,80 @@ const StudentPortal: React.FC = () => {
       status: 'not_started'
     },
 
+    // Frontend Development - Intermediate Course Projects
+    {
+      id: 'frontend-intermediate-project-1',
+      title: 'Modern JavaScript SPA Refactor',
+      courseId: 'frontend-intermediate',
+      courseName: 'Frontend Development - Intermediate',
+      difficulty: 'intermediate',
+      description: 'Refactor a vanilla JS app into modular ES6 with routing, async data, and error handling.',
+      requirements: [
+        'Break code into ES modules',
+        'Implement client-side routing',
+        'Use async/await with robust error handling',
+        'Add unit tests for utility functions',
+        'Optimize bundle with Vite'
+      ],
+      technologies: ['JavaScript (ES6+)', 'Vite', 'Routing (Page.js or custom)', 'Jest'],
+      estimatedTime: '1.5–2 weeks',
+      status: 'not_started'
+    },
+    {
+      id: 'frontend-intermediate-project-2',
+      title: 'Advanced CSS Themes & Animations',
+      courseId: 'frontend-intermediate',
+      courseName: 'Frontend Development - Intermediate',
+      difficulty: 'intermediate',
+      description: 'Build a theming system with CSS variables, dark mode, and micro-interactions.',
+      requirements: [
+        'Theme switching with CSS variables',
+        'Responsive layout with Grid/Flexbox',
+        'Accessible focus states',
+        'Keyframe animations and transitions',
+        'Prefers-reduced-motion support'
+      ],
+      technologies: ['CSS Grid/Flexbox', 'CSS Variables', 'Animations', 'Accessibility'],
+      estimatedTime: '1–1.5 weeks',
+      status: 'not_started'
+    },
+    {
+      id: 'frontend-intermediate-project-3',
+      title: 'TypeScript React Component Library',
+      courseId: 'frontend-intermediate',
+      courseName: 'Frontend Development - Intermediate',
+      difficulty: 'advanced',
+      description: 'Create a small React component library with TypeScript, props typing, and docs.',
+      requirements: [
+        'Strongly type components and hooks',
+        'Storybook for docs and demos',
+        'Unit tests with React Testing Library',
+        'CI lint/test workflow',
+        'Publish to npm or GitHub Packages (optional)'
+      ],
+      technologies: ['React', 'TypeScript', 'Storybook', 'Testing Library', 'CI'],
+      estimatedTime: '2–3 weeks',
+      status: 'not_started'
+    },
+    {
+      id: 'frontend-intermediate-project-4',
+      title: 'React Data Fetching & Caching',
+      courseId: 'frontend-intermediate',
+      courseName: 'Frontend Development - Intermediate',
+      difficulty: 'intermediate',
+      description: 'Build a React app with SWR/RTK Query style caching, optimistic updates, and error states.',
+      requirements: [
+        'Reusable fetch hooks with caching',
+        'Loading skeletons and error boundaries',
+        'Pagination and infinite scroll',
+        'Optimistic updates for mutations',
+        'Persist selected state across routes'
+      ],
+      technologies: ['React', 'TypeScript', 'SWR or RTK Query patterns'],
+      estimatedTime: '2 weeks',
+      status: 'not_started'
+    },
+
     // DevOps - Beginner Course Projects
     {
       id: 'devops-project-1',
@@ -1723,6 +1805,62 @@ const StudentPortal: React.FC = () => {
       description: 'Learn DevOps fundamentals including CI/CD, containerization, and automation practices.'
     },
 
+    // Frontend Development - Intermediate Course Assignments (Course ID: 'frontend-intermediate')
+    {
+      id: 'frontend-intermediate-1',
+      title: 'Modern JavaScript Patterns',
+      courseId: 'frontend-intermediate',
+      courseName: 'Frontend Development - Intermediate',
+      dueDate: '2024-05-01',
+      status: 'pending',
+      description: 'ES6+ features, modules, async/await, error handling patterns.'
+    },
+    {
+      id: 'frontend-intermediate-2',
+      title: 'Advanced CSS and Styling',
+      courseId: 'frontend-intermediate',
+      courseName: 'Frontend Development - Intermediate',
+      dueDate: '2024-05-08',
+      status: 'pending',
+      description: 'Flexbox, Grid, animations, responsive design, and theming.'
+    },
+    {
+      id: 'frontend-intermediate-3',
+      title: 'TypeScript Fundamentals',
+      courseId: 'frontend-intermediate',
+      courseName: 'Frontend Development - Intermediate',
+      dueDate: '2024-05-15',
+      status: 'pending',
+      description: 'Types, interfaces, generics, enums, and tooling setup.'
+    },
+    {
+      id: 'frontend-intermediate-4',
+      title: 'React Essentials',
+      courseId: 'frontend-intermediate',
+      courseName: 'Frontend Development - Intermediate',
+      dueDate: '2024-05-22',
+      status: 'pending',
+      description: 'Hooks, component patterns, props/state, and effects.'
+    },
+    {
+      id: 'frontend-intermediate-5',
+      title: 'Frontend Tooling and Build Systems',
+      courseId: 'frontend-intermediate',
+      courseName: 'Frontend Development - Intermediate',
+      dueDate: '2024-05-29',
+      status: 'pending',
+      description: 'Vite/Webpack, Babel, linting, formatting, and basic testing.'
+    },
+    {
+      id: 'frontend-intermediate-6',
+      title: 'State Management and Data Fetching',
+      courseId: 'frontend-intermediate',
+      courseName: 'Frontend Development - Intermediate',
+      dueDate: '2024-06-05',
+      status: 'pending',
+      description: 'Context, state libraries, async data, caching, and patterns.'
+    },
+
 
   ];
 
@@ -1939,8 +2077,8 @@ const StudentPortal: React.FC = () => {
       'frontend-beginner': '/course-learning/frontend-beginner/html-fundamentals/html-structure',      'frontend-intermediate': '/frontend-development-intermediate',
       'FRONTEND-INTERMEDIATE': '/frontend-development-intermediate',
       'frontend-advanced': '/course-learning-advanced/frontend-advanced/advanced-react/performance-optimization',
-      'devops-beginner': '/course-learning-devops-beginner/devops-beginner/devops-fundamentals/devops-intro',
-      'DEVOPS-BEGINNER': '/course-learning-devops-beginner/devops-beginner/devops-fundamentals/devops-intro',
+      'devops-beginner': '/course-learning-devops-beginner/devops-beginner/devops-fundamentals/intro-devops',
+      'DEVOPS-BEGINNER': '/course-learning-devops-beginner/devops-beginner/devops-fundamentals/intro-devops',
       'devops-advanced': '/course-learning-devops-advanced/devops-advanced/kubernetes/cluster-management',
       'DEVOPS-ADVANCED': '/course-learning-devops-advanced/devops-advanced/kubernetes/cluster-management',
       'mobile-advanced': '/course-learning-mobile-advanced/mobile-advanced/react-native/navigation',
@@ -3106,6 +3244,8 @@ const StudentPortal: React.FC = () => {
                                   navigate(`/devops-project/${project.id}`);
                                 } else if (project.courseId === 'frontend-beginner') {
                                   navigate(`/frontend-project/${project.id}`);
+                                } else if (project.courseId === 'frontend-intermediate') {
+                                  navigate(`/frontend-project/${project.id}`);
                                 } else {
                                   // For other courses, show alert for now
                                   alert('Project details page coming soon for this course!');
@@ -3171,6 +3311,8 @@ const StudentPortal: React.FC = () => {
                                 } else if (project.courseId === 'devops-beginner' || project.courseId === 'devops-advanced') {
                                   navigate(`/devops-project/${project.id}`);
                                 } else if (project.courseId === 'frontend-beginner') {
+                                  navigate(`/frontend-project/${project.id}`);
+                                } else if (project.courseId === 'frontend-intermediate') {
                                   navigate(`/frontend-project/${project.id}`);
                                 } else {
                                   // For other courses, show alert for now

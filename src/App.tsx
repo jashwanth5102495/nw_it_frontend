@@ -11,6 +11,8 @@ import IntroductionPage from './pages/IntroductionPage.jsx';
 import ModuleComingSoon from './pages/ModuleComingSoon.jsx';
 import FrontendProjectPage from './components/FrontendProjectPage';
 import DevOpsBeginnerIntroductionPage from './pages/DevOpsBeginnerIntroductionPage.jsx'
+import ProjectsCatalog from './components/ProjectsCatalog';
+import ProjectEnrollment from './components/ProjectEnrollment';
 
 import Footer from './components/Footer';
 import About from './components/About';
@@ -259,6 +261,9 @@ function AppInner() {
           <Route path="/about" element={<><Header /><About /></>} />
           <Route path="/career" element={<><Header /><Career /></>} />
           <Route path="/contact" element={<><Header /><Contact /></>} />
+
+          <Route path="/projects" element={<><Header /><ProjectsCatalog /></>} />
+          <Route path="/projects/enroll" element={<><Header /><ProjectEnrollment /></>} />
 
           <Route path="/courses" element={<><Header /><Courses /></>} />
           <Route path="/frontend-development-intermediate" element={<><Header hideDock={true} /><IntroductionPage /></>} />

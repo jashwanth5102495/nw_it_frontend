@@ -27,7 +27,38 @@ import {
 const Career = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
   const [hoveredCard, setHoveredCard] = useState(null);
+
+  const [verifyStudentId, setVerifyStudentId] = useState('');
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [verifyResult, setVerifyResult] = useState<any | null>(null);
+
+  const handleVerify = async () => {
+    const id = verifyStudentId.trim();
+    if (!id) {
+      setVerifyError('Please enter a valid student ID');
+      setVerifyResult(null);
+      return;
+    }
+    try {
+      setVerifyLoading(true);
+      setVerifyError(null);
+      setVerifyResult(null);
+      const res = await fetch(`${BASE_URL}/api/certificates/verify/${encodeURIComponent(id)}`);
+      const data = await res.json();
+      if (data?.success) {
+        setVerifyResult(data.data);
+      } else {
+        setVerifyError(data?.message || 'No certificate found for this student ID');
+      }
+    } catch (e) {
+      setVerifyError('Verification failed. Please try again.');
+    } finally {
+      setVerifyLoading(false);
+    }
+  };
 
   const stats = [
     { label: 'Students Trained', value: '500+', icon: Users },
@@ -159,7 +190,8 @@ const Career = () => {
   const tabs = [
     { id: 'overview', label: 'Career Overview', icon: Target },
     { id: 'courses', label: 'Training Programs', icon: BookOpen },
-    { id: 'internships', label: 'Internships', icon: Briefcase }
+    { id: 'internships', label: 'Internships', icon: Briefcase },
+    { id: 'verify', label: 'Verify Certificate', icon: Shield }
   ];
 
   const successStories = [
@@ -589,6 +621,73 @@ const Career = () => {
                   </div>
                 </div>
               </div>
+            </motion.div>
+          )}
+
+          {/* Verify Certificate Tab */}
+          {activeTab === 'verify' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-8"
+            >
+              <div className="text-center max-w-3xl mx-auto">
+                <h2 className="text-4xl font-bold mb-4">Verify Certificate</h2>
+                <p className="text-gray-300 mb-6">
+                  Enter a student ID to verify if their certificate is officially certified by the Jasnav Group.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center gap-3 justify-center">
+                  <input
+                    type="text"
+                    value={verifyStudentId}
+                    onChange={(e) => setVerifyStudentId(e.target.value)}
+                    placeholder="Enter Student ID"
+                    className="w-full sm:w-96 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none"
+                  />
+                  <motion.button
+                    onClick={handleVerify}
+                    disabled={verifyLoading}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {verifyLoading ? 'Verifying...' : 'Verify'}
+                  </motion.button>
+                </div>
+                {verifyError && (
+                  <div className="text-red-400 text-sm mt-3">{verifyError}</div>
+                )}
+              </div>
+
+              {verifyResult && (
+                <div className="max-w-4xl mx-auto bg-gradient-to-br from-gray-900/80 to-gray-800/40 border border-gray-800 rounded-2xl p-6">
+                  <div className="mb-4">
+                    <div className="text-white text-lg font-semibold">Certificate Details</div>
+                    <div className="text-white/70 text-sm">Student: {verifyResult.studentName || verifyResult.studentId}</div>
+                    {verifyResult.courseTitle && (
+                      <div className="text-white/70 text-sm">Course: {verifyResult.courseTitle}</div>
+                    )}
+                    <div className="text-green-400 text-sm mt-2">{verifyResult.message}</div>
+                  </div>
+
+                  <div className="border-t border-gray-700 pt-4">
+                    {verifyResult.mimeType === 'application/pdf' ? (
+                      <iframe
+                        src={verifyResult.fileUrl}
+                        title="Certificate PDF"
+                        className="w-full h-[800px] bg-black rounded-lg"
+                      />
+                    ) : (
+                      <img
+                        src={verifyResult.fileUrl}
+                        alt="Certificate"
+                        className="max-h-[800px] w-full object-contain mx-auto rounded-lg"
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
 

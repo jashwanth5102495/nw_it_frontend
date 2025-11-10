@@ -192,6 +192,47 @@ const AdminPanel: React.FC = () => {
   const [activeCredentialsStudent, setActiveCredentialsStudent] = useState<Student | null>(null);
   // View toggle for Student Courses
   const [courseView, setCourseView] = useState<'all' | 'completed'>('all');
+  // Certificate Upload States & Handlers
+  const [certificateFileMap, setCertificateFileMap] = useState<{[key:string]: File | null}>({});
+  const [certificateUploading, setCertificateUploading] = useState<{[key:string]: boolean}>({});
+  const [certificateMessages, setCertificateMessages] = useState<{[key:string]: string}>({});
+
+  const handleCertificateFileChange = (studentId: string, file: File | null) => {
+    setCertificateFileMap(prev => ({ ...prev, [studentId]: file || null }));
+    setCertificateMessages(prev => ({ ...prev, [studentId]: '' }));
+  };
+
+  const uploadCertificateForStudent = async (studentId: string, courseId?: string) => {
+    const file = certificateFileMap[studentId];
+    if (!file) {
+      setCertificateMessages(prev => ({ ...prev, [studentId]: 'Please select a certificate file' }));
+      return;
+    }
+    try {
+      setCertificateUploading(prev => ({ ...prev, [studentId]: true }));
+      setCertificateMessages(prev => ({ ...prev, [studentId]: 'Uploading...' }));
+      const form = new FormData();
+      form.append('studentId', studentId);
+      if (courseId) form.append('courseId', courseId);
+      form.append('certificate', file);
+
+      const res = await fetch(`${BASE_URL}/api/certificates/upload`, {
+        method: 'POST',
+        body: form
+      });
+      const data = await res.json();
+      if (data?.success) {
+        setCertificateMessages(prev => ({ ...prev, [studentId]: 'Certificate uploaded successfully' }));
+        setCertificateFileMap(prev => ({ ...prev, [studentId]: null }));
+      } else {
+        setCertificateMessages(prev => ({ ...prev, [studentId]: data?.message || 'Upload failed' }));
+      }
+    } catch (err) {
+      setCertificateMessages(prev => ({ ...prev, [studentId]: 'Upload failed' }));
+    } finally {
+      setCertificateUploading(prev => ({ ...prev, [studentId]: false }));
+    }
+  };
 
   // Student Courses: Filter & Pagination
   const [studentFilter, setStudentFilter] = useState<'all' | 'pending' | 'confirmed' | 'error'>('all');
@@ -286,6 +327,35 @@ const AdminPanel: React.FC = () => {
     const assignmentsDone = (enrollment.assignments?.completed || 0) >= (enrollment.assignments?.total || 0) && (enrollment.assignments?.total || 0) > 0;
     const projectsDone = (enrollment.completedModules?.length || 0) >= (PROJECT_REQUIREMENTS[courseKey] || 0);
     return assignmentsDone && projectsDone;
+  }
+
+  // Derive a completion timestamp from known fields
+  function getEnrollmentCompletedAt(enrollment: any): Date | null {
+    // Prefer explicit completedAt if present
+    if (enrollment?.completedAt) {
+      const t = Date.parse(enrollment.completedAt);
+      if (!Number.isNaN(t)) return new Date(t);
+    }
+    // Otherwise, use the latest project submission time
+    const times: number[] = [];
+    if (Array.isArray(enrollment?.projects)) {
+      for (const p of enrollment.projects) {
+        if (p?.submittedAt) {
+          const ts = Date.parse(p.submittedAt);
+          if (!Number.isNaN(ts)) times.push(ts);
+        }
+      }
+    }
+    if (times.length === 0) return null;
+    return new Date(Math.max(...times));
+  }
+
+  // Recently = completed within the last N days (default: 3)
+  function isRecentlyCompleted(enrollment: any, days = 3): boolean {
+    if (!isEnrollmentFullyCompleted(enrollment)) return false;
+    const dt = getEnrollmentCompletedAt(enrollment);
+    if (!dt) return false;
+    return (Date.now() - dt.getTime()) <= days * 24 * 60 * 60 * 1000;
   }
 
   const projectPhases = [
@@ -1505,7 +1575,9 @@ const AdminPanel: React.FC = () => {
                 </div>
                 <div className="space-y-3">
                   {(() => {
-                    const completed = students.flatMap(s => (s.enrolledCourses || []).filter(isEnrollmentFullyCompleted).map(enr => ({ s, enr })));
+                    const completed = students.flatMap(s => (s.enrolledCourses || [])
+                      .filter(enr => isEnrollmentFullyCompleted(enr) || enr.status === 'completed')
+                      .map(enr => ({ s, enr })));
                     if (completed.length === 0) {
                       return <p className="text-white/60 text-sm">No students have fully completed a course yet.</p>;
                     }
@@ -1522,12 +1594,31 @@ const AdminPanel: React.FC = () => {
                             </div>
                             <div className="text-white/60 text-xs">Enrolled: {new Date(enr.enrollmentDate).toLocaleDateString()}</div>
                           </div>
-                          <span className="px-2 py-1 rounded-full text-xs bg-emerald-600 text-white">all assignments and projects completed</span>
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-1 rounded-full text-xs bg-emerald-600 text-white">all assignments and projects completed</span>
+                            {isRecentlyCompleted(enr) && (
+                              <span className="px-2 py-1 rounded-full text-xs bg-yellow-500 text-black">recently</span>
+                            )}
+                          </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                           <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-lg p-3 border border-blue-500/30">
                             <h5 className="text-white font-medium mb-2 flex items-center">📝 Assignments</h5>
                             <div className="text-white/80 text-sm">Completed: {enr.assignments?.completed || 0} / {enr.assignments?.total || 0}</div>
+                            <div className="mt-2 space-y-1">
+                              {((enr.assignments?.list || []).length > 0) ? (
+                                (enr.assignments?.list || []).map((a: any, idx: number) => (
+                                  <div key={idx} className="flex items-center justify-between text-xs text-white/80">
+                                    <span>{a.title}</span>
+                                    <span className="ml-2 px-2 py-0.5 rounded bg-black/30 border border-white/10">
+                                      {a.status || 'pending'}{(a.score !== undefined && a.score !== null) ? ` • ${a.score}%` : ''}
+                                    </span>
+                                  </div>
+                                ))
+                              ) : (
+                                <p className="text-white/60 text-xs">No assignment details available</p>
+                              )}
+                            </div>
                           </div>
                           <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-lg p-3 border border-orange-500/30">
                             <h5 className="text-white font-medium mb-2 flex items-center">🚀 Projects</h5>
@@ -1540,6 +1631,29 @@ const AdminPanel: React.FC = () => {
                               ))}
                             </div>
                           </div>
+                        </div>
+                        {/* Certificate Upload */}
+                        <div className="mt-4 bg-black/40 rounded-lg p-3 border border-white/10">
+                          <div className="text-white text-sm font-medium mb-2">🎓 Certificate</div>
+                          <div className="flex flex-col sm:flex-row items-center gap-3">
+                            <input
+                              type="file"
+                              accept=".pdf,.png,.jpg,.jpeg"
+                              onChange={(e) => handleCertificateFileChange(s.studentId, e.target.files?.[0] || null)}
+                              className="text-white/80 text-sm"
+                            />
+                            <button
+                              onClick={() => uploadCertificateForStudent(s.studentId, enr.courseId?._id)}
+                              disabled={certificateUploading[s.studentId]}
+                              className="px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white rounded-lg text-sm font-medium"
+                              title="Upload official certificate for this student"
+                            >
+                              {certificateUploading[s.studentId] ? 'Uploading...' : 'Upload Certificate'}
+                            </button>
+                          </div>
+                          {certificateMessages[s.studentId] && (
+                            <div className="text-white/70 text-xs mt-2">{certificateMessages[s.studentId]}</div>
+                          )}
                         </div>
                       </div>
                     ));
@@ -1749,9 +1863,14 @@ const AdminPanel: React.FC = () => {
                                   <div className="text-white font-medium flex items-center">
                                     <span>{enrollment.courseId?.title || 'Course Title N/A'}</span>
                                     {isEnrollmentFullyCompleted(enrollment) && (
-                                      <span className="ml-2 px-2 py-1 bg-emerald-600 text-white text-xs rounded-full">
-                                        all assignments and projects completed
-                                      </span>
+                                      <>
+                                        <span className="ml-2 px-2 py-1 bg-emerald-600 text-white text-xs rounded-full">
+                                          all assignments and projects completed
+                                        </span>
+                                        {isRecentlyCompleted(enrollment) && (
+                                          <span className="ml-2 px-2 py-1 bg-yellow-500 text-black text-xs rounded-full">recently</span>
+                                        )}
+                                      </>
                                     )}
                                   </div>
                                   <div className="text-white/60 text-sm">

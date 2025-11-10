@@ -271,7 +271,7 @@ const StudentPortal: React.FC = () => {
 
               if (Array.isArray(list)) {
                 total = Math.max(totalLocal, list.length);
-                completed = list.filter((item: any) => (item?.status === 'graded') || Number(item?.score ?? 0) >= 5).length;
+                completed = list.filter((item: any) => (item?.status === 'graded' || item?.status === 'passed') || Number(item?.score ?? 0) >= 5).length;
 
                 // Sync assignment status badges with backend summary for current course
                 try {
@@ -280,7 +280,8 @@ const StudentPortal: React.FC = () => {
                   for (const a of courseAssignments) {
                     const match = list.find((it: any) => it?.title === a.title);
                     if (match) {
-                      const s: Assignment['status'] = match.status === 'graded' ? 'graded' : (match.status === 'submitted' ? 'submitted' : 'pending');
+                      const statusNorm = match.status === 'passed' ? 'graded' : (match.status === 'attempted' ? 'submitted' : match.status);
+                      const s: Assignment['status'] = statusNorm === 'graded' ? 'graded' : (statusNorm === 'submitted' ? 'submitted' : 'pending');
                       updatedStatuses[a.id] = s;
                     }
                   }

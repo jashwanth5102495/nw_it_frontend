@@ -43,6 +43,7 @@ interface Student {
     enrollmentDate: string;
     progress: number;
     status: string;
+    certificateIssued?: boolean;
     assignments?: {
       completed: number;
       total: number;
@@ -224,6 +225,19 @@ const AdminPanel: React.FC = () => {
       if (data?.success) {
         setCertificateMessages(prev => ({ ...prev, [studentId]: 'Certificate uploaded successfully' }));
         setCertificateFileMap(prev => ({ ...prev, [studentId]: null }));
+        if (courseId) {
+          setStudents(prev => prev.map(s => {
+            if (s.studentId !== studentId) return s;
+            return {
+              ...s,
+              enrolledCourses: (s.enrolledCourses || []).map(ec => {
+                const ecCourseId = typeof ec.courseId === 'object' ? ec.courseId?._id : (ec.courseId as any);
+                const match = ecCourseId && courseId && ecCourseId === courseId;
+                return match ? { ...ec, certificateIssued: true } : ec;
+              })
+            };
+          }));
+        }
       } else {
         setCertificateMessages(prev => ({ ...prev, [studentId]: data?.message || 'Upload failed' }));
       }
@@ -1599,6 +1613,9 @@ const AdminPanel: React.FC = () => {
                             {isRecentlyCompleted(enr) && (
                               <span className="px-2 py-1 rounded-full text-xs bg-yellow-500 text-black">recently</span>
                             )}
+                            {enr.certificateIssued
+                              ? <span className="px-2 py-1 rounded-full text-xs bg-blue-600 text-white">certificate issued</span>
+                              : <span className="px-2 py-1 rounded-full text-xs bg-gray-600 text-white">certificate not issued</span>}
                           </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
@@ -1870,6 +1887,9 @@ const AdminPanel: React.FC = () => {
                                         {isRecentlyCompleted(enrollment) && (
                                           <span className="ml-2 px-2 py-1 bg-yellow-500 text-black text-xs rounded-full">recently</span>
                                         )}
+                                        {enrollment.certificateIssued
+                                          ? <span className="ml-2 px-2 py-1 bg-blue-600 text-white text-xs rounded-full">certificate issued</span>
+                                          : <span className="ml-2 px-2 py-1 bg-gray-600 text-white text-xs rounded-full">certificate not issued</span>}
                                       </>
                                     )}
                                   </div>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import MagnetLines from './MagnetLines';
-import Lightning from './Lightning';
+
 import Sidebar from './Sidebar';
 import MagicBento from './MagicBento';
 import { 
@@ -169,13 +168,7 @@ const StudentPortal: React.FC = () => {
     }
   };
 
-  // Dashboard background rotation: Lightning <-> Magnet Lines every 10s
-  const [showLightningBG, setShowLightningBG] = useState(true);
-  useEffect(() => {
-    const id = setInterval(() => setShowLightningBG((s) => !s), 10000);
-    return () => clearInterval(id);
-  }, []);
-
+  
   // Git functionality state
   const [showGitTutorialModal, setShowGitTutorialModal] = useState(false);
   const [showProjectSubmissionModal, setShowProjectSubmissionModal] = useState(false);
@@ -3429,38 +3422,6 @@ const StudentPortal: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black flex relative overflow-hidden">
-      {/* Background rotation: Lightning <-> Magnet Lines every 10s on dashboard */}
-      {activeTab === 'dashboard' && (
-        <div className="fixed inset-0" style={{ zIndex: 0, pointerEvents: 'none' }}>
-          <div className="absolute inset-0">
-            {showLightningBG ? (
-              <div className="absolute inset-0 opacity-40">
-                <Lightning hue={280} xOffset={0} speed={1} intensity={0.85} size={1} />
-              </div>
-            ) : (
-              <MagnetLines
-                rows={12}
-                columns={12}
-                containerSize="100vmin"
-                lineColor="#3b82f6"
-                lineWidth="0.6vmin"
-                lineHeight="4vmin"
-                baseAngle={0}
-                style={{
-                      position: 'fixed',
-                      top: 0,
-                      left: 0,
-                      width: '100vw',
-                      height: '100vh',
-                      opacity: 0.25,
-                      zIndex: 0,
-                      pointerEvents: 'none',
-                }}
-              />
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Professional Sidebar navigation */}
       <Sidebar

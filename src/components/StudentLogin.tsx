@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
+import FloatingLines from './FloatingLines';
+import ModernClock from './ModernClock';
+import { GoogleLogin } from '@react-oauth/google';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
-
 
 const StudentLogin = () => {
   const navigate = useNavigate();
@@ -14,8 +16,7 @@ const StudentLogin = () => {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -23,7 +24,6 @@ const StudentLogin = () => {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
     if (error) setError('');
   };
 
@@ -32,44 +32,83 @@ const StudentLogin = () => {
     setIsLoading(true);
     setError('');
 
+    const usernameTrim = loginData.username.trim();
+    const passwordTrim = loginData.password;
+    const isEmail = usernameTrim.includes('@');
+
+    const payload: Record<string, string> = {
+      password: passwordTrim,
+      usernameOrEmail: usernameTrim,
+      ...(isEmail ? { email: usernameTrim } : { username: usernameTrim })
+    };
+
     try {
-      console.log(`Sending request:\n          username: ${loginData.username}\n          password: ${loginData.password}\n        `);
-      // Call backend API for authentication
       const response = await fetch(`${BASE_URL}/api/students/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify({
-          username: loginData.username,
-          password: loginData.password
-        })
+        body: JSON.stringify(payload)
       });
 
-      let result: any = null;
+      let result = null;
       let rawText = '';
       try {
         result = await response.json();
-      } catch (parseError) {
+      } catch {
         rawText = await response.text();
       }
-      console.log(result || rawText);
-      if (response.ok && result && result.success) {
-        // Set authentication flag and store user data
-        const userData = {
-          ...result.data.student,
-          isAuthenticated: true,
-          token: result.data.token
-        };
-        
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        console.log(localStorage.getItem('currentUser'));
-        // Redirect to student portal
-        navigate('/student-portal');
-      } else {
-        const errMsg = (result && (result.message || result.error)) || rawText || 'Invalid credentials. Please check your username and password.';
+
+      if (!(response.ok && result && result.success)) {
+        const fallbackRes = await fetch(`${BASE_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ username: usernameTrim, password: passwordTrim })
+        });
+
+        let fallback = null;
+        let fallbackText = '';
+        try {
+          fallback = await fallbackRes.json();
+        } catch {
+          fallbackText = await fallbackRes.text();
+        }
+
+        if (fallbackRes.ok && fallback && fallback.success) {
+          const userData = {
+            ...(fallback.data?.student || fallback.data?.user || {}),
+            isAuthenticated: true,
+            token: fallback.data?.token
+          };
+          localStorage.setItem('currentUser', JSON.stringify(userData));
+          if (userData.token) localStorage.setItem('authToken', userData.token);
+          navigate('/student-portal');
+          return;
+        }
+
+        const errMsg =
+          (fallback && (fallback.message || fallback.error)) ||
+          fallbackText ||
+          (result && (result.message || result.error)) ||
+          rawText ||
+          `Login failed (${response.status}).`;
+
         setError(errMsg);
+        return;
       }
+
+      const userData = {
+        ...result.data.student,
+        isAuthenticated: true,
+        token: result.data.token
+      };
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+      if (userData.token) localStorage.setItem('authToken', userData.token);
+      navigate('/student-portal');
     } catch (err) {
       console.error('Login error:', err);
       setError('Unable to connect to server. Please try again.');
@@ -78,113 +117,171 @@ const StudentLogin = () => {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      setIsGoogleLoading(true);
+      setError('');
+      const idToken: string | undefined = credentialResponse?.credential;
+      if (!idToken) {
+        setError('Google login failed. No credential returned.');
+        setIsGoogleLoading(false);
+        return;
+      }
+
+      const resp = await fetch(`${BASE_URL}/api/students/google-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ idToken })
+      });
+
+      const data = await resp.json().catch(async () => ({ raw: await resp.text() }));
+      if (!resp.ok || !data?.success) {
+        const msg = data?.message || data?.error || 'Google login failed.';
+        setError(msg);
+        setIsGoogleLoading(false);
+        return;
+      }
+
+      const { student, token, setupRequired } = data.data;
+      const userData = { ...student, isAuthenticated: true, token };
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+      if (token) localStorage.setItem('authToken', token);
+
+      if (setupRequired) {
+        navigate('/student-setup');
+      } else {
+        navigate('/student-portal');
+      }
+    } catch (e) {
+      console.error('Google login error:', e);
+      setError('Unable to login with Google. Please try again.');
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
-      
-      <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md mx-auto">
-          {/* Header */}
-          <motion.div
-            className="text-center mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-              Student Login
-            </h1>
-            <p className="text-xl text-gray-300">Access your learning portal</p>
-          </motion.div>
 
-          {/* Login Form */}
-          <motion.div
-            className="bg-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <form onSubmit={handleLogin} className="space-y-6">
-              {/* Username Field */}
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={loginData.username}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-                  placeholder="Enter your username"
-                  required
-                />
-              </div>
+      <div className="pt-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 h-[calc(100vh-5rem)]">
 
-              {/* Password Field */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={loginData.password}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-                  placeholder="Enter your password"
-                  required
-                />
-              </div>
+          {/* LEFT SIDE (Clock Centered Here) */}
+          <div className="relative hidden lg:block h-full">
+            <FloatingLines
+              enabledWaves={['top', 'middle', 'bottom']}
+              lineCount={[8, 12, 14]}
+              lineDistance={[10, 8, 6]}
+              bendRadius={5.0}
+              bendStrength={-0.4}
+              interactive={true}
+              parallax={true}
+              animationSpeed={0.8}
+            />
 
-              {/* Error Message */}
-              {error && (
-                <motion.div
-                  className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {error}
-                </motion.div>
-              )}
+            {/* Black overlay */}
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/50 via-black/25 to-transparent" />
 
-              {/* Login Button */}
-              <motion.button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-blue-500/25"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Signing In...
-                  </div>
-                ) : (
-                  'Sign In'
-                )}
-              </motion.button>
-            </form>
-
-
-
-            {/* Register Link */}
-            <div className="mt-8 text-center">
-              <p className="text-gray-400">
-                Don't have an account?{' '}
-                <button
-                  onClick={() => navigate('/student-registration')}
-                  className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
-                >
-                  Register here
-                </button>
-              </p>
+            {/* ⭐ CLOCK CENTERED IN LEFT SIDE ⭐ */}
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <ModernClock />
             </div>
-          </motion.div>
+          </div>
+
+          {/* RIGHT - Login panel */}
+          <div className="bg-white text-gray-900 flex items-center justify-center px-6 py-12 rounded-tl-3xl lg:rounded-none">
+            <div className="w-full max-w-md">
+
+              <div className="text-center mb-6">
+                <div className="text-2xl font-semibold tracking-[0.35em]">JASNAV</div>
+                <p className="text-xs text-gray-500 mt-3">
+                  Log in below or{' '}
+                  <button
+                    onClick={() => navigate('/student-registration')}
+                    className="text-gray-700 hover:text-black underline"
+                  >
+                    sign up
+                  </button>{' '}
+                  to create an account
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="flex items-center justify-center">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => setError('Google login failed. Please try again.')}
+                    useOneTap
+                  />
+                </div>
+
+                <button type="button" className="flex items-center justify-center gap-2 border border-gray-200 rounded-md py-2 hover:bg-gray-50">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22 12.06C22 6.5 17.52 2 11.94 2 6.36 2 2 6.5 2 12.06c0 4.98 3.64 9.1 8.4 9.96v-7.04H7.9v-2.92h2.5V9.9c0-2.5 1.48-3.86 3.76-3.86 1.1 0 2.24.2 2.24.2v2.48h-1.26c-1.24 0-1.62.78-1.62 1.58v1.9h2.76l-.44 2.92h-2.32V22c4.76-.86 8.44-4.98 8.44-9.94z" />
+                  </svg>
+                  <span className="text-sm">Facebook</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-px flex-1 bg-gray-200"></div>
+                <span className="text-xs text-gray-500">or</span>
+                <div className="h-px flex-1 bg-gray-200"></div>
+              </div>
+
+              <form onSubmit={handleLogin}>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    name="username"
+                    value={loginData.username}
+                    onChange={handleInputChange}
+                    placeholder="Username or email"
+                    required
+                    className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-md"
+                  />
+
+                  <input
+                    type="password"
+                    name="password"
+                    value={loginData.password}
+                    onChange={handleInputChange}
+                    placeholder="Password"
+                    required
+                    className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-md"
+                  />
+                </div>
+
+                {error && (
+                  <div className="mt-3 p-3 bg-red-100 border border-red-200 text-red-600 text-sm rounded-md">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isLoading || isGoogleLoading}
+                  className="w-full mt-4 bg-black text-white py-3 rounded-md font-medium hover:bg-gray-900 disabled:opacity-60"
+                >
+                  {isLoading ? 'Logging in…' : 'Log in'}
+                </button>
+              </form>
+
+              <div className="mt-4 text-center">
+                <button
+                  onClick={() => alert('Forgot password? Contact support.')}
+                  className="text-gray-600 hover:text-gray-900 text-sm"
+                >
+                  Forgot password?
+                </button>
+              </div>
+
+            </div>
+          </div>
         </div>
       </div>
     </div>

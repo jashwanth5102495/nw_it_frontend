@@ -36,6 +36,9 @@ import DevOpsProjectPage from './components/DevOpsProjectPage';
 import htmlpart1 from '../video-explanations/topics/html/htmlpart1.mp4';
 import htmlpart2 from '../video-explanations/topics/html/htmlpart2.mp4';
 
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import StudentSetup from './components/StudentSetup';
+
 const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 // Helper to create URL-safe slugs from names/usernames
@@ -271,6 +274,7 @@ function AppInner() {
           <Route path="/course-enrollment/:courseId" element={<CourseEnrollment />} />
           <Route path="/student-registration" element={<StudentRegistration />} />
           <Route path="/student-login" element={<><Header /><StudentLogin /></>} />
+          <Route path="/student-setup" element={<StudentSetup />} />
           <Route path="/student-portal" element={<StudentPortal />} />
           <Route path="/creator-portal" element={<><Header /><CreatorPortal /></>} />
           <Route path="/AJRV8328" element={<SecureAdminPanel />} />
@@ -302,11 +306,13 @@ function AppInner() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <Router basename={import.meta.env.VITE_BASE_PATH || '/'}>
-        <AppInner />
-      </Router>
-    </ThemeProvider>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+      <ThemeProvider>
+        <Router basename={import.meta.env.VITE_BASE_PATH || '/'}>
+          <AppInner />
+        </Router>
+      </ThemeProvider>
+    </GoogleOAuthProvider>
   );
 }
 

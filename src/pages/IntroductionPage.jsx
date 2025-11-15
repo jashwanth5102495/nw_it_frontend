@@ -51,7 +51,7 @@ export default function IntroductionPage() {
   };
 
   return (
-    <main className="min-h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+    <main className="min-h-screen bg-gradient-to-b from-sky-200 via-blue-50 to-white text-gray-900">
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-6 md:px-10 pt-20 pb-16">
         {/* Top bar: Back + Theme toggle */}
@@ -105,10 +105,10 @@ export default function IntroductionPage() {
         <div className="max-w-6xl mx-auto px-6 md:px-10 py-14">
           <h2 className="text-2xl font-semibold">What you'll learn</h2>
           <ul className="mt-6 grid md:grid-cols-2 gap-4 text-gray-700">
-            <li className="p-4 rounded-lg bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 shadow-sm">Craft responsive layouts using HTML5, CSS3, and Tailwind CSS.</li>
-            <li className="p-4 rounded-lg bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 shadow-sm">Build interactive UIs with modern JavaScript and React components.</li>
-            <li className="p-4 rounded-lg bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 shadow-sm">Integrate backends using Django, REST APIs, and MongoDB.</li>
-            <li className="p-4 rounded-lg bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 shadow-sm">Deliver end-to-end features and deploy production-ready applications.</li>
+            <li className="p-4 rounded-lg bg-white border border-gray-200 shadow-sm">Craft responsive layouts using HTML5, CSS3, and Tailwind CSS.</li>
+            <li className="p-4 rounded-lg bg-white border border-gray-200 shadow-sm">Build interactive UIs with modern JavaScript and React components.</li>
+            <li className="p-4 rounded-lg bg-white border border-gray-200 shadow-sm">Integrate backends using Django, REST APIs, and MongoDB.</li>
+            <li className="p-4 rounded-lg bg-white border border-gray-200 shadow-sm">Deliver end-to-end features and deploy production-ready applications.</li>
           </ul>
         </div>
       </section>
@@ -137,7 +137,7 @@ export default function IntroductionPage() {
       </section>
 
       {/* Instructor */}
-      <section className="bg-gray-50 border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <section className="bg-gray-50 border-t border-gray-200">
         <div className="max-w-6xl mx-auto px-6 md:px-10 py-14">
           <div className="grid md:grid-cols-3 gap-6 items-center">
             <div className="md:col-span-2">
@@ -151,7 +151,7 @@ export default function IntroductionPage() {
                   'https://upload.wikimedia.org/wikipedia/commons/a/a4/Graduation_cap_icon.svg'
                 ]}
                 alt="Instructor"
-                className="w-full rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800 p-4"
+                className="w-full rounded-xl border border-gray-200 shadow-sm bg-white p-4"
               />
             </div>
           </div>

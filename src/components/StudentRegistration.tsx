@@ -209,15 +209,13 @@ const StudentRegistration = () => {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            First Name *
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
           <input
             type="text"
             value={studentDetails.firstName}
             onChange={(e) => handleInputChange('firstName', e.target.value)}
-            className={`w-full px-4 py-3 bg-gray-800/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${
-              errors.firstName ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-600 focus:border-blue-500 focus:ring-blue-500'
+            className={`w-full px-4 py-3 bg-white/80 border rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-colors ${
+              errors.firstName ? 'border-red-400 focus:border-red-400 focus:ring-red-200' : 'border-gray-200 focus:border-gray-300 focus:ring-black/10'
             }`}
             placeholder="Enter your first name"
           />
@@ -225,15 +223,13 @@ const StudentRegistration = () => {
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Last Name *
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
           <input
             type="text"
             value={studentDetails.lastName}
             onChange={(e) => handleInputChange('lastName', e.target.value)}
-            className={`w-full px-4 py-3 bg-gray-800/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${
-              errors.lastName ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-600 focus:border-blue-500 focus:ring-blue-500'
+            className={`w-full px-4 py-3 bg-white/80 border rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-colors ${
+              errors.lastName ? 'border-red-400 focus:border-red-400 focus:ring-red-200' : 'border-gray-200 focus:border-gray-300 focus:ring-black/10'
             }`}
             placeholder="Enter your last name"
           />
@@ -242,15 +238,13 @@ const StudentRegistration = () => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Email Address *
-        </label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
         <input
           type="email"
           value={studentDetails.email}
           onChange={(e) => handleInputChange('email', e.target.value)}
-          className={`w-full px-4 py-3 bg-gray-800/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${
-            errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-600 focus:border-blue-500 focus:ring-blue-500'
+          className={`w-full px-4 py-3 bg-white/80 border rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-colors ${
+            errors.email ? 'border-red-400 focus:border-red-400 focus:ring-red-200' : 'border-gray-200 focus:border-gray-300 focus:ring-black/10'
           }`}
           placeholder="Enter your email address"
         />
@@ -258,15 +252,13 @@ const StudentRegistration = () => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Phone Number *
-        </label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
         <input
           type="tel"
           value={studentDetails.phone}
           onChange={(e) => handleInputChange('phone', e.target.value)}
-          className={`w-full px-4 py-3 bg-gray-800/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${
-            errors.phone ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-600 focus:border-blue-500 focus:ring-blue-500'
+          className={`w-full px-4 py-3 bg-white/80 border rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-colors ${
+            errors.phone ? 'border-red-400 focus:border-red-400 focus:ring-red-200' : 'border-gray-200 focus:border-gray-300 focus:ring-black/10'
           }`}
           placeholder="Enter your phone number"
         />
@@ -274,15 +266,13 @@ const StudentRegistration = () => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Date of Birth *
-        </label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth *</label>
         <input
           type="date"
           value={studentDetails.dateOfBirth}
           onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-          className={`w-full px-4 py-3 bg-gray-800/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${
-            errors.dateOfBirth ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-600 focus:border-blue-500 focus:ring-blue-500'
+          className={`w-full px-4 py-3 bg-white/80 border rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-colors ${
+            errors.dateOfBirth ? 'border-red-400 focus:border-red-400 focus:ring-red-200' : 'border-gray-200 focus:border-gray-300 focus:ring-black/10'
           }`}
           placeholder="Select your date of birth"
         />
@@ -300,15 +290,13 @@ const StudentRegistration = () => {
       transition={{ duration: 0.3 }}
     >
       <div>
-        <label htmlFor="education-select" className="block text-sm font-medium text-gray-300 mb-2">
-          Education *
-        </label>
+        <label htmlFor="education-select" className="block text-sm font-medium text-gray-700 mb-2">Education *</label>
         <select
           id="education-select"
           value={studentDetails.education}
           onChange={(e) => handleInputChange('education', e.target.value)}
-          className={`w-full px-4 py-3 bg-gray-800/50 border rounded-lg text-white focus:outline-none focus:ring-1 transition-colors ${
-            errors.education ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-600 focus:border-blue-500 focus:ring-blue-500'
+          className={`w-full px-4 py-3 bg-white/80 border rounded-xl text-gray-900 focus:outline-none focus:ring-2 transition-colors ${
+            errors.education ? 'border-red-400 focus:border-red-400 focus:ring-red-200' : 'border-gray-200 focus:border-gray-300 focus:ring-black/10'
           }`}
         >
           <option value="">Select your education level</option>
@@ -323,15 +311,14 @@ const StudentRegistration = () => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Experience Level
+        <label className="block text-sm font-medium text-gray-700 mb-2">Experience Level
         </label>
         <select
           id="experience-select"
           aria-label="Experience Level"
           value={studentDetails.experience}
           onChange={(e) => handleInputChange('experience', e.target.value)}
-          className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+          className="w-full px-4 py-3 bg-white/80 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-gray-300 transition-colors"
         >
           <option value="">Select your experience level</option>
           <option value="beginner">Beginner (0-1 years)</option>
@@ -341,15 +328,13 @@ const StudentRegistration = () => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Username *
-        </label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Username *</label>
         <input
           type="text"
           value={studentDetails.username}
           onChange={(e) => handleInputChange('username', e.target.value)}
-          className={`w-full px-4 py-3 bg-gray-800/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${
-            errors.username ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-600 focus:border-blue-500 focus:ring-blue-500'
+          className={`w-full px-4 py-3 bg-white/80 border rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-colors ${
+            errors.username ? 'border-red-400 focus:border-red-400 focus:ring-red-200' : 'border-gray-200 focus:border-gray-300 focus:ring-black/10'
           }`}
           placeholder="Create a unique username"
         />
@@ -357,15 +342,13 @@ const StudentRegistration = () => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Password *
-        </label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Password *</label>
         <input
           type="password"
           value={studentDetails.password}
           onChange={(e) => handleInputChange('password', e.target.value)}
-          className={`w-full px-4 py-3 bg-gray-800/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${
-            errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-600 focus:border-blue-500 focus:ring-blue-500'
+          className={`w-full px-4 py-3 bg-white/80 border rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-colors ${
+            errors.password ? 'border-red-400 focus:border-red-400 focus:ring-red-200' : 'border-gray-200 focus:border-gray-300 focus:ring-black/10'
           }`}
           placeholder="Create a password"
         />
@@ -373,15 +356,13 @@ const StudentRegistration = () => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Confirm Password *
-        </label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password *</label>
         <input
           type="password"
           value={studentDetails.confirmPassword}
           onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-          className={`w-full px-4 py-3 bg-gray-800/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${
-            errors.confirmPassword ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-600 focus:border-blue-500 focus:ring-blue-500'
+          className={`w-full px-4 py-3 bg-white/80 border rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-colors ${
+            errors.confirmPassword ? 'border-red-400 focus:border-red-400 focus:ring-red-200' : 'border-gray-200 focus:border-gray-300 focus:ring-black/10'
           }`}
           placeholder="Confirm your password"
         />
@@ -445,7 +426,7 @@ const StudentRegistration = () => {
   );
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-gradient-to-b from-sky-200 via-blue-50 to-white text-gray-900">
       <Header />
       
       <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8">
@@ -457,24 +438,22 @@ const StudentRegistration = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-              Student Registration
-            </h1>
-            <p className="text-xl text-gray-300">Join our learning community</p>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">Student Registration</h1>
+            <p className="text-sm sm:text-base text-gray-500">Join our learning community</p>
           </motion.div>
 
           {/* Progress Steps */}
           <div className="flex items-center justify-center mb-8">
             {[1, 2, 3].map((stepNumber) => (
               <div key={stepNumber} className="flex items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-colors ${
-                  step >= stepNumber ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
+                  step >= stepNumber ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-500 border-gray-300'
                 }`}>
                   {stepNumber}
                 </div>
                 {stepNumber < 3 && (
-                  <div className={`w-16 h-1 mx-2 transition-colors ${
-                    step > stepNumber ? 'bg-blue-600' : 'bg-gray-700'
+                  <div className={`w-16 h-[2px] mx-2 transition-colors ${
+                    step > stepNumber ? 'bg-gray-900' : 'bg-gray-300'
                   }`}></div>
                 )}
               </div>
@@ -483,30 +462,24 @@ const StudentRegistration = () => {
 
           {/* Form */}
           <motion.div
-            className="bg-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8"
+            className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-3xl p-6 sm:p-8 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.25)]"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             {step === 1 && (
               <>
-                <h2 className="text-2xl font-bold text-white mb-6">Personal Information</h2>
+                <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-6">Personal Information</h2>
                 {renderStep1()}
-                
-
               </>
             )}
-            
             {step === 2 && (
               <>
-                <h2 className="text-2xl font-bold text-white mb-6">Account Details</h2>
+                <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-6">Account Details</h2>
                 {renderStep2()}
               </>
             )}
-            
             {step === 3 && renderStep3()}
-            
-            {/* Remove step 4 and 5 as they were for payment flow */}
 
             {/* Navigation Buttons */}
             {step < 3 && (
@@ -514,17 +487,16 @@ const StudentRegistration = () => {
                 <motion.button
                   onClick={handleBack}
                   disabled={step === 1}
-                  className="px-6 py-3 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-6 py-3 rounded-xl border border-gray-300 bg-white/80 text-gray-700 font-semibold hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   Back
                 </motion.button>
-                
                 <motion.button
                   onClick={step === 2 ? handleRegistrationSubmit : handleNext}
                   disabled={isLoading}
-                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg shadow-blue-500/25 disabled:opacity-50"
+                  className="px-8 py-3 rounded-xl bg-gradient-to-b from-gray-900 to-gray-700 text-white font-semibold hover:from-gray-800 hover:to-gray-600 transition-all duration-300 shadow-[0_10px_25px_-10px_rgba(0,0,0,0.35)] disabled:opacity-50"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -532,16 +504,14 @@ const StudentRegistration = () => {
                 </motion.button>
               </div>
             )}
-            
-            {/* Remove old step 3 and 4 navigation as they were for payment flow */}
 
             {/* Login Link */}
             <div className="mt-8 text-center">
-              <p className="text-gray-400">
+              <p className="text-gray-600">
                 Already have an account?{' '}
                 <button
                   onClick={() => navigate('/student-login')}
-                  className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+                  className="text-gray-900 underline decoration-gray-300 hover:decoration-gray-500"
                 >
                   Sign in here
                 </button>

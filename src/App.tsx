@@ -92,7 +92,7 @@ function ProtectedCourseGate({ courseId, children }: { courseId: string; childre
   if (allowed === null) {
     return (<>
       <Header />
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-sky-200 via-blue-50 to-white text-gray-900 flex items-center justify-center">
         <p>Checking course access...</p>
       </div>
     </>);
@@ -100,10 +100,10 @@ function ProtectedCourseGate({ courseId, children }: { courseId: string; childre
   if (!allowed) {
     return (<>
       <Header />
-      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-gradient-to-b from-sky-200 via-blue-50 to-white text-gray-900 flex flex-col items-center justify-center gap-4">
         <h2 className="text-xl font-semibold">Access denied</h2>
-        <p className="text-gray-300">{error || 'You must purchase this course to view the study material.'}</p>
-        <a href={`/course-enrollment/${courseId}`} className="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700">Purchase Course</a>
+        <p className="text-gray-600">{error || 'You must purchase this course to view the study material.'}</p>
+        <a href={`/course-enrollment/${courseId}`} className="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700 text-white">Purchase Course</a>
       </div>
     </>);
   }
@@ -173,7 +173,7 @@ function ProtectedStudentCourseGate({ requiredCourseId, children }: { requiredCo
   if (allowed === null) {
     return (<>
       <Header />
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-sky-200 via-blue-50 to-white text-gray-900 flex items-center justify-center">
         <p>Checking your access...</p>
       </div>
     </>);
@@ -181,10 +181,10 @@ function ProtectedStudentCourseGate({ requiredCourseId, children }: { requiredCo
   if (!allowed) {
     return (<>
       <Header />
-      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-gradient-to-b from-sky-200 via-blue-50 to-white text-gray-900 flex flex-col items-center justify-center gap-4">
         <h2 className="text-xl font-semibold">Access denied</h2>
-        <p className="text-gray-300">{error || 'You must purchase this course to view the content.'}</p>
-        <a href={`/course-enrollment/frontend-beginner`} className="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700">Purchase Course</a>
+        <p className="text-gray-600">{error || 'You must purchase this course to view the content.'}</p>
+        <a href={`/course-enrollment/frontend-beginner`} className="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700 text-white">Purchase Course</a>
       </div>
     </>);
   }
@@ -206,17 +206,17 @@ function IntroHtmlProtected() {
   const content = (
     <>
       <Header />
-      <div className="min-h-screen bg-black text-white pt-24 px-4">
+      <div className="min-h-screen bg-gradient-to-b from-sky-200 via-blue-50 to-white text-gray-900 pt-24 px-4">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-6">Introduction to HTML</h1>
           <div className="space-y-10">
             <div>
               <h2 className="text-xl font-semibold mb-3">Part 1</h2>
-              <video className="w-full max-w-3xl rounded-lg border border-gray-700" controls src={htmlpart1}></video>
+              <video className="w-full max-w-3xl rounded-lg border border-gray-200" controls src={htmlpart1}></video>
             </div>
             <div>
               <h2 className="text-xl font-semibold mb-3">Part 2</h2>
-              <video className="w-full max-w-3xl rounded-lg border border-gray-700" controls src={htmlpart2}></video>
+              <video className="w-full max-w-3xl rounded-lg border border-gray-200" controls src={htmlpart2}></video>
             </div>
           </div>
         </div>
@@ -239,7 +239,7 @@ function AppInner() {
         sparkCount={8} 
         sparkRadius={80} 
         duration={800}
-        className="min-h-screen bg-black text-white font-sans relative"
+        className="min-h-screen bg-gradient-to-b from-sky-200 via-blue-50 to-white text-gray-900 font-sans relative"
       >
         <Routes>
           <Route path="/" element={

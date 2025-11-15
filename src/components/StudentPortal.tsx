@@ -3456,6 +3456,7 @@ const StudentPortal: React.FC = () => {
 
         {/* Content Area */}
         <main className="flex-1 p-4 md:p-6 overflow-x-hidden">
+
           {activeTab === 'dashboard' ? (
             <React.Fragment>
               {/* Student Profile Section */}

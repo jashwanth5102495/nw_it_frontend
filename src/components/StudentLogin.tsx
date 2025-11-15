@@ -61,42 +61,10 @@ const StudentLogin = () => {
       }
 
       if (!(response.ok && result && result.success)) {
-        const fallbackRes = await fetch(`${BASE_URL}/api/auth/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({ username: usernameTrim, password: passwordTrim })
-        });
-
-        let fallback = null;
-        let fallbackText = '';
-        try {
-          fallback = await fallbackRes.json();
-        } catch {
-          fallbackText = await fallbackRes.text();
-        }
-
-        if (fallbackRes.ok && fallback && fallback.success) {
-          const userData = {
-            ...(fallback.data?.student || fallback.data?.user || {}),
-            isAuthenticated: true,
-            token: fallback.data?.token
-          };
-          localStorage.setItem('currentUser', JSON.stringify(userData));
-          if (userData.token) localStorage.setItem('authToken', userData.token);
-          navigate('/student-portal');
-          return;
-        }
-
         const errMsg =
-          (fallback && (fallback.message || fallback.error)) ||
-          fallbackText ||
           (result && (result.message || result.error)) ||
           rawText ||
           `Login failed (${response.status}).`;
-
         setError(errMsg);
         return;
       }

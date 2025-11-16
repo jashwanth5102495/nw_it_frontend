@@ -7,6 +7,13 @@ export default function IntroductionPage() {
 
   const modules = [
     {
+      slug: 'intro-react',
+      title: 'Intro React — Getting Started',
+      desc:
+        'Set up Node.js and create your first React app. Understand why React, project structure, and the essential tooling (Vite/CRA).',
+      bgImage: 'https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg'
+    },
+    {
       slug: 'module-1',
       title: 'Module 1 — Advanced HTML, CSS & Responsive Design',
       desc:
@@ -71,12 +78,12 @@ export default function IntroductionPage() {
             </p>
             <div className="mt-6 flex gap-3 flex-wrap">
               <span className="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-3 py-1 text-sm text-gray-800">Intermediate level</span>
-              <span className="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-3 py-1 text-sm text-gray-800">4 modules</span>
+              <span className="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-3 py-1 text-sm text-gray-800">5 modules</span>
               <span className="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-3 py-1 text-sm text-gray-800">Hands-on projects</span>
             </div>
             <div className="mt-8 flex gap-4"> 
               <button
-                onClick={() => navigate('/frontend-development-intermediate/module/module-1')}
+                onClick={() => navigate('/frontend-development-intermediate/module/intro-react')}
                 className="px-6 py-3 rounded-lg bg-blue-600 text-white shadow hover:bg-blue-700 transition"
               >
                 Start Learning

@@ -10,6 +10,7 @@ export default function ModuleComingSoon() {
   const navigate = useNavigate();
 
   const titles = {
+    'intro-react': 'Intro Module: React Overview & Setup',
     'module-1': 'Module 1: Advanced HTML, CSS & Responsive Design',
     'module-2': 'Module 2: JavaScript & React.js Essentials',
     'module-3': 'Module 3: Backend Integration with Django & MongoDB',
@@ -17,7 +18,7 @@ export default function ModuleComingSoon() {
   };
   const title = titles[slug] || 'Module';
 
-  const moduleOrder = ['module-1', 'module-2', 'module-3', 'module-4'];
+  const moduleOrder = ['intro-react', 'module-1', 'module-2', 'module-3', 'module-4'];
   const currentIndex = Math.max(0, moduleOrder.indexOf(slug));
   const nextIndex = Math.min(moduleOrder.length - 1, currentIndex + 1);
   const nextSlug = moduleOrder[nextIndex];
@@ -27,8 +28,368 @@ export default function ModuleComingSoon() {
   const [tab, setTab] = useState('lesson');
   const [currentTopic, setCurrentTopic] = useState(initialTopic);
 
+  // Force light theme for modules pages
+  useEffect(() => {
+    const root = document.documentElement;
+    const hadDark = root.classList.contains('dark');
+    if (hadDark) root.classList.remove('dark');
+    root.classList.add('force-light');
+    return () => {
+      root.classList.remove('force-light');
+      if (hadDark) root.classList.add('dark');
+    };
+  }, [slug]);
+
   // Live Code state and helpers
   const buildLiveFiles = () => {
+  // Intro React — Topic 5: Docs & Resources Live Examples
+  if (slug === 'intro-react' && currentTopic === 4) {
+    const files = {
+      'index.html': `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Docs & Resources Live Demo</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'; margin: 1rem; }
+      .toolbar { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+      button { padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }
+      button.active { background: #111; color: #fff; border-color: #111; }
+      .env { margin-left: auto; }
+      .note { color: #555; font-size: .9rem; }
+    </style>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div class="toolbar">
+      <button id="ex1" class="active">Example 1: useState (Docs)</button>
+      <button id="ex2">Example 2: useEffect Timer</button>
+      <button id="ex3">Example 3: Passing Props</button>
+      <button id="ex4">Example 4: import.meta.env (Vite)</button>
+      <span class="env">
+        <button id="envCra" class="active">Pretend: CRA</button>
+        <button id="envVite">Pretend: Vite</button>
+      </span>
+    </div>
+    <p class="note">Examples mirror patterns from the official docs. Env variables are simulated for clarity.</p>
+    <div id="root"></div>
+    <script type="text/babel" data-presets="env,react" src="/App.js"></script>
+    <script>
+      const buttons = ['ex1','ex2','ex3','ex4'];
+      function setActive(id) {
+        buttons.forEach(b => {
+          const el = document.getElementById(b);
+          if (!el) return;
+          el.classList.toggle('active', b === id);
+        });
+      }
+      window.__isVite = false; // default CRA
+      function setEnv(vite) {
+        window.__isVite = !!vite;
+        document.getElementById('envCra').classList.toggle('active', !vite);
+        document.getElementById('envVite').classList.toggle('active', !!vite);
+        if (window.__currentEx) window.renderExample(window.__currentEx);
+      }
+      document.getElementById('ex1').addEventListener('click', () => { window.renderExample(1); setActive('ex1'); });
+      document.getElementById('ex2').addEventListener('click', () => { window.renderExample(2); setActive('ex2'); });
+      document.getElementById('ex3').addEventListener('click', () => { window.renderExample(3); setActive('ex3'); });
+      document.getElementById('ex4').addEventListener('click', () => { window.renderExample(4); setActive('ex4'); });
+      document.getElementById('envCra').addEventListener('click', () => setEnv(false));
+      document.getElementById('envVite').addEventListener('click', () => setEnv(true));
+    </script>
+  </body>
+</html>`,
+
+      'App.js': `import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom/client';
+
+function UseStateExample() {
+  const [count, setCount] = useState(0);
+  return (
+    <button onClick={() => setCount(count + 1)}>Clicks: {count}</button>
+  );
+}
+
+function TimerExample() {
+  const [seconds, setSeconds] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => setSeconds(s => s + 1), 1000);
+    return () => clearInterval(interval);
+  }, []);
+  return <h2>Seconds: {seconds}</h2>;
+}
+
+function Greeting({ name }) {
+  return <h3>Hello, {name}!</h3>;
+}
+function PassingPropsExample() {
+  return (
+    <>
+      <Greeting name="React Learner" />
+      <Greeting name="Developer" />
+    </>
+  );
+}
+
+function EnvironmentInfo() {
+  const isVite = !!window.__isVite;
+  return (
+    <p>Mode: {isVite ? 'development (simulated Vite import.meta.env.MODE)' : 'CRA: import.meta.env not available by default'}</p>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+window.renderExample = (n) => {
+  window.__currentEx = n;
+  switch (n) {
+    case 1: root.render(<UseStateExample />); break;
+    case 2: root.render(<TimerExample />); break;
+    case 3: root.render(<PassingPropsExample />); break;
+    case 4: root.render(<EnvironmentInfo />); break;
+    default: root.render(<UseStateExample />);
+  }
+};
+
+window.renderExample(1);`
+    };
+
+    return files;
+  }
+
+  // Intro React — Topic 2: CRA vs Vite Live Examples
+  if (slug === 'intro-react' && currentTopic === 2) {
+    const files = {
+      'index.html': `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CRA vs Vite Live Demo</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'; margin: 1rem; }
+      .toolbar { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+      button { padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }
+      button.active { background: #111; color: #fff; border-color: #111; }
+      .env { margin-left: auto; }
+      .note { color: #555; font-size: .9rem; }
+    </style>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div class="toolbar">
+      <button id="ex1" class="active">Example 1: Simple App</button>
+      <button id="ex2">Example 2: Counter</button>
+      <button id="ex3">Example 3: import.meta.env</button>
+      <span class="env">
+        <button id="envCra" class="active">Pretend: CRA</button>
+        <button id="envVite">Pretend: Vite</button>
+      </span>
+    </div>
+    <p class="note">Toggle the environment to see text change. This runner cannot truly detect Vite vs CRA, so we simulate it for clarity.</p>
+    <div id="root"></div>
+    <script type="text/babel" data-presets="env,react" src="/App.js"></script>
+    <script>
+      const buttons = ['ex1','ex2','ex3'];
+      function setActive(id) {
+        buttons.forEach(b => {
+          const el = document.getElementById(b);
+          if (!el) return;
+          el.classList.toggle('active', b === id);
+        });
+      }
+      window.__isVite = false; // default CRA
+      function setEnv(vite) {
+        window.__isVite = !!vite;
+        document.getElementById('envCra').classList.toggle('active', !vite);
+        document.getElementById('envVite').classList.toggle('active', !!vite);
+        // re-render current example to reflect env label
+        if (window.__currentEx) window.renderExample(window.__currentEx);
+      }
+      document.getElementById('ex1').addEventListener('click', () => { window.renderExample(1); setActive('ex1'); });
+      document.getElementById('ex2').addEventListener('click', () => { window.renderExample(2); setActive('ex2'); });
+      document.getElementById('ex3').addEventListener('click', () => { window.renderExample(3); setActive('ex3'); });
+      document.getElementById('envCra').addEventListener('click', () => setEnv(false));
+      document.getElementById('envVite').addEventListener('click', () => setEnv(true));
+    </script>
+  </body>
+</html>`,
+
+      'App.js': `import React, { useState } from 'react';
+import ReactDOM from 'react-dom/client';
+
+function SimpleApp() {
+  const isVite = !!window.__isVite;
+  return (
+    <div>
+      <h1>Hello from React!</h1>
+      <p>This project was created with {isVite ? 'Vite' : 'CRA'}</p>
+    </div>
+  );
+}
+
+function CounterApp() {
+  const [count, setCount] = useState(0);
+  return (
+    <div>
+      <h2>Counter Demo</h2>
+      <button onClick={() => setCount(count + 1)}>You clicked {count} times</button>
+    </div>
+  );
+}
+
+function ImportMetaCheck() {
+  const [log, setLog] = useState('');
+  function check() {
+    try {
+      // Real import.meta.env only exists in Vite. We simulate output here.
+      const isVite = !!window.__isVite;
+      if (isVite) {
+        setLog('import.meta.env → { VITE_APP_EXAMPLE: "true" } (simulated)');
+        console.log('import.meta.env (simulated):', { VITE_APP_EXAMPLE: 'true' });
+      } else {
+        setLog('CRA: import.meta.env is not available by default');
+        console.log('CRA: import.meta.env is not available by default');
+      }
+    } catch (e) {
+      setLog('Environment check failed: ' + e.message);
+    }
+  }
+  return (
+    <div>
+      <h2>Check if using Vite (Vite-specific)</h2>
+      <button onClick={check}>Log import.meta.env</button>
+      <pre style={{ marginTop: '.5rem' }}>{log}</pre>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+window.renderExample = (n) => {
+  window.__currentEx = n;
+  switch (n) {
+    case 1: root.render(<SimpleApp />); break;
+    case 2: root.render(<CounterApp />); break;
+    case 3: root.render(<ImportMetaCheck />); break;
+    default: root.render(<SimpleApp />);
+  }
+};
+
+window.renderExample(1);`
+    };
+
+    return files;
+  }
+
+  // Intro React — Topic 3: Project Structure Live Examples
+  if (slug === 'intro-react' && currentTopic === 3) {
+    const files = {
+      'index.html': `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>React Project Structure Demo</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'; margin: 1rem; }
+      .toolbar { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+      button { padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }
+      button.active { background: #111; color: #fff; border-color: #111; }
+      .card { border: 1px solid #ddd; border-radius: 8px; padding: .75rem; margin: .5rem 0; }
+    </style>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div class="toolbar">
+      <button id="ex1" class="active">Example 1: components/Card</button>
+      <button id="ex2">Example 2: pages/HomePage</button>
+      <button id="ex3">Example 3: hooks/useWelcome</button>
+    </div>
+    <div id="root"></div>
+    <script type="text/babel" data-presets="env,react" src="/App.js"></script>
+    <script>
+      // simple toggle of active button styles
+      const buttons = ['ex1','ex2','ex3'];
+      function setActive(id) {
+        buttons.forEach(b => {
+          const el = document.getElementById(b);
+          if (!el) return;
+          el.classList.toggle('active', b === id);
+        });
+      }
+      document.getElementById('ex1').addEventListener('click', () => { window.renderExample(1); setActive('ex1'); });
+      document.getElementById('ex2').addEventListener('click', () => { window.renderExample(2); setActive('ex2'); });
+      document.getElementById('ex3').addEventListener('click', () => { window.renderExample(3); setActive('ex3'); });
+    </script>
+  </body>
+</html>`,
+
+      // Keep components in components/ so the in-browser transformer can wire imports/exports
+      'components/Card.js': `export default function Card(props) {
+  return (
+    <div className=\"card\">
+      <h3>{props.title}</h3>
+      <p>{props.text}</p>
+    </div>
+  );
+}`,
+
+      // App hosts three mini examples; HomePage and useWelcome are defined here for simplicity
+      'App.js': `import React from 'react';
+import ReactDOM from 'react-dom/client';
+import Card from './components/Card';
+
+function Example1() {
+  return (
+    <div>
+      <h1>Project Structure Example</h1>
+      <Card title=\"First Card\" text=\"This is a reusable component.\" />
+      <Card title=\"Second Card\" text=\"Components help keep code clean.\" />
+    </div>
+  );
+}
+
+// In a real project, this would live in src/pages/HomePage.js
+function HomePage() {
+  return <h1>Welcome to the Home Page</h1>;
+}
+function Example2() { return <HomePage />; }
+
+// In a real project, this would live in src/hooks/useWelcome.js
+function useWelcome() {
+  return 'Hello from Custom Hook!';
+}
+function Example3() {
+  const message = useWelcome();
+  return <h2>{message}</h2>;
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+window.renderExample = (n) => {
+  switch (n) {
+    case 1: root.render(<Example1 />); break;
+    case 2: root.render(<Example2 />); break;
+    case 3: root.render(<Example3 />); break;
+    default: root.render(<Example1 />);
+  }
+};
+
+// initial render
+window.renderExample(1);`
+    };
+
+    return files;
+  }
+
     // Early return: Module 4 Topic 3 (State management & protected routes)
     if (slug === 'module-4' && currentTopic === 2) {
       return buildModule4Topic3LiveFiles();
@@ -1041,6 +1402,131 @@ root.render(<App />);`,
       }
     }
 
+    // Intro React live files — Topic 1 (React introduction & why React)
+    if (slug === 'intro-react' && currentTopic === 0) {
+      return {
+        'index.html': `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intro React — Live Demo</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body style="font-family:system-ui,sans-serif;padding:24px">
+  <div id="root"></div>
+  <script type="text/babel" src="App.js"></script>
+</body>
+</html>`,
+        'App.js': `const root = ReactDOM.createRoot(document.getElementById('root'));
+
+function SimpleComponent() {
+  return (
+    <div>
+      <h1>Welcome to React!</h1>
+      <p>This is your first React component.</p>
+    </div>
+  );
+}
+
+function Counter() {
+  const [count, setCount] = React.useState(0);
+  return (
+    <div style={{ marginTop: '16px' }}>
+      <h2>React Counter</h2>
+      <button onClick={() => setCount(count + 1)}>
+        Clicked: {count} times
+      </button>
+    </div>
+  );
+}
+
+function Card(props) {
+  return <h3>Hi, I am {props.name}!</h3>;
+}
+
+function App() {
+  return (
+    <div>
+      <SimpleComponent />
+      <Counter />
+      <div style={{ marginTop: '16px' }}>
+        <Card name="React" />
+        <Card name="Reusable Component" />
+        <Card name="Amazing UI Library" />
+      </div>
+    </div>
+  );
+}
+
+root.render(<App />);`
+      };
+    }
+
+    // Intro React live files — Topic 1 (Installing Node.js and verifying)
+    if (slug === 'intro-react' && currentTopic === 1) {
+      return {
+        'index.html': `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node.js Installation — Live Demos</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 24px; }
+    button { margin-right: 8px; margin-bottom: 12px; }
+    pre { background: #f3f4f6; padding: 12px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Node.js Installation — Try It Yourself</h1>
+  <p>These demos simulate files you’d run with <code>node</code> in your terminal.</p>
+  <div>
+    <button id="run-hello">Run hello.js</button>
+    <button id="run-sum">Run sum.js</button>
+    <button id="run-cow">Run cowsay.js (browser mimic)</button>
+  </div>
+  <pre id="output">Output will appear here...</pre>
+  <script type="module">
+    import { runHello } from './hello.js';
+    import { runSum } from './sum.js';
+    import { cowsay } from './cowsay.js';
+
+    const out = document.getElementById('output');
+    const log = (text) => { out.textContent = String(text); };
+
+    document.getElementById('run-hello').addEventListener('click', () => {
+      log(runHello());
+    });
+    document.getElementById('run-sum').addEventListener('click', () => {
+      log(runSum());
+    });
+    document.getElementById('run-cow').addEventListener('click', () => {
+      log(cowsay('Node.js works!', { e: 'OO', T: 'U ' }));
+    });
+  </script>
+</body>
+</html>`,
+        'hello.js': `export function runHello() {
+  return 'Node.js is successfully installed!';
+}`,
+        'sum.js': `export function runSum() {
+  const a = 10;
+  const b = 20;
+  return 'Sum is: ' + (a + b);
+}`,
+        'cowsay.js': `export function cowsay(text, opts = {}) {
+  const eyes = opts.e || 'OO';
+  const tongue = opts.T || '  ';
+  const bubble = '  ' + text + '\n' + '   ---------';
+  const cow = '\n        \\   ^__^\n         \\  (' + eyes + ')\\_______\n            (__)\\       )\\/\\\n             ' + tongue + '  |----w |\n                 ||     ||';
+  return bubble + cow;
+}`
+      };
+    }
+
     // Module 3 samples
     if (slug === 'module-3') {
       if (currentTopic === 0) {
@@ -1992,6 +2478,13 @@ root.render(React.createElement(App));`,
 
   const moduleTopics = useMemo(
     () => ({
+      'intro-react': [
+        'React introduction and why React',
+        'Installing Node.js and verifying',
+        'Create React App vs Vite',
+        'React project structure overview',
+        'Official docs and resources'
+      ],
       'module-1': [
         'Deep dive into semantic HTML5',
         'CSS Grid & Flexbox layouts',
@@ -2039,6 +2532,399 @@ root.render(React.createElement(App));`,
   );
 
   const getLessonContent = () => {
+  // Intro React — Topic 2: Create React App vs Vite
+  if (slug === 'intro-react' && currentTopic === 2) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold"> Lesson Tab — Create React App vs Vite</h2>
+        <p className="text-gray-700">React apps can be created using different tools, but the two most popular options are:</p>
+        <ul className="list-disc pl-5 text-gray-700">
+          <li><strong>Create React App (CRA)</strong> — Older, official starter tool</li>
+          <li><strong>Vite</strong> — Modern, faster, next-generation build tool</li>
+        </ul>
+        <p className="text-gray-700">Both help you create and run React projects, but they work very differently.</p>
+
+        <div>
+          <h3 className="text-base font-semibold">🆚 1. What is Create React App (CRA)?</h3>
+          <p className="text-gray-700">Create React App is Facebook’s original tool for setting up React applications.</p>
+          <p className="text-gray-700 font-medium mt-2">Key Features</p>
+          <ul className="list-disc pl-5 text-gray-700">
+            <li>Pre-configured Webpack setup</li>
+            <li>Lots of built-in features</li>
+            <li>Wide community support</li>
+            <li>Uses Babel + Webpack under the hood</li>
+          </ul>
+          <p className="text-gray-700 font-medium mt-2">Limitations</p>
+          <ul className="list-disc pl-5 text-gray-700">
+            <li>Slow startup time</li>
+            <li>Heavy bundling</li>
+            <li>Long build times</li>
+            <li>Difficult to customize without ejecting</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-base font-semibold">⚡ 2. What is Vite?</h3>
+          <p className="text-gray-700">Vite is a modern, super-fast frontend tool created by Evan You (creator of Vue.js).</p>
+          <p className="text-gray-700 font-medium mt-2">Key Features</p>
+          <ul className="list-disc pl-5 text-gray-700">
+            <li>Uses ESBuild for lightning-fast dependency handling</li>
+            <li>Development server starts in under 1 second</li>
+            <li>Faster Hot Module Replacement (HMR)</li>
+            <li>Modern and lightweight</li>
+            <li>Easy to configure</li>
+            <li>Supports multiple frameworks (React, Vue, Svelte, etc.)</li>
+          </ul>
+          <p className="text-gray-700 font-medium mt-2">Why Vite is faster</p>
+          <ul className="list-disc pl-5 text-gray-700">
+            <li>Native ES Modules in the browser</li>
+            <li>ESBuild for extremely fast processing</li>
+            <li>Only rebuilds code you actually use</li>
+          </ul>
+          <p className="text-gray-700">These make Vite significantly faster than CRA during development.</p>
+        </div>
+
+        <div>
+          <h3 className="text-base font-semibold">🥊 3. CRA vs Vite — Key Differences</h3>
+          <div className="overflow-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-left">
+                  <th className="pr-6 py-2">Feature</th>
+                  <th className="pr-6 py-2">Create React App (CRA)</th>
+                  <th className="py-2">Vite</th>
+                </tr>
+              </thead>
+              <tbody className="align-top">
+                <tr><td className="pr-6 py-1">Speed</td><td className="pr-6">Slow</td><td>Extremely fast</td></tr>
+                <tr><td className="pr-6 py-1">Bundler</td><td className="pr-6">Webpack</td><td>ESBuild + Rollup</td></tr>
+                <tr><td className="pr-6 py-1">Start Time</td><td className="pr-6">3–30 sec</td><td>&lt; 1 sec</td></tr>
+                <tr><td className="pr-6 py-1">HMR</td><td className="pr-6">Slow & heavy</td><td>Very fast</td></tr>
+                <tr><td className="pr-6 py-1">Config File</td><td className="pr-6">Hard to customize</td><td>Simple and flexible</td></tr>
+                <tr><td className="pr-6 py-1">Build Output</td><td className="pr-6">Larger</td><td>Smaller & optimized</td></tr>
+                <tr><td className="pr-6 py-1">Recommended in 2025?</td><td className="pr-6">❌ No</td><td>✅ Yes</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-base font-semibold">🎯 4. When to Use What?</h3>
+          <p className="text-gray-700 font-medium">✔ Use Vite when:</p>
+          <ul className="list-disc pl-5 text-gray-700">
+            <li>You want speed</li>
+            <li>You want a modern setup</li>
+            <li>You’re building a new React project</li>
+            <li>You want easy configurations</li>
+          </ul>
+          <p className="text-gray-700 font-medium mt-2">✔ Use CRA only when:</p>
+          <ul className="list-disc pl-5 text-gray-700">
+            <li>You are maintaining older CRA projects</li>
+            <li>You must follow legacy tutorials</li>
+          </ul>
+          <p className="text-gray-700">For new development → Vite is the clear winner.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Intro React — Topic 3: React Project Structure Overview
+  if (slug === 'intro-react' && currentTopic === 3) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold">📘 Lesson Tab — React Project Structure Overview</h2>
+        <p className="text-gray-700">When you create a React project (using CRA or Vite), your folder contains several files and directories. Understanding this structure helps you know where to write code, where to store assets, and how React works internally.</p>
+        <p className="text-gray-700">Below is the standard structure of a modern React app:</p>
+
+        <div>
+          <h3 className="text-base font-semibold">📂 1. Project Root Structure</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`my-app/\n│\n├── node_modules/\n├── public/          (CRA only)\n├── src/\n├── .gitignore\n├── index.html       (Vite)\n├── package.json\n├── package-lock.json / pnpm-lock.yaml / yarn.lock\n└── README.md`}</code></pre>
+        </div>
+
+        <div>
+          <h3 className="text-base font-semibold">🔍 2. Important Folders Explained</h3>
+          <p className="text-gray-700 font-medium">📁 node_modules /</p>
+          <ul className="list-disc pl-5 space-y-1 text-gray-700">
+            <li>Stores all installed npm packages</li>
+            <li>Automatically created when you install dependencies</li>
+            <li>You never manually edit files here</li>
+          </ul>
+
+          <p className="text-gray-700 font-medium">📁 public / (CRA only)</p>
+          <p className="text-gray-700">Contains static files that don’t get processed by bundlers.</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`public/\n│── index.html\n│── favicon.ico\n│── logo192.png\n│── logo512.png\n└── robots.txt`}</code></pre>
+          <p className="text-gray-700"><code>public/index.html</code> is the main HTML file React injects into. React renders your app inside:</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`<div id="root"></div>`}</code></pre>
+
+          <p className="text-gray-700 font-medium">📁 src / — The Heart of a React App</p>
+          <p className="text-gray-700">All your React code lives here. Default structure:</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`src/\n│── App.jsx / App.js\n│── App.css\n│── index.js / main.jsx (Vite)\n│── index.css\n└── assets/ (optional)`}</code></pre>
+          <p className="text-gray-700"><strong>src/index.js (CRA) or src/main.jsx (Vite)</strong> — Entry file renders your App component:</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`ReactDOM.createRoot(document.getElementById('root')).render(<App />);`}</code></pre>
+          <p className="text-gray-700"><strong>App.js / App.jsx</strong> — Your main UI component that is first loaded.</p>
+          <p className="text-gray-700"><strong>assets</strong> — Optional folder to store images, icons, fonts, etc. e.g., <code>src/assets/logo.png</code></p>
+        </div>
+
+        <div>
+          <h3 className="text-base font-semibold">🧱 3. Typical Folder Structure in Real Projects</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`src/\n│── components/\n│── pages/\n│── hooks/\n│── context/\n│── services/\n│── utils/\n│── assets/\n│── styles/\n└── App.jsx`}</code></pre>
+          <ul className="list-disc pl-5 space-y-1 text-gray-700">
+            <li><strong>components/</strong> — Reusable UI parts (Button, Navbar, Card)</li>
+            <li><strong>pages/</strong> — Page-level screens (HomePage, LoginPage)</li>
+            <li><strong>hooks/</strong> — Custom hooks (useAuth, useFetch)</li>
+            <li><strong>context/</strong> — React context providers (ThemeContext)</li>
+            <li><strong>services/</strong> — API calls (axios files)</li>
+            <li><strong>utils/</strong> — Helper functions (formatDate)</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-base font-semibold">🧩 4. What Happens When You Run React?</h3>
+          <ul className="list-disc pl-5 space-y-1 text-gray-700">
+            <li>Browser loads <code>index.html</code></li>
+            <li>React mounts <code>&lt;App /&gt;</code> inside the root div</li>
+            <li>App renders your components</li>
+            <li>UI automatically updates when state changes</li>
+          </ul>
+          <p className="text-gray-700">This is the foundation of React’s component-based architecture.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Intro React — Topic 1: Installing Node.js and Verifying
+  if (slug === 'intro-react' && currentTopic === 1) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold">📘 Lesson Tab — Installing Node.js and Verifying</h2>
+        <div>
+          <h3 className="text-base font-semibold">What is Node.js?</h3>
+          <p className="text-gray-700">Node.js is a JavaScript runtime that allows you to run JavaScript outside the browser. You need Node.js to:</p>
+          <ul className="list-disc pl-5 space-y-1 text-gray-700">
+            <li>Run React projects</li>
+            <li>Install packages using npm</li>
+            <li>Use build tools like Vite, Webpack, Babel, etc.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="text-base font-semibold">Why Do We Need Node.js for React?</h3>
+          <ul className="list-disc pl-5 space-y-1 text-gray-700">
+            <li><strong>npm (Node Package Manager)</strong> — to install libraries</li>
+            <li><strong>Development servers</strong> — to preview your app locally</li>
+            <li><strong>Build tools</strong> — to optimize and bundle your project</li>
+          </ul>
+          <p className="text-gray-700">Without Node.js, you cannot run modern React apps.</p>
+        </div>
+        <div>
+          <h3 className="text-base font-semibold">🛠 Steps to Install Node.js</h3>
+          <ol className="list-decimal pl-5 space-y-2 text-gray-700">
+            <li>
+              <span className="font-medium">Step 1 — Go to Node.js Official Website</span><br/>
+              Visit: <a href="https://nodejs.org" className="text-blue-600 underline">https://nodejs.org</a><br/>
+              You will see two versions: <strong>LTS (Recommended)</strong> — Stable, safe for beginners; <strong>Current</strong> — Latest features, not always stable. 👉 Choose <strong>LTS</strong>.
+            </li>
+            <li>
+              <span className="font-medium">Step 2 — Download Installer</span><br/>
+              Click the installer for your OS: Windows (.msi), macOS (.pkg), Linux (.tar.xz or package manager).
+            </li>
+            <li>
+              <span className="font-medium">Step 3 — Run Installer</span><br/>
+              Follow the setup wizard: Click Next → Accept the license → Keep default options → Click Install. It installs: Node.js runtime and npm (Node Package Manager).
+            </li>
+          </ol>
+        </div>
+        <div>
+          <h3 className="text-base font-semibold">🔍 Verifying Installation</h3>
+          <p className="text-gray-700">Open your terminal (Windows: PowerShell/CMD; macOS/Linux: Terminal), then run:</p>
+          <div className="space-y-2">
+            <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>node -v</code></pre>
+            <p className="text-gray-700">Expected output example: <code className="bg-gray-100 px-1 py-0.5 rounded">v20.x.x</code></p>
+            <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>npm -v</code></pre>
+            <p className="text-gray-700">Expected output example: <code className="bg-gray-100 px-1 py-0.5 rounded">10.x.x</code></p>
+            <p className="text-gray-700">This confirms both Node.js and npm are installed successfully.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+    // Intro React lessons
+    if (slug === 'intro-react') {
+      switch (currentTopic) {
+        case 0:
+          return (
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold">📘 Lesson Tab — React Introduction & Why React</h2>
+              <div>
+                <h3 className="text-base font-semibold">What is React?</h3>
+                <p className="text-gray-700">React is a JavaScript library developed by Facebook (Meta) for building modern, fast, and dynamic user interfaces — especially Single Page Applications (SPAs).</p>
+                <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                  <li>Build UI using components</li>
+                  <li>Manage data through state</li>
+                  <li>Update the screen efficiently without reloading pages</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-base font-semibold">Why React? Key Reasons</h3>
+                <ul className="list-disc pl-5 space-y-2 text-gray-700">
+                  <li><strong>Component-Based Architecture</strong> — Breaks UI into reusable pieces; modular, clean, and scalable.</li>
+                  <li><strong>Virtual DOM (Speed & Performance)</strong> — React uses a lightweight copy of the real DOM and updates only what changes → faster rendering.</li>
+                  <li><strong>Declarative UI</strong> — You tell React what the UI should look like; React updates the UI when the data (state) changes.</li>
+                  <li><strong>Huge Community & Ecosystem</strong> — Libraries, tools, tutorials, and jobs. Used by Meta, Netflix, Uber, Airbnb, etc.</li>
+                  <li><strong>Reusable & Maintainable Code</strong> — Write a component once, reuse it many times. Reduces bugs and speeds up development.</li>
+                  <li><strong>Strong Industry Adoption</strong> — One of the most demanded frontend technologies; high‑paying and beginner‑friendly.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-base font-semibold">Where React Is Commonly Used</h3>
+                <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                  <li>Dashboards</li>
+                  <li>E‑commerce websites</li>
+                  <li>Social media apps</li>
+                  <li>Real‑time apps (chat apps)</li>
+                  <li>Mobile apps (React Native)</li>
+                  <li>Complex UIs needing speed & interactivity</li>
+                </ul>
+              </div>
+            </div>
+          );
+        case 1:
+          return (
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold">How to Install Node.js</h2>
+              <p className="text-gray-700">Node.js provides the JavaScript runtime and npm packages required for React tooling.</p>
+              <ol className="list-decimal pl-5 space-y-2 text-gray-700">
+                <li>
+                  Download the LTS version from <a className="text-blue-700 underline" href="https://nodejs.org" target="_blank" rel="noreferrer">https://nodejs.org</a> (recommended).
+                </li>
+                <li>Run installer → Next → Accept Terms → Next → keep defaults → Install.</li>
+                <li>
+                  Verify installation in Terminal / CMD / PowerShell:
+                  <pre className="rounded bg-gray-900 text-gray-100 p-4 overflow-auto text-sm">{`node -v\nnpm -v`}</pre>
+                  <p className="text-gray-700">You should see versions like <code>v20.x.x</code> and <code>10.x.x</code>.</p>
+                </li>
+              </ol>
+            </div>
+          );
+        case 2:
+          return (
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold">Create a React Project — CRA vs Vite</h2>
+              <div>
+                <h3 className="text-base font-semibold">Method 1: Create React App (CRA)</h3>
+                <pre className="rounded bg-gray-900 text-gray-100 p-4 overflow-auto text-sm">{`npx create-react-app my-app\ncd my-app\nnpm start`}</pre>
+                <p className="text-gray-700">Runs at <code>http://localhost:3000</code>.</p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold">Method 2: Vite (Recommended — Faster)</h3>
+                <pre className="rounded bg-gray-900 text-gray-100 p-4 overflow-auto text-sm">{`npm create vite@latest my-app --template react\ncd my-app\nnpm install\nnpm run dev`}</pre>
+                <p className="text-gray-700">Runs at <code>http://localhost:5173</code>.</p>
+              </div>
+              <p className="text-gray-700">Choose Vite for speed and modern tooling; CRA is familiar but slower.</p>
+            </div>
+          );
+        case 3:
+          return (
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold">React Project File Structure (Explained)</h2>
+              <pre className="rounded bg-gray-900 text-gray-100 p-4 overflow-auto text-sm">{`my-app/\n│\n├── node_modules/          → All installed packages\n├── public/                → Static files (images, favicon, index.html)\n│    └── index.html\n│\n├── src/                   → Main source code\n│    ├── App.js            → Main React component\n│    ├── App.css           → Styles for App component\n│    ├── index.js          → Entry point that renders <App />\n│    ├── index.css         → Global styles\n│    └── assets/           → Images, icons, etc. (optional)\n│\n├── package.json           → Project info + dependencies\n├── package-lock.json      → Exact versions of installed packages\n├── .gitignore             → Files to ignore in Git\n└── README.md              → Project documentation`}</pre>
+              <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                <li><strong>public/index.html</strong> — HTML template where React mounts.</li>
+                <li><strong>src/index.js</strong> — Entry point that renders <code>&lt;App /&gt;</code>.</li>
+                <li><strong>src/App.js</strong> — Main component shown on screen.</li>
+                <li><strong>package.json</strong> — scripts and dependencies.</li>
+              </ul>
+            </div>
+          );
+        case 4:
+          return (
+            <div className="space-y-6">
+<h2 className="text-xl font-semibold">Official Documentation and Learning Resources</h2>
+
+<div className="space-y-4 leading-relaxed text-gray-800">
+
+  <p>
+    Learning React becomes much easier when you know where to find trusted, official, and beginner-friendly resources.
+    This section covers the best official websites, documentation, tools, and recommended learning platforms.
+  </p>
+
+  <h3 className="text-lg font-semibold">1. Official React Documentation</h3>
+  <p>
+    React Official Website is the main source for learning React, maintained by Meta.
+  </p>
+  <p>
+    It includes beginner tutorials, hooks explanation, component patterns, interactive examples, and advanced guides.
+    This is the most accurate place to learn React.
+  </p>
+  <a href="https://react.dev/" target="_blank" rel="noreferrer" className="text-blue-700 underline">
+    React Official Documentation
+  </a>
+
+  <h3 className="text-lg font-semibold">2. React API References (Important)</h3>
+  <p>
+    Hooks Reference includes official documentation for useState, useEffect, useContext, useRef, and more.
+    React DOM Reference explains rendering root elements.
+  </p>
+  <a href="https://react.dev/reference" target="_blank" rel="noreferrer" className="text-blue-700 underline">
+    React API Reference
+  </a>
+
+  <h3 className="text-lg font-semibold">3. Node.js Official Documentation</h3>
+  <p>
+    Node.js is required for running React. Its documentation contains installation guides, npm explanation,
+    package management, and asynchronous programming concepts.
+  </p>
+  <a href="https://nodejs.org/en/learn" target="_blank" rel="noreferrer" className="text-blue-700 underline">
+    Node.js Documentation
+  </a>
+
+  <h3 className="text-lg font-semibold">4. Vite Official Documentation</h3>
+  <p>
+    If you create React apps using Vite, this documentation is essential. It includes Vite features,
+    project creation steps, environment variables, and plugins.
+  </p>
+  <a href="https://vitejs.dev/guide/" target="_blank" rel="noreferrer" className="text-blue-700 underline">
+    Vite Documentation
+  </a>
+
+  <h3 className="text-lg font-semibold">5. NPM (Node Package Manager) Documentation</h3>
+  <p>
+    React uses npm to install libraries. Learn npm commands, package.json, and dependency handling.
+  </p>
+  <a href="https://docs.npmjs.com/" target="_blank" rel="noreferrer" className="text-blue-700 underline">
+    NPM Documentation
+  </a>
+
+  <h3 className="text-lg font-semibold">6. Free Learning Resources</h3>
+  <p>
+    React Tutorial by FreeCodeCamp and various React crash courses on YouTube are highly recommended.
+    Search for React Crash Course videos by Net Ninja, Traversy Media, and Codevolution.
+  </p>
+
+  <h3 className="text-lg font-semibold">7. Useful Tools for React Development</h3>
+  <p>
+    CodeSandbox and StackBlitz are excellent online editors for React and Vite.
+    ESLint rules and Prettier help maintain clean and consistent code formatting.
+  </p>
+
+  <h3 className="text-lg font-semibold">Which Resources Should Beginners Use First?</h3>
+  <p>Start with the React Official Docs.</p>
+  <p>Use Vite documentation if you are building React apps with Vite.</p>
+  <p>Practice with FreeCodeCamp React exercises.</p>
+  <p>Build simple projects to gain hands-on experience.</p>
+  <p>Learn hooks in depth.</p>
+  <p>Explore advanced patterns once comfortable.</p>
+
+</div>
+
+            </div>
+          );
+        default:
+          return <p className="text-gray-700">Select a topic to view content.</p>;
+      }
+    }
+
     // Module 1 lessons (HTML/CSS/Responsive)
     if (slug === 'module-1') {
       switch (currentTopic) {
@@ -4056,6 +4942,232 @@ urlpatterns = [
   };
 
   const getSyntaxContent = () => {
+  // Intro React — Topic 5: Important Commands & References
+  if (slug === 'intro-react' && currentTopic === 4) {
+    return (
+      <div className="space-y-6">
+        <h3 className="text-base font-semibold">🧩 Syntax Tab — Important Commands & References</h3>
+        <div>
+          <p className="font-medium">Check React version</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`npm list react`}</code></pre>
+        </div>
+        <div>
+          <p className="font-medium">Check React DOM version</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`npm list react-dom`}</code></pre>
+        </div>
+        <div>
+          <p className="font-medium">Install a package from npm</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`npm install package-name`}</code></pre>
+        </div>
+        <div>
+          <p className="font-medium">Open documentation (links)</p>
+          <ul className="list-disc pl-5 text-blue-600">
+            <li><a href="https://react.dev/reference/react" target="_blank" rel="noreferrer">React Hooks Syntax Link</a></li>
+            <li><a href="https://nodejs.org/en/docs" target="_blank" rel="noreferrer">Node.js Docs Link</a></li>
+          </ul>
+        </div>
+        <div>
+          <p className="font-medium">Vite Create Command</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`npm create vite@latest my-app --template react`}</code></pre>
+        </div>
+        <div>
+          <p className="font-medium">CRA Create Command</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`npx create-react-app my-app`}</code></pre>
+        </div>
+      </div>
+    );
+  }
+
+  // Intro React — Topic 2: CRA & Vite Commands
+  if (slug === 'intro-react' && currentTopic === 2) {
+    return (
+      <div className="space-y-6">
+        <h3 className="text-base font-semibold">🧩 Syntax Tab — Commands for CRA & Vite</h3>
+
+        <div>
+          <p className="font-medium">🚀 Create React App Commands</p>
+          <p className="text-gray-700">Create a project:</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`npx create-react-app my-app`}</code></pre>
+          <p className="text-gray-700">Run the project:</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`cd my-app\nnpm start`}</code></pre>
+          <p className="text-gray-700">Build for production:</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`npm run build`}</code></pre>
+        </div>
+
+        <div>
+          <p className="font-medium">⚡ Vite Commands</p>
+          <p className="text-gray-700">Create a project:</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`npm create vite@latest my-app --template react`}</code></pre>
+          <p className="text-gray-700">Install dependencies:</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`cd my-app\nnpm install`}</code></pre>
+          <p className="text-gray-700">Run the project:</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`npm run dev`}</code></pre>
+          <p className="text-gray-700">Build for production:</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`npm run build`}</code></pre>
+        </div>
+      </div>
+    );
+  }
+
+  // Intro React — Topic 3: Common Project Structure Code Snippets
+  if (slug === 'intro-react' && currentTopic === 3) {
+    return (
+      <div className="space-y-4">
+        <h3 className="text-base font-semibold">🧩 Syntax Tab — Common Project Structure Code Snippets</h3>
+
+        <div>
+          <p className="font-medium">1. Rendering App Component</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`import React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport App from './App.jsx';\n\nReactDOM.createRoot(document.getElementById('root')).render(<App />);`}</code></pre>
+        </div>
+
+        <div>
+          <p className="font-medium">2. Basic App.jsx Structure</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`function App() {\n  return (\n    <div>\n      <h1>React Project Structure</h1>\n      <p>This shows the main App component.</p>\n    </div>\n  );\n}\n\nexport default App;`}</code></pre>
+        </div>
+
+        <div>
+          <p className="font-medium">3. Example Component in /components/</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`// src/components/Header.jsx\nfunction Header() {\n  return <h2>This is the Header Component</h2>;\n}\n\nexport default Header;`}</code></pre>
+        </div>
+
+        <div>
+          <p className="font-medium">4. Importing Component in App</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`import Header from "./components/Header";\n\nfunction App() {\n  return (\n    <>\n      <Header />\n      <p>Welcome to my React App!</p>\n    </>\n  );\n}\n\nexport default App;`}</code></pre>
+        </div>
+
+        <div>
+          <p className="font-medium">5. Using Assets Folder</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`import logo from "./assets/react-logo.png";\n\nfunction App() {\n  return <img src={logo} alt="React Logo" />;\n}\n\nexport default App;`}</code></pre>
+        </div>
+      </div>
+    );
+  }
+
+  // Intro React — Topic 1: Node.js Commands & Essential Syntax
+  if (slug === 'intro-react' && currentTopic === 1) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold">🧩 Syntax Tab — Commands & Essential Syntax</h2>
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">Check Node.js version</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>node -v</code></pre>
+        </div>
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">Check npm version</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>npm -v</code></pre>
+        </div>
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">Update npm (optional)</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>npm install -g npm</code></pre>
+        </div>
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">Run a JavaScript file using Node</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>node filename.js</code></pre>
+        </div>
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">Locate Node.js</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`where node    # Windows
+which node    # macOS / Linux`}</code></pre>
+        </div>
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">Check npm global packages</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>npm list -g --depth=0</code></pre>
+        </div>
+      </div>
+    );
+  }
+
+  // Intro React — Topic 0: Basic React Syntax Concepts
+  if (slug === 'intro-react' && currentTopic === 0) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold">🧩 Syntax Tab — Basic React Syntax Concepts</h2>
+        <p className="text-gray-700">Core syntax pieces a beginner should know while learning React:</p>
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">1. React Component</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`function Welcome() {
+  return <h1>Hello React!</h1>;
+}`}</code></pre>
+        </div>
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">2. JSX (JavaScript + HTML)</h3>
+          <p className="text-gray-700">JSX allows writing HTML inside JavaScript.</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`const element = <h2>JSX looks like HTML!</h2>;`}</code></pre>
+        </div>
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">3. Rendering a Component</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);`}</code></pre>
+        </div>
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">4. Props (Passing Data)</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`function Greeting(props) {
+  return <p>Hello {props.name}</p>;
+}`}</code></pre>
+        </div>
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">5. State (Dynamic Data)</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`import { useState } from "react";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+}`}</code></pre>
+        </div>
+      </div>
+    );
+  }
+  // Intro React — Topic 0: Basic React Syntax Concepts
+  if (slug === 'intro-react' && currentTopic === 0) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold">🧩 Syntax Tab — Basic React Syntax Concepts</h2>
+        <p className="text-gray-700">Core syntax pieces a beginner should know while learning React:</p>
+
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">1. React Component</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`function Welcome() {
+  return <h1>Hello React!</h1>;
+}`}</code></pre>
+        </div>
+
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">2. JSX (JavaScript + HTML)</h3>
+          <p className="text-gray-700">JSX allows writing HTML inside JavaScript.</p>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`const element = <h2>JSX looks like HTML!</h2>;`}</code></pre>
+        </div>
+
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">3. Rendering a Component</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);`}</code></pre>
+        </div>
+
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">4. Props (Passing Data)</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`function Greeting(props) {
+  return <p>Hello {props.name}</p>;
+}`}</code></pre>
+        </div>
+
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold">5. State (Dynamic Data)</h3>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto"><code>{`import { useState } from "react";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+}`}</code></pre>
+        </div>
+      </div>
+    );
+  }
     // Module 1 syntax samples
     if (slug === 'module-1' && currentTopic === 0) {
       return (
@@ -5447,19 +6559,19 @@ Use TailwindCSS and ensure it’s responsive. Only show me the React component c
   };
 
   return (
-    <main className="min-h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+    <main className="min-h-screen bg-gradient-to-b from-white via-blue-50/40 to-transparent text-gray-900">
       <section className="w-full max-w-none mx-auto px-0 md:px-0 pt-16 pb-16">
         <div className="flex items-center justify-between mb-6 px-4 md:px-6">
           <button
             onClick={() => navigate('/student-portal')}
-            className="px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+            className="px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
           >
             Back to Portal
           </button>
           <button
             disabled={isLastModule}
             onClick={() => navigate(`/frontend-development-intermediate/module/${nextSlug}`)}
-            className={`px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 ${
+            className={`px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 ${
               isLastModule ? 'opacity-60 cursor-not-allowed' : ''
             }`}
           >
@@ -5468,7 +6580,7 @@ Use TailwindCSS and ensure it’s responsive. Only show me the React component c
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
-          <aside className="md:sticky md:top-6 self-start border-y border-r border-gray-200 dark:border-gray-700 rounded-none bg-white dark:bg-gray-800 p-4 md:pl-4">
+          <aside className="md:sticky md:top-6 self-start border-y border-r border-gray-200 rounded-none bg-white p-4 md:pl-4">
             <h3 className="text-sm font-semibold mb-3">{title} — Topics</h3>
             <nav aria-label="Module topics">
               <ul className="space-y-2">
@@ -5478,8 +6590,8 @@ Use TailwindCSS and ensure it’s responsive. Only show me the React component c
                       onClick={() => setCurrentTopic(i)}
                       className={`w-full text-left text-sm px-3 py-2 rounded transition ${
                         currentTopic === i
-                          ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200'
-                          : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'hover:bg-gray-100'
                       }`}
                     >
                       {i + 1}. {t}
@@ -5495,10 +6607,10 @@ Use TailwindCSS and ensure it’s responsive. Only show me the React component c
 
           <div className="px-4 md:px-6">
             <h1 className="text-3xl md:text-4xl font-bold">{title}</h1>
-            <p className="mt-3 text-gray-700 dark:text-gray-300">Each tab has clear explanations and topic-wise code examples.</p>
+            <p className="mt-3 text-gray-700">Each tab has clear explanations and topic-wise code examples.</p>
 
             <div className="mt-8">
-              <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex gap-2 border-b border-gray-200">
                 {[
                   { id: 'lesson', label: 'Lesson' },
                   { id: 'syntax', label: 'Syntax' },
@@ -5509,8 +6621,8 @@ Use TailwindCSS and ensure it’s responsive. Only show me the React component c
                     onClick={() => setTab(t.id)}
                     className={`px-4 py-2 rounded-t-lg border border-b-0 transition text-sm md:text-base ${
                       tab === t.id
-                        ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 font-semibold'
-                        : 'bg-gray-50 dark:bg-gray-900 border-transparent hover:bg-gray-100 dark:hover:bg-gray-800'
+                        ? 'bg-white border-gray-200 font-semibold'
+                        : 'bg-gray-50 border-transparent hover:bg-gray-100'
                     }`}
                   >
                     {t.label}
@@ -5518,18 +6630,18 @@ Use TailwindCSS and ensure it’s responsive. Only show me the React component c
                 ))}
               </div>
 
-              <div className="border border-gray-200 dark:border-gray-700 rounded-b-lg p-6 bg-white dark:bg-gray-800 shadow-sm">
+              <div className="border border-gray-200 rounded-b-lg p-6 bg-white shadow-sm">
                 {tab === 'lesson' && getLessonContent()}
                 {tab === 'syntax' && getSyntaxContent()}
                 {tab === 'live' && (
                   <div className="grid grid-cols-1 xl:grid-cols-[200px_1.2fr_1fr] lg:grid-cols-[200px_1fr] gap-6">
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
+                    <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
                       <h3 className="text-sm font-semibold mb-2">Files</h3>
                       <ul className="text-sm space-y-1">
                         {Object.keys(files).map((path) => (
                           <li key={path}>
                             <button
-                              className={`w-full text-left px-2 py-1 rounded ${selectedFile===path?'bg-white dark:bg-gray-800':''}`}
+                              className={`w-full text-left px-2 py-1 rounded ${selectedFile===path?'bg-white':''}`}
                               onClick={() => setSelectedFile(path)}
                             >
                               {path}
@@ -5544,7 +6656,7 @@ Use TailwindCSS and ensure it’s responsive. Only show me the React component c
                       <textarea
                         value={files[selectedFile]}
                         onChange={(e) => setFiles(prev => ({ ...prev, [selectedFile]: e.target.value }))}
-                        className="mt-2 w-full h-[500px] rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 font-mono text-sm"
+                        className="mt-2 w-full h-[500px] rounded border border-gray-300 bg-white p-3 font-mono text-sm"
                       />
                     </div>
 
@@ -5554,7 +6666,7 @@ Use TailwindCSS and ensure it’s responsive. Only show me the React component c
                         title="Live preview"
                         sandbox="allow-scripts allow-same-origin"
                         srcDoc={srcDoc}
-                        className="w-full h-[700px] rounded border border-gray-300 dark:border-gray-700 bg-white"
+                        className="w-full h-[700px] rounded border border-gray-300 bg-white"
                       ></iframe>
                     </div>
                   </div>

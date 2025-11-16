@@ -13,6 +13,7 @@ import {
   TrophyIcon
 } from '@heroicons/react/24/outline';
 import MagnetLines from './MagnetLines';
+import { CONTENT_REGISTRY } from '../content';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
@@ -118,9 +119,17 @@ const AssignmentPage = () => {
         }
         
         if (result.success) {
-          setAssignment(result.data);
-          if (result.data.topics && result.data.topics.length > 0) {
-            setSelectedTopic(result.data.topics[0].topicId);
+          // Override with local study content when available
+          const local = CONTENT_REGISTRY[effectiveAssignmentId as keyof typeof CONTENT_REGISTRY];
+          const merged = { ...result.data };
+          if (local) {
+            merged.title = local.title;
+            merged.topics = local.topics as any;
+          }
+          setAssignment(merged);
+          const firstTopicId = (merged.topics && merged.topics[0]?.topicId) || result.data.topics?.[0]?.topicId;
+          if (firstTopicId) {
+            setSelectedTopic(firstTopicId);
           }
         } else {
           throw new Error(result.message || 'Assignment not found');

@@ -6615,6 +6615,8 @@ Use TailwindCSS and ensure it’s responsive. Only show me the React component c
                   { id: 'lesson', label: 'Lesson' },
                   { id: 'syntax', label: 'Syntax' },
                   { id: 'live', label: 'Live Code' },
+                  { id: 'assignments', label: 'Assignments' },
+                  { id: 'mcqs', label: 'MCQs' },
                 ].map((t) => (
                   <button
                     key={t.id}
@@ -6633,6 +6635,120 @@ Use TailwindCSS and ensure it’s responsive. Only show me the React component c
               <div className="border border-gray-200 rounded-b-lg p-6 bg-white shadow-sm">
                 {tab === 'lesson' && getLessonContent()}
                 {tab === 'syntax' && getSyntaxContent()}
+                {tab === 'assignments' && (
+                  <div className="space-y-8 text-sm">
+                    <h2 className="text-xl font-bold">Intro React — Assignments</h2>
+                    <p className="text-gray-700">Each assignment follows a consistent, in‑depth structure to make expectations clear and actionable. Read through the Objective, Why it matters, Requirements, Steps, Deliverables, Rubric, Pitfalls, and Extensions.</p>
+
+                    <section className="space-y-3">
+                      <h3 className="text-lg font-semibold">Assignment 1 — React Introduction & Why React</h3>
+                      <div className="space-y-2">
+                        <p><strong>Objective:</strong> Articulate what React solves and where it shines. Build a tiny component to experience the declarative approach.</p>
+                        <p><strong>Why it matters:</strong> Understanding React’s core value (declarative UI, componentization, Virtual DOM) sets the foundation for everything else you’ll learn.</p>
+                        <p><strong>Requirements:</strong> A short essay (250–400 words), one component named <code>HelloReact</code>, and a brief comparison of declarative vs imperative UIs.</p>
+                        <ol className="list-decimal pl-5 space-y-1">
+                          <li>Write a concise essay explaining: the problem React solves, the role of Virtual DOM, and component-based architecture benefits.</li>
+                          <li>Create <code>HelloReact</code> that renders a friendly message, your name, and the current date using JavaScript APIs.</li>
+                          <li>Compare declarative and imperative DOM manipulation with 2–3 examples; highlight how React removes manual DOM syncing.</li>
+                        </ol>
+                        <p><strong>Deliverables:</strong> Essay document (Markdown preferred), <code>HelloReact.jsx</code>, and a short comparison note.</p>
+                        <p><strong>Rubric:</strong> Clarity (30%), Technical accuracy (40%), Examples (20%), Presentation (10%).</p>
+                        <p><strong>Common pitfalls:</strong> Oversimplifying declarative UI, ignoring diffing, or mixing React with jQuery DOM edits.</p>
+                        <p><strong>Extensions:</strong> Add a prop to <code>HelloReact</code> for customizing the greeting; render conditional content.</p>
+                      </div>
+                    </section>
+
+                    <section className="space-y-3">
+                      <h3 className="text-lg font-semibold">Assignment 2 — Installing Node.js and Verifying</h3>
+                      <div className="space-y-2">
+                        <p><strong>Objective:</strong> Install Node.js (LTS) correctly and demonstrate environment readiness for React toolchains.</p>
+                        <p><strong>Why it matters:</strong> Tooling (npm, Vite) depends on Node; proper setup reduces friction across the course.</p>
+                        <p><strong>Requirements:</strong> Screenshots and logs for <code>node -v</code> and <code>npm -v</code>, plus a small script that prints versions.</p>
+                        <ol className="list-decimal pl-5 space-y-1">
+                          <li>Install the latest LTS from <code>nodejs.org</code> and verify PATH configuration.</li>
+                          <li>Run <code>node -v</code> and <code>npm -v</code>; capture terminal screenshots.</li>
+                          <li>Create <code>version-check.js</code> that logs Node and npm versions, and run it via <code>node version-check.js</code>.</li>
+                        </ol>
+                        <p><strong>Deliverables:</strong> Two screenshots, <code>version-check.js</code>, and the console output pasted in a Markdown file.</p>
+                        <p><strong>Rubric:</strong> Correct install (40%), Proofs/screenshots (30%), Script quality (20%), Documentation (10%).</p>
+                        <p><strong>Common pitfalls:</strong> Multiple Node installations or stale PATH; fix by re-opening terminals or using <code>nvm</code>.</p>
+                        <p><strong>Extensions:</strong> Install <code>nvm</code> and switch between LTS and latest to understand version management.</p>
+                      </div>
+                    </section>
+
+                    <section className="space-y-3">
+                      <h3 className="text-lg font-semibold">Assignment 3 — Create React App vs Vite</h3>
+                      <div className="space-y-2">
+                        <p><strong>Objective:</strong> Spin up a Vite React project and document differences vs CRA (startup time, HMR, tooling).</p>
+                        <p><strong>Why it matters:</strong> Modern React development favors fast iteration; Vite’s architecture enables a better DX.</p>
+                        <p><strong>Requirements:</strong> A working Vite app, measured cold-start time, and a comparative write-up.</p>
+                        <ol className="list-decimal pl-5 space-y-1">
+                          <li>Initialize with <code>npm create vite@latest</code> and choose React + JavaScript template; run <code>npm install</code> and <code>npm run dev</code>.</li>
+                          <li>Measure cold-start time and note HMR responsiveness while editing a component.</li>
+                          <li>Write a comparison table: bundler differences (webpack vs esbuild/rollup), ESM support, configuration ergonomics.</li>
+                        </ol>
+                        <p><strong>Deliverables:</strong> Repo link, one screenshot of the app running, and a Markdown comparison (200–300 words + table).</p>
+                        <p><strong>Rubric:</strong> Working app (40%), Analysis depth (40%), Evidence/screenshots (20%).</p>
+                        <p><strong>Common pitfalls:</strong> Confusing build vs dev server; ensure you compare <em>dev</em> experiences primarily.</p>
+                        <p><strong>Extensions:</strong> Add an env var via <code>import.meta.env</code> and explain ESM benefits.</p>
+                      </div>
+                    </section>
+
+                    <section className="space-y-3">
+                      <h3 className="text-lg font-semibold">Assignment 4 — React Project Structure Overview</h3>
+                      <div className="space-y-2">
+                        <p><strong>Objective:</strong> Organize a clean folder structure and build small reusable components to experience composition.</p>
+                        <p><strong>Why it matters:</strong> Structure impacts maintainability and team onboarding; consistent conventions reduce confusion.</p>
+                        <p><strong>Requirements:</strong> Create <code>src/components</code>, <code>src/pages</code>, <code>src/hooks</code>, and <code>src/assets</code>; build <code>Header</code> and <code>Footer</code> components.</p>
+                        <ol className="list-decimal pl-5 space-y-1">
+                          <li>Scaffold folders and add an <code>App</code> page that renders <code>Header</code> and <code>Footer</code>.</li>
+                          <li>Document the role of the entry file (<code>main.jsx</code> in Vite) and the DOM root id.</li>
+                          <li>Extract one UI piece into a separate component and pass props to demonstrate reuse.</li>
+                        </ol>
+                        <p><strong>Deliverables:</strong> Repo link, screenshots of the folder tree, and a 200–300 word structure rationale.</p>
+                        <p><strong>Rubric:</strong> Structure quality (40%), Reusability (30%), Documentation (20%), Cleanliness (10%).</p>
+                        <p><strong>Common pitfalls:</strong> Over-nesting folders or mixing page-level and shared components.</p>
+                        <p><strong>Extensions:</strong> Add a <code>useToggle</code> hook in <code>src/hooks</code> and use it in a component.</p>
+                      </div>
+                    </section>
+
+                    <section className="space-y-3">
+                      <h3 className="text-lg font-semibold">Assignment 5 — Official Docs & Resources</h3>
+                      <div className="space-y-2">
+                        <p><strong>Objective:</strong> Explore official docs and integrate basic quality tools (Prettier, ESLint) into your project.</p>
+                        <p><strong>Why it matters:</strong> Docs-first learning accelerates mastery; formatting and linting establish professional habits early.</p>
+                        <p><strong>Requirements:</strong> Summarize 3 takeaways from <code>react.dev/learn</code>, configure Prettier + ESLint, and implement a <code>useState</code> counter.</p>
+                        <ol className="list-decimal pl-5 space-y-1">
+                          <li>Read and summarize core React concepts (rendering, state, props); cite specific pages.</li>
+                          <li>Set up Prettier and ESLint; run <code>npm run lint</code> and capture output.</li>
+                          <li>Build a small counter with increment/decrement; commit with a clear message.</li>
+                        </ol>
+                        <p><strong>Deliverables:</strong> Summary (200–300 words), tooling config files, screenshot of lint output, and the counter component.</p>
+                        <p><strong>Rubric:</strong> Insight depth (30%), Tooling setup correctness (40%), Working example (20%), Presentation (10%).</p>
+                        <p><strong>Common pitfalls:</strong> Using conflicting ESLint configs; verify parser options and plugin versions.</p>
+                        <p><strong>Extensions:</strong> Add Prettier pre-commit via <code>lint-staged</code> and <code>husky</code>.</p>
+                      </div>
+                    </section>
+
+                    <section className="space-y-3">
+                      <h3 className="text-lg font-semibold">Assignment 6 — JSX & Props (Bonus)</h3>
+                      <div className="space-y-2">
+                        <p><strong>Objective:</strong> Practice rendering lists, passing props, and conditional UI using JSX and fragments.</p>
+                        <p><strong>Why it matters:</strong> Props and JSX are the building blocks of data‑driven UIs; getting them right unlocks composition.</p>
+                        <p><strong>Requirements:</strong> A <code>Greeting</code> component, a list render with keys, and a fragment example.</p>
+                        <ol className="list-decimal pl-5 space-y-1">
+                          <li>Implement <code>Greeting</code> accepting <code>name</code> and <code>isMember</code>; show conditional messaging.</li>
+                          <li>Render an array of names with correct unique <code>key</code> props; demonstrate an incorrect example and explain the fix.</li>
+                          <li>Group UI pieces using fragments (<code>&lt;&gt;...&lt;/&gt;</code>) and describe when they avoid unnecessary wrappers.</li>
+                        </ol>
+                        <p><strong>Deliverables:</strong> Source files, screenshots of rendered UI, and a 150–250 word explanation of keys and fragments.</p>
+                        <p><strong>Rubric:</strong> Correctness (40%), Code quality (30%), Explanation clarity (20%), Screenshots (10%).</p>
+                        <p><strong>Common pitfalls:</strong> Using array index as key in dynamic lists; prefer stable ids.</p>
+                        <p><strong>Extensions:</strong> Add prop‑types or TypeScript for props and show a simple conditional render pattern.</p>
+                      </div>
+                    </section>
+                  </div>
+                )}
                 {tab === 'live' && (
                   <div className="grid grid-cols-1 xl:grid-cols-[200px_1.2fr_1fr] lg:grid-cols-[200px_1fr] gap-6">
                     <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">

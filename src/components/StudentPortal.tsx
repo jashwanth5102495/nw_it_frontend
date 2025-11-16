@@ -1802,7 +1802,7 @@ const StudentPortal: React.FC = () => {
     // Frontend Development - Intermediate Course Assignments (Course ID: 'frontend-intermediate')
     {
       id: 'frontend-intermediate-1',
-      title: 'Modern JavaScript Patterns',
+      title: 'Assignment 1: Foundations of Modern Web Development',
       courseId: 'frontend-intermediate',
       courseName: 'Frontend Development - Intermediate',
       dueDate: '2024-05-01',
@@ -1811,7 +1811,7 @@ const StudentPortal: React.FC = () => {
     },
     {
       id: 'frontend-intermediate-2',
-      title: 'Advanced CSS and Styling',
+      title: 'Assignment 2: Responsive UI Engineering with HTML5, CSS3 & Tailwind',
       courseId: 'frontend-intermediate',
       courseName: 'Frontend Development - Intermediate',
       dueDate: '2024-05-08',
@@ -1820,7 +1820,7 @@ const StudentPortal: React.FC = () => {
     },
     {
       id: 'frontend-intermediate-3',
-      title: 'TypeScript Fundamentals',
+      title: 'Assignment 3: JavaScript Mastery & Core React Concepts',
       courseId: 'frontend-intermediate',
       courseName: 'Frontend Development - Intermediate',
       dueDate: '2024-05-15',
@@ -1829,7 +1829,7 @@ const StudentPortal: React.FC = () => {
     },
     {
       id: 'frontend-intermediate-4',
-      title: 'React Essentials',
+      title: 'Assignment 4: Backend Engineering with Django & MongoDB',
       courseId: 'frontend-intermediate',
       courseName: 'Frontend Development - Intermediate',
       dueDate: '2024-05-22',
@@ -1838,7 +1838,7 @@ const StudentPortal: React.FC = () => {
     },
     {
       id: 'frontend-intermediate-5',
-      title: 'Frontend Tooling and Build Systems',
+      title: 'Assignment 5: Full-Stack Integration — React Frontend + Django API',
       courseId: 'frontend-intermediate',
       courseName: 'Frontend Development - Intermediate',
       dueDate: '2024-05-29',
@@ -1847,7 +1847,7 @@ const StudentPortal: React.FC = () => {
     },
     {
       id: 'frontend-intermediate-6',
-      title: 'State Management and Data Fetching',
+      title: 'Assignment 6: Deployment, Security & AI-Enhanced Development',
       courseId: 'frontend-intermediate',
       courseName: 'Frontend Development - Intermediate',
       dueDate: '2024-06-05',
@@ -2680,6 +2680,10 @@ const StudentPortal: React.FC = () => {
                 <button
                   key={assignment.id}
                   onClick={() => {
+                    if (assignment.courseId === 'frontend-intermediate') {
+                      alert('Frontend Development - Intermediate assignments are coming soon.');
+                      return;
+                    }
                     // Navigate using the actual assignment ID without remapping
                     navigate(`/assignment/${assignment.id}`);
                   }}
@@ -2711,7 +2715,7 @@ const StudentPortal: React.FC = () => {
                       <BookOpenIcon className="w-4 h-4" />
                       <span>Study & Test</span>
                     </div>
-                    <div className="text-blue-400 text-sm">Click to start →</div>
+                    <div className="text-blue-400 text-sm">{assignment.courseId === 'frontend-intermediate' ? 'Coming soon' : 'Click to start →'}</div>
                   </div>
                 </button>
               ))}

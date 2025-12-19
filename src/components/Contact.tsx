@@ -118,12 +118,24 @@ const Contact = () => {
               <h3 className="text-xl font-bold text-white">Office</h3>
             </div>
             <p className="text-gray-300 mb-4">Visit our office for in-person meetings and consultations.</p>
-            <p className="text-purple-400">
-              Hyderabad, Telangana<br />
-              India<br />
-              Austin, Texas<br />
-              USA
-            </p>
+-            <p className="text-purple-400">
+-              <h4 className="text-white font-semibold">Office Address</h4>
+-              <p className="text-gray-400 text-sm">Bengaluru, Karnataka<br />
+-                India
+-              </p>
+-              Austin, Texas<br />
+-              USA
+-            </p>
++            <div className="space-y-2">
++              <div>
++                <p className="text-white font-semibold">India</p>
++                <p className="text-purple-400">Bengaluru, Karnataka</p>
++              </div>
++              <div>
++                <p className="text-white font-semibold">USA</p>
++                <p className="text-purple-400">Austin, Texas</p>
++              </div>
++            </div>
           </div>
         </div>
 

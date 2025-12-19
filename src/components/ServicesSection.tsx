@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CircularGallery from './CircularGallery';
 
 const ServicesSection = () => {
   const navigate = useNavigate();
   const [savedService, setSavedService] = useState<number | null>(null);
   const [currentServiceIndex, setCurrentServiceIndex] = useState(0);
-  const galleryRef = useRef<any>(null);
 
   const services = [
     {
@@ -59,26 +57,18 @@ const ServicesSection = () => {
     }
   ];
 
-  // Auto-scroll functionality - changed to 8 seconds
+  // Auto-advance service every 8 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      if (galleryRef.current) {
-        galleryRef.current.next();
-      }
-    }, 8000); // Change every 8 seconds
-
+      setCurrentServiceIndex((prev) => (prev + 1) % services.length);
+    }, 8000);
     return () => clearInterval(interval);
-  }, []);
-
-  // Handle service change
-  const handleServiceChange = (index: number) => {
-    setCurrentServiceIndex(index);
-  };
+  }, [services.length]);
 
   const currentService = services[currentServiceIndex];
 
   return (
-    <section className="relative min-h-screen bg-black overflow-hidden">
+    <section className="relative h-screen bg-black overflow-hidden">
       {/* Dynamic Background Image with Black Overlay */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000"
@@ -90,87 +80,61 @@ const ServicesSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/50"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-        <div className="absolute inset-0 bg-black/60"></div>
+        <div className="absolute inset-0 bg-black/40"></div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 min-h-screen flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="flex flex-col lg:flex-row items-start gap-12">
-            
-            {/* Left Content */}
-            <div className="text-white lg:w-1/2">
-              <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                <span className="text-white/90">You are on a mission to</span>
-                <br />
-                <span className="text-white">discover the world,</span>
-                <br />
-                <span className="text-white">have fun</span>
-              </h1>
-              
-              {/* Dynamic Service Description */}
-              <div className="mb-8">
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 transition-all duration-500">
-                  {currentService.text}
-                </h2>
-                <p className="text-xl text-white/80 max-w-lg leading-relaxed transition-all duration-500">
-                  {currentService.description}
-                </p>
-              </div>
-
-              <div className="flex items-center space-x-4 mb-12">
-                {/* Save Button */}
-                <button
-                  onClick={() => setSavedService(savedService === currentServiceIndex ? null : currentServiceIndex)}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-                    savedService === currentServiceIndex 
-                      ? 'bg-green-500 text-white' 
-                      : 'bg-white/20 text-white hover:bg-white/30'
-                  }`}
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
-                  </svg>
-                </button>
-
-
-              </div>
-
-              {/* Dynamic Counter */}
-              <div className="text-6xl font-bold text-white/60 transition-all duration-500">
-                {String(currentServiceIndex + 1).padStart(2, '0')}
-              </div>
+      {/* Overlay Content on Image */}
+      <div className="relative z-10 h-full">
+        <div className="absolute left-6 bottom-8 text-white max-w-xl bg-black/40 backdrop-blur-sm rounded-xl p-6">
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setSavedService(savedService === currentServiceIndex ? null : currentServiceIndex)}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                savedService === currentServiceIndex 
+                  ? 'bg-green-500 text-white' 
+                  : 'bg-white/20 text-white hover:bg-white/30'
+              }`}
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
+              </svg>
+            </button>
+  
+            <div className="text-4xl md:text-6xl font-bold text-white/80 transition-all duration-500">
+              {String(currentServiceIndex + 1).padStart(2, '0')}
             </div>
+          </div>
 
-            {/* Right Content - Circular Gallery */}
-            <div className="lg:w-1/2 flex justify-center relative">
-              <div style={{ height: '600px', position: 'relative', width: '100%' }}>
-                <CircularGallery 
-                  ref={galleryRef}
-                  items={services.map(s => ({ image: s.image, text: s.text }))}
-                  bend={3} 
-                  textColor="#ffffff" 
-                  borderRadius={0.05} 
-                  scrollEase={0.02}
-                  scrollSpeed={2}
-                  font="bold 30px Figtree"
-                  onServiceChange={handleServiceChange}
-                />
-              </div>
-            </div>
+          {/* Service Title & Description */}
+          <h2 className="mt-4 text-2xl md:text-4xl font-bold text-white">
+            {currentService.text}
+          </h2>
+          <p className="mt-3 text-base md:text-lg text-gray-200 leading-relaxed">
+            {currentService.description}
+          </p>
 
+          {/* Call to Actions */}
+          <div className="mt-6 flex gap-3">
+            <button
+              className="px-6 py-2 border-2 border-white text-white rounded-full hover:bg-white hover:text-black transition-all duration-300"
+              onClick={() => navigate('/projects')}
+            >
+              Explore Now
+            </button>
+            <button
+              className="px-6 py-2 bg-white text-black rounded-full hover:bg-white/90 transition-colors"
+              onClick={() => navigate('/contact')}
+            >
+              Contact Us
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Enhanced Bottom Fade-to-Black */}
-      <div className="absolute bottom-0 inset-x-0 h-48 bg-gradient-to-t from-black via-black/80 to-transparent z-20"></div>
-      
-      {/* Side Fade Effects */}
+      {/* Fade Overlays */}
+      <div className="absolute bottom-0 inset-x-0 h-48 bg-gradient-to-t from-black via-black/70 to-transparent z-20"></div>
       <div className="absolute left-0 inset-y-0 w-32 bg-gradient-to-r from-black/60 to-transparent z-20"></div>
       <div className="absolute right-0 inset-y-0 w-32 bg-gradient-to-l from-black/60 to-transparent z-20"></div>
-      
-      {/* Top Fade Effect */}
       <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-black/40 to-transparent z-20"></div>
     </section>
   );

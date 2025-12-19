@@ -6,13 +6,14 @@ import ClickSpark from './components/ClickSpark';
 import Hero from './components/Hero';
 import ServicesSection from './components/ServicesSection';
 import TradingSection from './components/TradingSection';
-import TechnologiesCarousel from './components/TechnologiesCarousel';
+
 import IntroductionPage from './pages/IntroductionPage.jsx';
 import ModuleComingSoon from './pages/ModuleComingSoon.jsx';
 import FrontendProjectPage from './components/FrontendProjectPage';
 import DevOpsBeginnerIntroductionPage from './pages/DevOpsBeginnerIntroductionPage.jsx'
 import ProjectsCatalog from './components/ProjectsCatalog';
 import ProjectEnrollment from './components/ProjectEnrollment';
+import ResumeUpload from './components/ResumeUpload';
 
 import Footer from './components/Footer';
 import About from './components/About';
@@ -33,8 +34,7 @@ import AssignmentPage from './components/AssignmentPage';
 import AIStudyMaterial from './components/AIStudyMaterial';
 import AIToolsProjectPage from './components/AIToolsProjectPage';
 import DevOpsProjectPage from './components/DevOpsProjectPage';
-import htmlpart1 from '../video-explanations/topics/html/htmlpart1.mp4';
-import htmlpart2 from '../video-explanations/topics/html/htmlpart2.mp4';
+
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import StudentSetup from './components/StudentSetup';
@@ -201,35 +201,6 @@ function AIStudyMaterialProtected() {
   );
 }
 
-// Unique per-student URL for Frontend Beginner: plays Introduction to HTML videos
-function IntroHtmlProtected() {
-  const content = (
-    <>
-      <Header />
-      <div className="min-h-screen bg-gradient-to-b from-sky-200 via-blue-50 to-white text-gray-900 pt-24 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-6">Introduction to HTML</h1>
-          <div className="space-y-10">
-            <div>
-              <h2 className="text-xl font-semibold mb-3">Part 1</h2>
-              <video className="w-full max-w-3xl rounded-lg border border-gray-200" controls src={htmlpart1}></video>
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold mb-3">Part 2</h2>
-              <video className="w-full max-w-3xl rounded-lg border border-gray-200" controls src={htmlpart2}></video>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-
-  return (
-    <ProtectedStudentCourseGate requiredCourseId="frontend-beginner">
-      {content}
-    </ProtectedStudentCourseGate>
-  );
-}
 
 function AppInner() {
   const location = useLocation();
@@ -255,8 +226,9 @@ function AppInner() {
                 <TradingSection />
               </section>
 
-              <section id="contact">
-                <TechnologiesCarousel />
+
+              <section id="internship">
+                <ResumeUpload />
               </section>
               <Footer />
             </>
@@ -286,9 +258,7 @@ function AppInner() {
           <Route path="/course-learning-devops-advanced/:courseId/:moduleId/:lessonId" element={<CourseLearningDevOpsAdvanced />} />
           <Route path="/course-learning-devops-advanced/*" element={<CourseLearningDevOpsAdvanced />} />
           <Route path="/ai-study-material" element={<AIStudyMaterialProtected />} />
-          {/* Unique, protected per-student URL for Frontend Beginner HTML intro */}
-          <Route path="/learn/:studentSlug/frontend-development-beginner" element={<IntroHtmlProtected />} />
-          
+
           {/* DevOps Beginner introduction and module routes */}
           <Route path="/devops-beginner" element={<><Header hideDock={true} /><DevOpsBeginnerIntroductionPage /></>} />
           <Route path="/devops-beginner/module/:slug" element={<><Header hideDock={true} /><ModuleComingSoon /></>} />

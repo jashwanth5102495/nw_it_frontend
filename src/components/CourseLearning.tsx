@@ -5,35 +5,37 @@ import Header from './Header';
 import VideoPlaceholder from './VideoPlaceholder';
 
 import { ArrowLeft, Play, Book, Code, CheckCircle, XCircle, Lightbulb, Clock, Award, Users, Star, Monitor, Send, Sun, Moon, RotateCcw, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react';
-import teacherSticker from '../../video-explanations/teacher.png';
+// Removed video-explanations imports; using placeholders to avoid build errors after deletion
+const teacherSticker = '';
 import MagnetLines from './MagnetLines';
 import StarBorder from './StarBorder';
 import ClickSpark from './ClickSpark';
-import htmlpart1 from '../../video-explanations/topics/html/htmlpart1.mp4';
-import htmlpart2 from '../../video-explanations/topics/html/htmlpart2.mp4';
-import htmlHeadings from '../../video-explanations/topics/html/HTML Headings (h1-h6).mp4';
-import htmlParagraphs from '../../video-explanations/topics/html/HTML Paragraphs and Text Formatting.mp4';
-import listsVideo from '../../video-explanations/topics/html/list.mp4';
-import linksVideo from '../../video-explanations/topics/html/links.mp4';
-import imagesVideo from '../../video-explanations/topics/html/images.mp4';
-import tablesVideo from '../../video-explanations/topics/html/tables.mp4';
-import formsVideo from '../../video-explanations/topics/html/forms.mp4';
-import cssWhatIs from '../../video-explanations/topics/html/what is css.mp4';
-import cssInline from '../../video-explanations/topics/html/inline css.mp4';
-import cssInternal from '../../video-explanations/topics/html/internal css.mp4';
-import cssExternal from '../../video-explanations/topics/html/external css.mp4';
-import cssTypography from '../../video-explanations/topics/html/Typography.mp4';
-import htmlSemanticVideo from '../../video-explanations/topics/html/sem.mp4';
-import cssLayoutVideo from '../../video-explanations/topics/javascript-basics/box done.mp4';
-import jsIntroVideo from '../../video-explanations/topics/javascript-basics/javas.mp4';
-import jsVariablesVideo from '../../video-explanations/topics/javascript-basics/var.mp4';
-import jsFunctionsVideo from '../../video-explanations/topics/javascript-basics/fundd.mp4';
-import jsDomVideo from '../../video-explanations/topics/javascript-basics/DOMM.mp4';
-import jsEventsVideo from '../../video-explanations/topics/javascript-basics/finalevents.mp4';
-import resVideo from '../../video-explanations/topics/css-grid/res.mp4';
-import pythonIntroVideo from '../../video-explanations/topics/py/pyinto.mp4';
-import pythonDataTypesVideo from '../../video-explanations/topics/py/datatypes.mp4';
-import pythonControlFlowVideo from '../../video-explanations/topics/py/python-control-flow.mp4';
+const htmlpart1 = '';
+const htmlpart2 = '';
+const htmlHeadings = '';
+const htmlParagraphs = '';
+const listsVideo = '';
+const linksVideo = '';
+const imagesVideo = '';
+const tablesVideo = '';
+const formsVideo = '';
+const cssWhatIs = '';
+const cssInline = '';
+const cssInternal = '';
+const cssExternal = '';
+const cssTypography = '';
+const htmlSemanticVideo = '';
+const cssLayoutVideo = '';
+const jsIntroVideo = '';
+const jsVariablesVideo = '';
+const jsFunctionsVideo = '';
+const jsDomVideo = '';
+const jsEventsVideo = '';
+const resVideo = '';
+const pythonIntroVideo = '';
+const pythonDataTypesVideo = '';
+const pythonControlFlowVideo = '';
+
 
 // Helper to generate preview HTML for code editor output (supports JS-only and HTML)
 const generatePreviewHtml = (code: string): string => {

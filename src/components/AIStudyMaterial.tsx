@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import teacherSticker from '../../video-explanations/teacher.png';
+// Removed video-explanations assets; using placeholder
+const teacherSticker = '';
 import { useNavigate } from 'react-router-dom';
 import { 
   BookOpenIcon, 
